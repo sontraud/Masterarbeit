@@ -1,0 +1,285 @@
+\pagebreak
+\chapter{MP-PIC: Multiphase Particle-in-Cell Method}
+Our main goal is to simulate a fluidized bed reactor. In the \OF tutorials folder, a fluidized bed is pre-implemented with two different solvers. 
+The first solver is called \DP and tracks each particle and models their collisions. 
+Modeling each particle and collision requires a high computational effort.
+Therefor in this chapter we will look at the \MP solver which mitigates the complexity by grouping particles into parcels with similar characteristics. 
+On top of that particle interactions are only modeled through particle normal stress on the Eulerian grid.
+The first one gives a more accurate solution while the latter has a lower computational effort. This is useful when the trend of the experiment is more important than the accuracy.
+In this chapter, we will first look at an overview of approaches used for modeling gas-solid multiphase flows. Then we will look at one in detail, the \MP method, the governing equation and how they are solved numerically. 
+
+\section{Overview of Gas-Solid Multiphase Flow Solvers}
+Our goal of this section is to look at a brief overview of different CFD approaches. 
+These approaches can be roughly divided into two categories: The Euler-Euler methods and the Euler-Lagrange methods. 
+The Eulerian-Eulerian methods model both the gas and the solid phase as a continuum. In the Euler-Lagrange model the gas is modeled as a continuous phase and the solid as a discrete phase.
+The model was developed to exploit the advantages of both the Euler-Euler method as well as the Euler-Lagrange method.
+
+\Todo{EE und EL \\ erklären? \\ Welche alles?}
+
+\begin{itemize}
+    \item OpenFoams DPMFoam is not the logical Lagrangian Disecrete Phase Model (which has no collision) but brobably DDPM-KTGF (Dense Discrete Phase Model incorporated with Kinetic Theory of Granular Flow)
+\end{itemize}
+
+
+%TODO: von wo aus anfangen? Euler/Euler bzw. Euler/Lagrange Modelle erklären?
+
+\section{Governing equations}
+In the \MP method, the fluid phase is modeled as through a continuum model and the particle phase using a Lagrangian model. The particle properties are then mapped to an Eulerian grid. Particle collision is mapped through a stress tensor, which is mapped back to the particle positions. In this section we will look at the governing equation for both phases and then at the interpolation operators and the numerical solution.
+
+\subsection{Fluid Phase}
+The fluid phase, in our case gas, is the continuous phase. We assume that we have an incompressible flow. We can model it according to the continuous phase used in the Euler-Lagrange method.
+The gas phase is governed by the conservation equations for mass and momentum.
+With the assumption that we have no interphase mass transfer, therefor also no reaction. For the Eulerian phase the Naviar-Stokes equation gives us
+\begin{equation}
+    \dfrac{\partial \phif}{\partial \t} + \nabla \cdot (\phif \uf) = 0,
+\end{equation}
+with \uf as the fluid velocity and \phif as the fluid volume fraction must hold.
+\Todo{Stimmen die Vorzeichen?}
+%\Todo{Wie viel soll hier zu Herleitung EL?}
+%To achieve multiphase coupling, we will later insert a source term. \Todo{Probably}. 
+The momentum term is  modeled by
+\begin{equation}
+    \label{eq:momEul}
+    \dfrac{\partial \phif \rf \uf}{\partial \t} + \nabla \cdot (\fvf \rf \uf \uf) = - \nabla \p -\nabla \cdot \fst - \boldsymbol{F} + \phif \rf \g,
+\end{equation}
+with \rf as the fluid density, \p fluid pressure, $\fst$ the fluid stress tensor and \g gravitational acceleration. \F is the interphase momentum transfer which will be discussed in the following subsection. 
+The easiest stress tensor would be to assume it is zero
+\begin{equation}
+    \tau = 0,
+\end{equation}
+which is assumed in the original paper. In later \MP description it is given by the Newtonian viscosity law
+\begin{equation}
+    \label{eq:fst}
+    \fst = - \fv \left( \nabla \uf + ( \nabla \uf)^T \right) + \dfrac{2}{3} \fv ( \nabla \cdot \uf).
+\end{equation}
+
+\subsection{Solid Phase}
+
+The solid phase is treated as both a continuous phase as well as a discrete phase in the \MP method.
+Consider the domain $\Omega \subset\R^3$, partial volume $\Omega_p \subset \R^3$ velocity space $\Pi \subset \R^3$ and time interval $I = [0,\T], \ \T \in \R$. For the solid phase we define a particle distribution function $\pd: \Omega \times \Pi \times \Op \times I \times \R \times \R \to \R^+, \ \pd(\xp, \up, \Op, t, \rp, \m) $
+with $\up$ the particle position, $\up$ the particle velocity, $\Op$ the particle volume, $\m$ the particle mass and $\rp$ the particle mass density.
+From here on we assume that the particle Volume and particle density are constant.
+which quantifies the likelihood of a particle having velocity $\up$ at $\xp$ with particle mass $\m$ at time $\t$.
+The probable average number of particles per unit volume $\Np$ with a velocity in the interval $(\Vp, \Vp + \Delta \Vp)$ and mass in the interval $(\M, \M + \Delta \M)$.
+%\Todo{Ahhhh why is it called distribution and not density}
+\begin{equation}
+    \Np = \int_{\M}^{\M+\Delta \M} \int_{\Vp}^{\Vp + \Delta \Vp} \pd(\xp, \up, \Op, \t, \rp, \m) d \up d \m.
+\end{equation} 
+For a small volume this can be approximated by
+\begin{equation}
+    \Np \approx \pd(\xp, \Vp, \Op, \t, \rp, \M) \cdot \Delta \boldsymbol{V_p} \cdot \Delta M.
+\end{equation}
+The solids volume fraction is given by
+\begin{equation}
+    \label{eq:svf}
+    \Tp = \int \int \pd(\xp, \up, \Op, \t, \rp, \m) \dfrac{\m}{\rp} d \m d \up.
+\end{equation}
+% The particle size is given by
+% \begin{equation}
+%     N(\boldsymbol{x}_p, \boldsymbol{v}_p, \Omega_p, t, \rho_p, m_p) = \int f(\boldsymbol{x}_p, \boldsymbol{v}_p, \Omega_p, t, \rho_p, m_p) dv_p.
+% \end{equation}
+
+We assume that the total number of particles near $\xp$ with velocity $\up$ in any volume is conserved. Therefor we have
+\begin{equation}
+    \dfrac{d}{dt} \int \int N d \up d \xp = 0.
+\end{equation}
+By applying the Leipniz integral rule we transform the equation above into the Liouville equation.
+\begin{align}
+    \dfrac{\partial \pd}{\partial \t} + \dfrac{\partial}{\partial \xp} \left( \pd \dfrac{d \xp}{d \t} \right)+ \dfrac{\partial}{\partial \up} \left( \pd \dfrac{d \up}{d \t} \right) = 0 \\
+    \label{eq:Liouville}
+    \Leftrightarrow \dfrac{\partial \pd}{\partial \t} + \dfrac{\partial (\pd \up)}{\partial \xp} + \dfrac{\partial (\pd \Ap)}{\partial \up} = 0. % \left( \dfrac{\partial f}{\partial t} \right)_{coll}.
+\end{align}
+Here $\Ap$ is the particle acceleration. The term is by Newton's equations of motion. The forces acting on the particle are aerodynamic drag, pressure gradient, interparticle stress and gravity.
+The equations are given by
+\begin{align}
+    \dfrac{d \xp}{d \t} &= \up \\
+    \label{eq:accel}
+    \Ap = \dfrac{d \up}{d \t} &=\d(\nuf - \up) - \dfrac{1}{\rp} \dfrac{\partial \p}{\partial \xp} - \dfrac{1}{\pvf \rp} \dfrac{\partial \scs}{\partial x_i} + \g.
+\end{align}
+Here \nuf is the mean flow fluid velocity, $\d(\Op,\up, \xp,\t)$ is the drag function and $\p$ is the mean flow fluid thermodynamic pressure, $\scs(\xp, \t)$ is the solids contact stress and $\g$.
+In the \MP method particle collisions are approximated. This is done by adding a collision term to the right hand side of the Liouville equation \eqref{eq:Liouville} 
+\begin{equation}
+    \label{eq:LiouCollide}
+    \dfrac{\partial \pd}{\partial \t} + \dfrac{\partial (\pd \up)}{\partial \xp} + \dfrac{\partial (\pd \Ap)}{\partial \up} = \left( \dfrac{\partial \pd}{\partial 
+    \t} \right)_{coll}.
+\end{equation}
+In the introduction of the \MP method it could only be used for one dimensional case and the collision term was zero.
+To arrive at the interphase momentum transfer function we look at the moments from the Liouville equation \eqref{eq:Liouville}.
+We multiply the equation by \m and integrate over the mass and velocity. This yields
+\begin{align}
+    \int \int \m \left( \dfrac{\partial \pd}{\partial \t} + \nabla_{\xp} \cdot (\pd \up) + \nabla_{\up} \cdot (\pd \Ap)\right) d \up d \m = 0 \\
+    \Leftrightarrow
+    \dfrac{\partial }{\partial \t} \int \int \pd \m d \m d \up + \nabla_x \cdot \left( \int \int m \pd \up d\up d \m \right) = 0\\
+    \stackrel{\Tp = \int\int \pd \dfrac{\m}{\rp} d \m d \up}{\Longleftrightarrow} \dfrac{\partial (\Tp \rp )}{\partial t} + \nabla_{\xp} \cdot (\Tp \rp \up) = 0    
+\end{align}
+with the third term being zero by using integration by parts and $\pd \to 0$ for $\lvert \up \rvert \to \infty$. 
+In this case our particle distribution function depends only on particle position, velocity, mass and time. For a particle distribution function that instead of the mass would depend on the density and volume we would need to integrate over these factors.
+The term is called the particle conservation equation.
+We obtain the second momentum term by multiplying the Liouville equation \eqref{eq:Liouville} by $\m \up$ and again integrating over $\m$ and \up. Similarly to before we have
+\begin{align}
+    \MultiIntegral{2} \! \m \up \left( \dfrac{\partial \pd}{\partial \t} + \nabla_{\xp} \! \cdot (\pd \up) + \nabla_{\up} \cdot \left(\pd
+    \left(\d(\uf - \up) - \dfrac{1}{\rp} \dfrac{\partial \p}{\partial \xp} - \dfrac{1}{\pvf \rp} \dfrac{\partial \scs}{\partial x_i} + \g \right)
+    \right)\right) d \up d \m = 0 \\
+    \Leftrightarrow 
+    \dfrac{\partial ( \Tp \rp \up}{\partial t} + \nabla_{\xp} \cdot (\Tp \rp \up \up ) + \nabla \scs + \Tp \nabla_{\xp} \p = \\ \Tp \rp \g + \MultiIntegral{2} \pd \m \d (\uf - \up) d \m d\up - \nabla_{\xp} \cdot \left[ \MultiIntegral{2} \pd \m (\up - \overline{\up}) (\up - \overline{\up}) d \m d \up \right]
+\end{align}
+with the mean particle velocity
+\begin{equation}
+    \overline{\up} = \MultiIntegral{2} \pd \m \up d\m d \up.
+\end{equation}
+The last term in the equation mimicws the kinimetatic stress from the particle velocity fluctuations, similar to Reynold stress. The fourth and sixth term contribute to the interphase momentum transfer function, which models the particle force per unit volume on the fluid phase
+\Todo{Second momentum term}
+\begin{equation}
+    \label{eq:InterMomTrans}
+    \F = \int \int \pd \m [\d_p (\uf - \up) - \dfrac{1}{\rp} \nabla \p] d\m d\up,
+\end{equation}
+with $V_p$ the parcel single particle Volume and $V_c$ the fluid cell volume. 
+In this equation we can see, that the \MP method can be used for particles of different mass.
+We can split the integral up into two terms. The first represents the momentum exchange due to aerodynamic drag.
+For more detailed models we can use particle density and volume instead of mass.
+Often in the gas momentum equation the pressure gradient is multiplied by the gas volume fraction. Taking the second term in the equation above \eqref{eq:InterMomTrans} we receive this term by the following calculation.
+We know that for the volume fraction
+\begin{equation}
+    \phif + \pvf = 1 \qquad \nabla p - \phif \nabla p = \pvf \nabla p
+\end{equation}
+holds.
+From equation \eqref{eq:svf} we have
+\begin{equation}
+    \phif \nabla p =  \int \int \pd \m \dfrac{1}{\rp} d\m d\up
+\end{equation}
+which is included in equation \eqref{eq:InterMomTrans} in the interface momentum transfer function. 
+By setting both terms against one another only 
+\begin{equation}
+    \pvf \nabla p
+\end{equation}
+remains in the equation \eqref{eq:InterMomTrans}.
+
+In alter versions, the \MP method was extended to two-dimensional problems and a scheme for three-dimensional models was introduced. 
+On top of that a collision term was added on the right hand side of the Liouville equation. 
+The collision operator in general reads
+
+
+In later papers a collision term was added which used collision damping to improve the model. 
+The \MP method was also extended to two-dimensional problems and a scheme for three-dimensional models was introduced. 
+A second term  was introduced later which represents the scattering from particle collisions and is called return-to-isotropy. The terms will be explained in the following.
+\begin{equation}
+    \left( \frac{\partial \pd}{\partial \t} \right)_{coll} = \underbrace{\dfrac{\pdd - \pd}{\sd}}_{\text{daming term}} + \underbrace{\dfrac{\pdi - \pd}{\si}}_{\text{return-to-isotropy}}.
+\end{equation}
+
+\subsubsection{Damping term}
+The damping term above is the BGK-collision term with \sd as the collision damping time and \pdd as
+\begin{equation}
+    \pdd = \left[ \int \pd d \up \right] \delta (\up - \nup).
+\end{equation}
+with 
+\begin{equation}
+    \nup = \dfrac{\MultiIntegral{2}  \pd \m \up d \m d  \up}{\MultiIntegral{2} \pd \m d \m d \up}
+\end{equation}
+\Todo{\up zum integrieren richtig?}
+\Todo{BGK Term genau erklären?}
+It was introduced by Bhatnagar, Gross and Krook and is used frequently in lattice Boltzmann methods.
+
+
+Therefor the particle velocities are distributed symmetrically around the mass-averaged particle velocity \nup. This is due to collisions tending to relax the distribution function to the equilibrium \pdd.
+The damping time is discussed in the numerical discretization.
+
+
+\subsubsection{Return-to-Isotropy}
+
+
+\subsubsection{Some space}
+
+\section{Numerical implementation and discretization}
+\subsection{Parcel Grouping}
+We also group together particles into parcels. We introduce the statistical weight of the parcel \wp which gives the number of particles per parcel.
+\FloatBarrier
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}
+
+% Define colors
+\definecolor{purple}{RGB}{153, 51, 255}
+\definecolor{cyan}{RGB}{0, 204, 255}
+\definecolor{orange}{RGB}{255, 153, 51}
+\definecolor{darkpurple}{RGB}{102, 0, 153}
+
+% Function to draw a frame
+\newcommand{\frameaxes}[3]{
+  \draw[thick] (#1,#2) circle (0.4);
+  \draw[->, thick] (#1,#2) -- ++(0,0.3);
+  \draw[->, thick] (#1,#2) -- ++(0.3,0);
+}
+
+% Draw left clusters
+% Orange group
+\draw[orange, dotted, thick] plot [smooth cycle, tension=0.8] coordinates {(-4.6,-1.8) (-2.2,-3.0) (-1.8,-1.9) (-2.45, -1.6) (-2.85,-0.5)};
+\frameaxes{-3.9}{-1.8}{}
+\frameaxes{-3.1}{-1.1}{}
+\frameaxes{-2.4}{-2.5}{}
+
+% Cyan group
+\draw[cyan, dotted, thick] plot [smooth cycle, tension=0.8] coordinates {(-1.9,1.2) (-0.2,-0.1) (-2.1,-1.6) (-2.35,-0.3)};
+\frameaxes{-1.8}{0.5}{}
+\frameaxes{-1.0}{-0.2}{}
+\frameaxes{-1.9}{-1.0}{}
+
+% Purple group
+\draw[purple, dotted, thick] plot [smooth cycle, tension=0.8] coordinates {(-4.3,1) (-3.2,2.7) (-1.8, 1.8) (-2.2,1.2) (-2.8,-0.4)};
+\frameaxes{-3.7}{1.3}{}
+\frameaxes{-2.7}{2}{}
+\frameaxes{-3.1}{0.2}{}
+
+% Central dashed line
+\draw[black, thick, dashed] (0,-3) -- (0,2.5);
+
+% Right-side isolated frames and arrows
+% Purple arrow + frame
+\draw[purple, ->, dotted, thick] (-1.8,1.8) .. controls (0.5,2.2) .. (1.2,1.5);
+\draw[thick, color=purple] (1.5,1.2) circle (0.4);
+\draw[->, thick] (1.5,1.2) -- ++(0,0.3);
+\draw[->, thick] (1.5,1.2) -- ++(0.3,0);
+
+% Cyan arrow + frame
+\draw[cyan, ->, dotted, thick] (-0.5,0.1) .. controls (1,0) .. (3,0.5);
+\draw[thick, color=cyan] (3.5,0.5) circle (0.4);
+\draw[->, thick] (3.5,0.5) -- ++(0,0.3);
+\draw[->, thick] (3.5,0.5) -- ++(0.3,0);
+
+% Orange arrow + frame
+\draw[orange, ->, dotted, thick] (-1.8,-2.3) .. controls (0,-3) .. (1.5,-2.1);
+\draw[thick, color=orange] (1.8,-1.8) circle (0.4);
+\draw[->, thick] (1.8,-1.8) -- ++(0,0.3);
+\draw[->, thick] (1.8,-1.8) -- ++(0.3,0);
+
+\end{tikzpicture}
+\caption{Grouping particles on the left to parcels on the right with $\wp = 3$.}
+\end{figure}
+\FloatBarrier
+\Todo{How does this impact the governing equations}
+
+
+\subsection{Interpolation Operators}
+The interpolation operators are used to calculate the cell volume fraction. The interpolation operator thereb
+
+
+
+
+To model collisions between particles in the Eulerarian phase the collisions need to be estimated. This is done by the interparticle stress where only the diagonal elements of the stress tensor are used.
+
+The equation can be regularized to prevent the singulatity at close packing by introducing the parameter $\alpha$ in the order of $10^{-7}$:
+\begin{equation}
+    \tau_s = \dfrac{P_s \theta_s^\beta}{\max [\theta_{cp} - \theta_s, \alpha (1 - \theta_s)]}
+\end{equation}
+
+%numerical method implicit concerning pressure, velocity and volume fraction
+%model to 
+
+
+\subsection{Discretization of collision damping term}
+First, we discretize the particle density function \pd 
+\begin{equation}
+    \pd_d^n (\x_i, \u_i, \m, \t^n) = \sum_{p} \Np \delta (\x_i - \x_{i,p}^n) \delta(\u_i - u_{i,p}^n) \delta (\m - \m_p).
+\end{equation}
+Here we have a Dirac delta-function which is zero everywhere except at zero. 
+The superscript $n$ is for the time step.
+

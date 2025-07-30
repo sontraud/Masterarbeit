@@ -1,0 +1,261 @@
+%% LaTeX2e class for student theses
+%% thesis.tex
+%% 
+%% Karlsruhe Institute of Technology
+%% Institute for Program Structures and Data Organization
+%% Chair for Software Design and Quality (SDQ)
+%%
+%% Dr.-Ing. Erik Burger
+%% burger@kit.edu
+%%
+%% See https://sdq.kastel.kit.edu/wiki/Dokumentvorlagen
+%%
+%% Version 1.6, 2024-06-07
+
+%% Available page modes: oneside, twoside
+%% Available languages: english, ngerman
+%% Available modes: draft, final (see README)
+\documentclass[twoside, english]{sdqthesis}
+
+
+\newcommand{\MP}{\texttt{MP-PIC }}
+\newcommand{\DP}{\texttt{DPMFoam }}
+\newcommand{\OF}{\texttt{OpenFOAM }}
+\newcommand{\R}{\mathbb{R}}
+%% ---------------------------------
+%% | Information about the thesis  |
+%% ---------------------------------
+
+%% Name of the author
+\author{My Name}
+
+%% Title (and possibly subtitle) of the thesis
+\title{Title of the Thesis}
+
+%% Type of the thesis 
+\thesistype{Master's Thesis/Bachelor's Thesis}
+
+%% Change the institute here, ``KASTEL'' is default
+% \myinstitute{Institute for \dots}
+
+%% You can put a logo in the ``logos'' directory and include it here
+%% instead of the SDQ logo
+% \grouplogo{myfile}
+%% Alternatively, you can disable the group logo
+% \nogrouplogo
+
+%% The reviewers are the professors that grade your thesis
+\reviewerone{Prof. A}
+\reviewertwo{Prof. B}
+
+%% The advisors are PhDs or Postdocs
+\advisorone{M.Sc. C}
+%% The second advisor can be omitted
+\advisortwo{M.Sc. D}
+
+%% Please enter the start end end time of your thesis
+\editingtime{xx. Month 20XX}{xx. Month 20XX}
+
+%% Please enter the place of residence of the author. This is used on the declarationpage
+\location{My city}
+
+\settitle
+
+%% --------------------------------
+%% | Bibliography                 |
+%% --------------------------------
+
+%% Use biber instead of BibTeX, see README
+\usepackage[citestyle=numeric,style=numeric,backend=biber]{biblatex}
+\addbibresource{thesis.bib}
+
+%\usepackage{blindtext}
+\usepackage{amsmath}
+\usepackage{mathcommand}
+\usepackage{placeins}
+\usepackage{wrapfig}
+\usepackage{tikz}
+\usetikzlibrary{tikzlings,arrows.meta, decorations.pathreplacing, calc}
+\usepackage{tikzlings-addons}
+\usepackage{tikzlings-elephants}
+
+\newcommand{\Todo}[1]{\begin{wrapfigure}{r}{3cm}   \begin{tikzpicture}
+\marmot[signpost={\tiny \parbox{1cm}{#1}},
+signcolour= brown!50!black,
+signback=green!40!black]
+\end{tikzpicture}\end{wrapfigure}}
+
+\newmathcommand\uf{\boldsymbol{u_f}} %fluid velocity
+\newtextcommand\uf{$\boldsymbol{u_f}$ }
+\newmathcommand\up{\boldsymbol{u_p}} %particle velocity
+\newtextcommand\up{$\boldsymbol{u_p}$ }
+\renewmathcommand\t{t} %time
+\renewtextcommand\t{$t$ }
+\newmathcommand\m{m} %mass
+\newtextcommand\m{$m$ }
+\newmathcommand\phif{\varphi_f} %fluid volume fraction
+\newtextcommand\phif{$\varphi_f$ }
+\newmathcommand\p{p} %pressure
+\newtextcommand\p{$p$ }
+\newmathcommand\fst{\tau_f} %fluid stress tensor
+\newtextcommand\fst{$\tau_f$ }
+\newmathcommand\g{g} %gravitational acceleration
+\newtextcommand\g{$g$ }
+\newmathcommand\rf{\rho_f} %fluid density
+\newtextcommand\rf{$\rho_f$ }
+\newmathcommand\rp{\rho_p} %particle density
+\newtextcommand\rp{$\rho_p$ }
+\newmathcommand\F{\boldsymbol{F}} %interphase Momentum transfer
+\newtextcommand\F{$\boldsymbol{F}$ }
+\newmathcommand\Fcv{V_c} %fluid cell volume
+\newtextcommand\Fcv{$V_c$ }
+\newmathcommand\Op{\Omega_p} %particle Volume
+\newtextcommand\Op{$\Omega_p$ }
+\newmathcommand\xp{\boldsymbol{x_p}} %particle position
+\newtextcommand\xp{$\boldsymbol{x_p}$ }
+\newmathcommand\Tp{\theta_p} %solid volume fraction
+\newtextcommand\Tp{$\theta_p$ }
+\newmathcommand\fvf{\theta_f} %fluid volume fraction
+\newtextcommand\fvf{$\theta_f$ }
+\newmathcommand\pd{\phi} %particle distribution function
+\newtextcommand\pd{$\phi$ }
+\newmathcommand\fv{\mu_f} %fluid viscosity
+\newtextcommand\fv{$\mu_f$ }
+\renewmathcommand\wp{W_p} %weight particle
+\renewtextcommand\wp{$W_p$ }
+\newmathcommand\T{T} %End Time
+\newtextcommand\T{$T$ }
+\newmathcommand\Np{N_p} %probable average number of particles per unit volume
+\newtextcommand\Np{$\N_p$ } 
+\newmathcommand\Vp{V_p}
+\newtextcommand\Vp{$\boldsymbol{V_p}$ } %Value particle velocity
+\newmathcommand\M{M} %value Mass
+\newtextcommand\M{$M$ }
+\newmathcommand\Ap{A_p} %Acceleration particle
+\newtextcommand\Ap{$A_p$ }
+\renewmathcommand\d{D} %Drag function
+\renewtextcommand\d{D }
+\newmathcommand\nuf{\overline{u}_f} %mean fluid flow velocity
+\newtextcommand\nuf{$\overline{u}_f$ }
+\newmathcommand\pvf{\varphi_p} %particle volume fraction
+\newtextcommand\pvf{$\varphi_p$ }
+\newmathcommand\scs{\tau_p} %solid contact stress
+\newtextcommand\scs{$\tau_p$ }
+\newmathcommand\pdd{\phi_D} %collision damping
+\newtextcommand\pdd{$\phi_D$ }
+\newmathcommand\pdi{\phi_G} %collision return-to-isotropy
+\newtextcommand\pdi{$\phi_G$ }
+\newmathcommand\sd{\tau_D} %collision damping stress
+\newtextcommand\sd{$\tau_D$ } 
+\newmathcommand\si{\tau_G} %collision return-to-isotropy stress
+\newtextcommand\si{$\tau_G$ }
+\newmathcommand\nup{\overline{\boldsymbol{u}_p}}
+\newtextcommand\nup{$\overline{\boldsymbol{u}_p}$ }
+\newmathcommand\x{x} %position
+\newtextcommand\x{$x$}
+\renewmathcommand\u{u} %velocity
+\renewtextcommand\u{$u$}
+
+% \newcommand{\Todo}[1]{\begin{tikzpicture}
+% \ape[handposition=seenoevil,signpost={\tiny \parbox{1cm}{#1}},
+% signcolour= brown!50!black,
+% signback=green!40!black]
+% \end{tikzpicture}}
+\usepackage{tikz}
+\usepackage{tikzlings}
+\usepackage{tikzpagenodes}
+\usepackage{background}
+\usepackage[margin=1in]{geometry}
+\usepackage{lipsum} % For dummy text
+\pagestyle{empty}
+% Set up background layer
+\backgroundsetup{
+  scale=1,
+  color=black,
+  opacity=1,
+  angle=0,
+  position={current page.south},
+  vshift = 1cm,
+  contents={
+    \begin{tikzpicture}
+      \node at (0,0) {
+        \begin{tikzpicture}[scale=0.5]
+          \owl[signpost = {\thepage}]
+        \end{tikzpicture}
+      };
+    \end{tikzpicture}
+  }
+}
+
+
+
+%% ====================================
+%% ====================================
+%% ||                                ||
+%% || Beginning of the main document ||
+%% ||                                ||
+%% ====================================
+%% ====================================
+\begin{document}
+
+%% Set PDF metadata
+\setpdf
+
+%% Set the title
+\maketitle
+
+%% The Preamble begins here
+\frontmatter
+
+\input{sections/declaration.tex}
+
+\setcounter{page}{1}
+\pagenumbering{roman}
+
+%% ----------------
+%% |   Abstract   |
+%% ----------------
+ 
+%% For theses written in English, an abstract both in English
+%% and German is mandatory.
+%%
+%% For theses written in German, a German abstract is sufficient.
+%%
+%% The text is included from the following files:
+%% - sections/abstract
+
+%\includeabstract
+
+%% ------------------------
+%% |   Table of Contents  |
+%% ------------------------
+\tableofcontents
+
+\listoffigures
+%\listoftables
+
+%% -----------------
+%% |   Main part   |
+%% -----------------
+
+\mainmatter
+\input{}
+%\input{sections/introduction.tex}
+\input{sections/MP-PIC/theory}
+\input{sections/OpenFOAM/OpenFOAM.tex}
+
+%\input{sections/sources/sources.tex}
+%% --------------------
+%% |   Bibliography   |
+%% --------------------
+
+%% Add entry to the table of contents for the bibliography
+\printbibliography[heading=bibintoc]
+
+%% ----------------
+%% |   Appendix   |
+%% ----------------
+%\appendix
+%\input{sections/appendix.tex}
+
+\end{document}
