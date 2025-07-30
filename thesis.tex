@@ -85,76 +85,41 @@ signcolour= brown!50!black,
 signback=green!40!black]
 \end{tikzpicture}\end{wrapfigure}}
 
-\newmathcommand\uf{\boldsymbol{u_f}} %fluid velocity
-\newtextcommand\uf{$\boldsymbol{u_f}$ }
-\newmathcommand\up{\boldsymbol{u_p}} %particle velocity
-\newtextcommand\up{$\boldsymbol{u_p}$ }
-\renewmathcommand\t{t} %time
-\renewtextcommand\t{$t$ }
-\newmathcommand\m{m} %mass
-\newtextcommand\m{$m$ }
-\newmathcommand\phif{\varphi_f} %fluid volume fraction
-\newtextcommand\phif{$\varphi_f$ }
-\newmathcommand\p{p} %pressure
-\newtextcommand\p{$p$ }
-\newmathcommand\fst{\tau_f} %fluid stress tensor
-\newtextcommand\fst{$\tau_f$ }
-\newmathcommand\g{g} %gravitational acceleration
-\newtextcommand\g{$g$ }
-\newmathcommand\rf{\rho_f} %fluid density
-\newtextcommand\rf{$\rho_f$ }
-\newmathcommand\rp{\rho_p} %particle density
-\newtextcommand\rp{$\rho_p$ }
-\newmathcommand\F{\boldsymbol{F}} %interphase Momentum transfer
-\newtextcommand\F{$\boldsymbol{F}$ }
-\newmathcommand\Fcv{V_c} %fluid cell volume
-\newtextcommand\Fcv{$V_c$ }
-\newmathcommand\Op{\Omega_p} %particle Volume
-\newtextcommand\Op{$\Omega_p$ }
-\newmathcommand\xp{\boldsymbol{x_p}} %particle position
-\newtextcommand\xp{$\boldsymbol{x_p}$ }
-\newmathcommand\Tp{\theta_p} %solid volume fraction
-\newtextcommand\Tp{$\theta_p$ }
-\newmathcommand\fvf{\theta_f} %fluid volume fraction
-\newtextcommand\fvf{$\theta_f$ }
-\newmathcommand\pd{\phi} %particle distribution function
-\newtextcommand\pd{$\phi$ }
-\newmathcommand\fv{\mu_f} %fluid viscosity
-\newtextcommand\fv{$\mu_f$ }
-\renewmathcommand\wp{W_p} %weight particle
-\renewtextcommand\wp{$W_p$ }
-\newmathcommand\T{T} %End Time
-\newtextcommand\T{$T$ }
-\newmathcommand\Np{N_p} %probable average number of particles per unit volume
-\newtextcommand\Np{$\N_p$ } 
-\newmathcommand\Vp{V_p}
-\newtextcommand\Vp{$\boldsymbol{V_p}$ } %Value particle velocity
-\newmathcommand\M{M} %value Mass
-\newtextcommand\M{$M$ }
-\newmathcommand\Ap{A_p} %Acceleration particle
-\newtextcommand\Ap{$A_p$ }
-\renewmathcommand\d{D} %Drag function
-\renewtextcommand\d{D }
-\newmathcommand\nuf{\overline{u}_f} %mean fluid flow velocity
-\newtextcommand\nuf{$\overline{u}_f$ }
-\newmathcommand\pvf{\varphi_p} %particle volume fraction
-\newtextcommand\pvf{$\varphi_p$ }
-\newmathcommand\scs{\tau_p} %solid contact stress
-\newtextcommand\scs{$\tau_p$ }
-\newmathcommand\pdd{\phi_D} %collision damping
-\newtextcommand\pdd{$\phi_D$ }
-\newmathcommand\pdi{\phi_G} %collision return-to-isotropy
-\newtextcommand\pdi{$\phi_G$ }
-\newmathcommand\sd{\tau_D} %collision damping stress
-\newtextcommand\sd{$\tau_D$ } 
-\newmathcommand\si{\tau_G} %collision return-to-isotropy stress
-\newtextcommand\si{$\tau_G$ }
-\newmathcommand\nup{\overline{\boldsymbol{u}_p}}
-\newtextcommand\nup{$\overline{\boldsymbol{u}_p}$ }
-\newmathcommand\x{x} %position
-\newtextcommand\x{$x$}
-\renewmathcommand\u{u} %velocity
-\renewtextcommand\u{$u$}
+\newcommand{\uf}{\ensuremath{\boldsymbol{u_f}}} %fluid velocity
+\newcommand{\up}{\ensuremath{\boldsymbol{u_p}}} %particle velocity
+\newcommand{\tvar}{\ensuremath{t}} %time
+\newcommand{\m}{\ensuremath{m}} %mass
+\newcommand{\phif}{\ensuremath{\varphi_f}} %fluid volume fraction
+\newcommand{\p}{\ensuremath{p}} %pressure
+\newcommand{\fst}{\ensuremath{\tau_f}} %fluid stress tensor
+\newcommand{\g}{\ensuremath{g}} %gravitational acceleration
+\newcommand{\rf}{\ensuremath{\rho_f}} %fluid density
+\newcommand{\rp}{\ensuremath{\rho_p}} %particle density
+\newcommand{\F}{\ensuremath{\boldsymbol{F}}} %interphase Momentum transfer
+\newcommand{\Fcv}{\ensuremath{V_c}} %fluid cell volume
+\newcommand{\Op}{\ensuremath{\Omega_p}} %particle Volume
+\newcommand{\xp}{\ensuremath{\boldsymbol{x_p}}} %particle position
+\newcommand{\Tp}{\ensuremath{\theta_p}} %solid volume fraction
+\newcommand{\fvf}{\ensuremath{\theta_f}} %fluid volume fraction
+\newcommand{\pd}{\ensuremath{\phi}} %particle distribution function
+\newcommand{\fv}{\ensuremath{\mu_f}} %fluid viscosity
+\renewcommand{\wp}{\ensuremath{W_p}} %weight particle
+\newcommand{\T}{\ensuremath{T}} %End Time
+\newcommand{\Np}{\ensuremath{N_p}} %probable average number of particles per unit volume
+\newcommand{\Vp}{\ensuremath{\boldsymbol{V_p}}} %Value particle velocity
+\newcommand{\M}{\ensuremath{M}} %value Mass
+\newcommand{\Ap}{\ensuremath{A_p}} %Acceleration particle
+\renewcommand{\d}{\ensuremath{D}} %Drag function
+\newcommand{\nuf}{\ensuremath{\overline{u}_f}} %%mean fluid flow velocity
+\newcommand{\pvf}{\ensuremath{\varphi_p}} %particle volume fraction
+\newcommand{\scs}{\ensuremath{\tau_p}} %solid contact stress
+\newcommand{\pdd}{\ensuremath{\phi_D}} %%collision damping
+\newcommand{\pdi}{\ensuremath{\phi_G}} %collision return-to-isotropy
+\newcommand{\sd}{\ensuremath{\tau_D}} %collision damping stress
+\newcommand{\si}{\ensuremath{\tau_G}} %collision return-to-isotropy stress
+\newcommand{\nup}{\ensuremath{\overline{\boldsymbol{u}_p}}} %mean particle velocity
+\newcommand{\x}{\ensuremath{x}} %position
+\renewcommand{\u}{\ensuremath{u}} %%velocity
 
 % \newcommand{\Todo}[1]{\begin{tikzpicture}
 % \ape[handposition=seenoevil,signpost={\tiny \parbox{1cm}{#1}},

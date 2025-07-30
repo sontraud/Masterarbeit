@@ -14,7 +14,7 @@ These approaches can be roughly divided into two categories: The Euler-Euler met
 The Eulerian-Eulerian methods model both the gas and the solid phase as a continuum. In the Euler-Lagrange model the gas is modeled as a continuous phase and the solid as a discrete phase.
 The model was developed to exploit the advantages of both the Euler-Euler method as well as the Euler-Lagrange method.
 
-\Todo{EE und EL \\ erklären? \\ Welche alles?}
+\Todo{EE und EL erklären? Welche alles?} 
 
 \begin{itemize}
     \item OpenFoams DPMFoam is not the logical Lagrangian Disecrete Phase Model (which has no collision) but brobably DDPM-KTGF (Dense Discrete Phase Model incorporated with Kinetic Theory of Granular Flow)
@@ -31,7 +31,7 @@ The fluid phase, in our case gas, is the continuous phase. We assume that we hav
 The gas phase is governed by the conservation equations for mass and momentum.
 With the assumption that we have no interphase mass transfer, therefor also no reaction. For the Eulerian phase the Naviar-Stokes equation gives us
 \begin{equation}
-    \dfrac{\partial \phif}{\partial \t} + \nabla \cdot (\phif \uf) = 0,
+    \dfrac{\partial \phif}{\partial \tvar} + \nabla \cdot (\phif \uf) = 0,
 \end{equation}
 with \uf as the fluid velocity and \phif as the fluid volume fraction must hold.
 \Todo{Stimmen die Vorzeichen?}
@@ -40,7 +40,7 @@ with \uf as the fluid velocity and \phif as the fluid volume fraction must hold.
 The momentum term is  modeled by
 \begin{equation}
     \label{eq:momEul}
-    \dfrac{\partial \phif \rf \uf}{\partial \t} + \nabla \cdot (\fvf \rf \uf \uf) = - \nabla \p -\nabla \cdot \fst - \boldsymbol{F} + \phif \rf \g,
+    \dfrac{\partial \phif \rf \uf}{\partial \tvar} + \nabla \cdot (\fvf \rf \uf \uf) = - \nabla \p -\nabla \cdot \fst - \boldsymbol{F} + \phif \rf \g,
 \end{equation}
 with \rf as the fluid density, \p fluid pressure, $\fst$ the fluid stress tensor and \g gravitational acceleration. \F is the interphase momentum transfer which will be discussed in the following subsection. 
 The easiest stress tensor would be to assume it is zero
@@ -59,20 +59,20 @@ The solid phase is treated as both a continuous phase as well as a discrete phas
 Consider the domain $\Omega \subset\R^3$, partial volume $\Omega_p \subset \R^3$ velocity space $\Pi \subset \R^3$ and time interval $I = [0,\T], \ \T \in \R$. For the solid phase we define a particle distribution function $\pd: \Omega \times \Pi \times \Op \times I \times \R \times \R \to \R^+, \ \pd(\xp, \up, \Op, t, \rp, \m) $
 with $\up$ the particle position, $\up$ the particle velocity, $\Op$ the particle volume, $\m$ the particle mass and $\rp$ the particle mass density.
 From here on we assume that the particle Volume and particle density are constant.
-which quantifies the likelihood of a particle having velocity $\up$ at $\xp$ with particle mass $\m$ at time $\t$.
+which quantifies the likelihood of a particle having velocity $\up$ at $\xp$ with particle mass $\m$ at time $\tvar$.
 The probable average number of particles per unit volume $\Np$ with a velocity in the interval $(\Vp, \Vp + \Delta \Vp)$ and mass in the interval $(\M, \M + \Delta \M)$.
 %\Todo{Ahhhh why is it called distribution and not density}
 \begin{equation}
-    \Np = \int_{\M}^{\M+\Delta \M} \int_{\Vp}^{\Vp + \Delta \Vp} \pd(\xp, \up, \Op, \t, \rp, \m) d \up d \m.
+    \Np = \int_{\M}^{\M+\Delta \M} \int_{\Vp}^{\Vp + \Delta \Vp} \pd(\xp, \up, \Op, \tvar, \rp, \m) d \up d \m.
 \end{equation} 
 For a small volume this can be approximated by
 \begin{equation}
-    \Np \approx \pd(\xp, \Vp, \Op, \t, \rp, \M) \cdot \Delta \boldsymbol{V_p} \cdot \Delta M.
+    \Np \approx \pd(\xp, \Vp, \Op, \tvar, \rp, \M) \cdot \Delta \boldsymbol{V_p} \cdot \Delta M.
 \end{equation}
 The solids volume fraction is given by
 \begin{equation}
     \label{eq:svf}
-    \Tp = \int \int \pd(\xp, \up, \Op, \t, \rp, \m) \dfrac{\m}{\rp} d \m d \up.
+    \Tp = \int \int \pd(\xp, \up, \Op, \tvar, \rp, \m) \dfrac{\m}{\rp} d \m d \up.
 \end{equation}
 % The particle size is given by
 % \begin{equation}
@@ -85,31 +85,31 @@ We assume that the total number of particles near $\xp$ with velocity $\up$ in a
 \end{equation}
 By applying the Leipniz integral rule we transform the equation above into the Liouville equation.
 \begin{align}
-    \dfrac{\partial \pd}{\partial \t} + \dfrac{\partial}{\partial \xp} \left( \pd \dfrac{d \xp}{d \t} \right)+ \dfrac{\partial}{\partial \up} \left( \pd \dfrac{d \up}{d \t} \right) = 0 \\
+    \dfrac{\partial \pd}{\partial \tvar} + \dfrac{\partial}{\partial \xp} \left( \pd \dfrac{d \xp}{d \tvar} \right)+ \dfrac{\partial}{\partial \up} \left( \pd \dfrac{d \up}{d \tvar} \right) = 0 \\
     \label{eq:Liouville}
-    \Leftrightarrow \dfrac{\partial \pd}{\partial \t} + \dfrac{\partial (\pd \up)}{\partial \xp} + \dfrac{\partial (\pd \Ap)}{\partial \up} = 0. % \left( \dfrac{\partial f}{\partial t} \right)_{coll}.
+    \Leftrightarrow \dfrac{\partial \pd}{\partial \tvar} + \dfrac{\partial (\pd \up)}{\partial \xp} + \dfrac{\partial (\pd \Ap)}{\partial \up} = 0. % \left( \dfrac{\partial f}{\partial t} \right)_{coll}.
 \end{align}
 Here $\Ap$ is the particle acceleration. The term is by Newton's equations of motion. The forces acting on the particle are aerodynamic drag, pressure gradient, interparticle stress and gravity.
 The equations are given by
 \begin{align}
-    \dfrac{d \xp}{d \t} &= \up \\
+    \dfrac{d \xp}{d \tvar} &= \up \\
     \label{eq:accel}
-    \Ap = \dfrac{d \up}{d \t} &=\d(\nuf - \up) - \dfrac{1}{\rp} \dfrac{\partial \p}{\partial \xp} - \dfrac{1}{\pvf \rp} \dfrac{\partial \scs}{\partial x_i} + \g.
+    \Ap = \dfrac{d \up}{d \tvar} &=\d(\nuf - \up) - \dfrac{1}{\rp} \dfrac{\partial \p}{\partial \xp} - \dfrac{1}{\pvf \rp} \dfrac{\partial \scs}{\partial x_i} + \g.
 \end{align}
-Here \nuf is the mean flow fluid velocity, $\d(\Op,\up, \xp,\t)$ is the drag function and $\p$ is the mean flow fluid thermodynamic pressure, $\scs(\xp, \t)$ is the solids contact stress and $\g$.
+Here \nuf is the mean flow fluid velocity, $\d(\Op,\up, \xp,\tvar)$ is the drag function and $\p$ is the mean flow fluid thermodynamic pressure, $\scs(\xp, \tvar)$ is the solids contact stress and $\g$.
 In the \MP method particle collisions are approximated. This is done by adding a collision term to the right hand side of the Liouville equation \eqref{eq:Liouville} 
 \begin{equation}
     \label{eq:LiouCollide}
-    \dfrac{\partial \pd}{\partial \t} + \dfrac{\partial (\pd \up)}{\partial \xp} + \dfrac{\partial (\pd \Ap)}{\partial \up} = \left( \dfrac{\partial \pd}{\partial 
-    \t} \right)_{coll}.
+    \dfrac{\partial \pd}{\partial \tvar} + \dfrac{\partial (\pd \up)}{\partial \xp} + \dfrac{\partial (\pd \Ap)}{\partial \up} = \left( \dfrac{\partial \pd}{\partial 
+    \tvar} \right)_{coll}.
 \end{equation}
 In the introduction of the \MP method it could only be used for one dimensional case and the collision term was zero.
 To arrive at the interphase momentum transfer function we look at the moments from the Liouville equation \eqref{eq:Liouville}.
 We multiply the equation by \m and integrate over the mass and velocity. This yields
 \begin{align}
-    \int \int \m \left( \dfrac{\partial \pd}{\partial \t} + \nabla_{\xp} \cdot (\pd \up) + \nabla_{\up} \cdot (\pd \Ap)\right) d \up d \m = 0 \\
+    \int \int \m \left( \dfrac{\partial \pd}{\partial \tvar} + \nabla_{\xp} \cdot (\pd \up) + \nabla_{\up} \cdot (\pd \Ap)\right) d \up d \m = 0 \\
     \Leftrightarrow
-    \dfrac{\partial }{\partial \t} \int \int \pd \m d \m d \up + \nabla_x \cdot \left( \int \int m \pd \up d\up d \m \right) = 0\\
+    \dfrac{\partial }{\partial \tvar} \int \int \pd \m d \m d \up + \nabla_x \cdot \left( \int \int m \pd \up d\up d \m \right) = 0\\
     \stackrel{\Tp = \int\int \pd \dfrac{\m}{\rp} d \m d \up}{\Longleftrightarrow} \dfrac{\partial (\Tp \rp )}{\partial t} + \nabla_{\xp} \cdot (\Tp \rp \up) = 0    
 \end{align}
 with the third term being zero by using integration by parts and $\pd \to 0$ for $\lvert \up \rvert \to \infty$. 
@@ -117,7 +117,7 @@ In this case our particle distribution function depends only on particle positio
 The term is called the particle conservation equation.
 We obtain the second momentum term by multiplying the Liouville equation \eqref{eq:Liouville} by $\m \up$ and again integrating over $\m$ and \up. Similarly to before we have
 \begin{align}
-    \MultiIntegral{2} \! \m \up \left( \dfrac{\partial \pd}{\partial \t} + \nabla_{\xp} \! \cdot (\pd \up) + \nabla_{\up} \cdot \left(\pd
+    \MultiIntegral{2} \! \m \up \left( \dfrac{\partial \pd}{\partial \tvar} + \nabla_{\xp} \! \cdot (\pd \up) + \nabla_{\up} \cdot \left(\pd
     \left(\d(\uf - \up) - \dfrac{1}{\rp} \dfrac{\partial \p}{\partial \xp} - \dfrac{1}{\pvf \rp} \dfrac{\partial \scs}{\partial x_i} + \g \right)
     \right)\right) d \up d \m = 0 \\
     \Leftrightarrow 
@@ -163,7 +163,7 @@ In later papers a collision term was added which used collision damping to impro
 The \MP method was also extended to two-dimensional problems and a scheme for three-dimensional models was introduced. 
 A second term  was introduced later which represents the scattering from particle collisions and is called return-to-isotropy. The terms will be explained in the following.
 \begin{equation}
-    \left( \frac{\partial \pd}{\partial \t} \right)_{coll} = \underbrace{\dfrac{\pdd - \pd}{\sd}}_{\text{daming term}} + \underbrace{\dfrac{\pdi - \pd}{\si}}_{\text{return-to-isotropy}}.
+    \left( \frac{\partial \pd}{\partial \tvar} \right)_{coll} = \underbrace{\dfrac{\pdd - \pd}{\sd}}_{\text{daming term}} + \underbrace{\dfrac{\pdi - \pd}{\si}}_{\text{return-to-isotropy}}.
 \end{equation}
 
 \subsubsection{Damping term}
@@ -178,10 +178,18 @@ with
 \Todo{\up zum integrieren richtig?}
 \Todo{BGK Term genau erklären?}
 It was introduced by Bhatnagar, Gross and Krook and is used frequently in lattice Boltzmann methods.
-
-
 Therefor the particle velocities are distributed symmetrically around the mass-averaged particle velocity \nup. This is due to collisions tending to relax the distribution function to the equilibrium \pdd.
-The damping time is discussed in the numerical discretization.
+
+For a constant relaxation time $\sd$ the analytical solution to the damping term is given by
+\begin{equation}
+    \pd = e^{-\frac{\tvar}{\sd}} \pd^n + \left(1-e^{- \frac{t}{\sd}} \right) \pd_{D}.
+\end{equation}
+which we can quickly verify by partially deriving the equation above
+\begin{equation}
+    \dfrac{\partial \pd}{\partial \tvar} = - \dfrac{1}{\sd} e^{- \frac{t}{\sd}} \pd_n + \dfrac{1}{\sd} e^{- \frac{t}{\sd}} \pd_D = \dfrac{\pd_D - \pd}{\sd}.
+\end{equation}
+
+The damping time is discussed in the section numerical discretization.
 
 
 \subsubsection{Return-to-Isotropy}
@@ -278,8 +286,11 @@ The equation can be regularized to prevent the singulatity at close packing by i
 \subsection{Discretization of collision damping term}
 First, we discretize the particle density function \pd 
 \begin{equation}
-    \pd_d^n (\x_i, \u_i, \m, \t^n) = \sum_{p} \Np \delta (\x_i - \x_{i,p}^n) \delta(\u_i - u_{i,p}^n) \delta (\m - \m_p).
+    \pd_d^n (\x_i, \u_i, \m, \tvar^n) = \sum_{p} \Np \delta (\x_i - \x_{i,p}^n) \delta(\u_i - u_{i,p}^n) \delta (\m - \m_p).
 \end{equation}
-Here we have a Dirac delta-function which is zero everywhere except at zero. 
-The superscript $n$ is for the time step.
-
+Here we have a Dirac delta-function which is zero everywhere except at zero. This transforms the distribution into a point mass function.
+The superscript $n$ denotes the discrete time step $\tvar^n$.
+The next time step is then calculated by
+\begin{equation}
+    \tvar^{n+1} = \tvar^n + \Delta t.
+\end{equation}
