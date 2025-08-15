@@ -31,16 +31,16 @@ The fluid phase, in our case gas, is the continuous phase. We assume that we hav
 The gas phase is governed by the conservation equations for mass and momentum.
 With the assumption that we have no interphase mass transfer, therefor also no reaction. For the Eulerian phase the Naviar-Stokes equation gives us
 \begin{equation}
-    \dfrac{\partial \phif}{\partial \tvar} + \nabla \cdot (\phif \uf) = 0,
+    \dfrac{\partial \fvf}{\partial \tvar} + \nabla \cdot (\fvf \uf) = 0,
 \end{equation}
-with \uf as the fluid velocity and \phif as the fluid volume fraction must hold.
+with \uf as the fluid velocity and \fvf as the fluid volume fraction must hold.
 \Todo{Stimmen die Vorzeichen?}
 %\Todo{Wie viel soll hier zu Herleitung EL?}
 %To achieve multiphase coupling, we will later insert a source term. \Todo{Probably}. 
 The momentum term is  modeled by
 \begin{equation}
     \label{eq:momEul}
-    \dfrac{\partial \phif \rf \uf}{\partial \tvar} + \nabla \cdot (\fvf \rf \uf \uf) = - \nabla \p -\nabla \cdot \fst - \boldsymbol{F} + \phif \rf \g,
+    \dfrac{\partial \fvf \rf \uf}{\partial \tvar} + \nabla \cdot (\fvf \rf \uf \uf) = - \nabla \p -\nabla \cdot \fst - \boldsymbol{F} + \fvf \rf \g,
 \end{equation}
 with \rf as the fluid density, \p fluid pressure, $\fst$ the fluid stress tensor and \g gravitational acceleration. \F is the interphase momentum transfer which will be discussed in the following subsection. 
 The easiest stress tensor would be to assume it is zero
@@ -72,7 +72,7 @@ For a small volume this can be approximated by
 The solids volume fraction is given by
 \begin{equation}
     \label{eq:svf}
-    \Tp = \int \int \pd(\xp, \up, \Op, \tvar, \rp, \m) \dfrac{\m}{\rp} d \m d \up.
+    \pvf = \int \int \pd(\xp, \up, \Op, \tvar, \rp, \m) \dfrac{\m}{\rp} d \m d \up.
 \end{equation}
 % The particle size is given by
 % \begin{equation}
@@ -110,7 +110,7 @@ We multiply the equation by \m and integrate over the mass and velocity. This yi
     \int \int \m \left( \dfrac{\partial \pd}{\partial \tvar} + \nabla_{\xp} \cdot (\pd \up) + \nabla_{\up} \cdot (\pd \Ap)\right) d \up d \m = 0 \\
     \Leftrightarrow
     \dfrac{\partial }{\partial \tvar} \int \int \pd \m d \m d \up + \nabla_x \cdot \left( \int \int m \pd \up d\up d \m \right) = 0\\
-    \stackrel{\Tp = \int\int \pd \dfrac{\m}{\rp} d \m d \up}{\Longleftrightarrow} \dfrac{\partial (\Tp \rp )}{\partial t} + \nabla_{\xp} \cdot (\Tp \rp \up) = 0    
+    \stackrel{\pvf = \int\int \pd \dfrac{\m}{\rp} d \m d \up}{\Longleftrightarrow} \dfrac{\partial (\pvf \rp )}{\partial t} + \nabla_{\xp} \cdot (\pvf \rp \up) = 0    
 \end{align}
 with the third term being zero by using integration by parts and $\pd \to 0$ for $\lvert \up \rvert \to \infty$. 
 In this case our particle distribution function depends only on particle position, velocity, mass and time. For a particle distribution function that instead of the mass would depend on the density and volume we would need to integrate over these factors.
@@ -121,7 +121,7 @@ We obtain the second momentum term by multiplying the Liouville equation \eqref{
     \left(\d(\uf - \up) - \dfrac{1}{\rp} \dfrac{\partial \p}{\partial \xp} - \dfrac{1}{\pvf \rp} \dfrac{\partial \scs}{\partial x_i} + \g \right)
     \right)\right) d \up d \m = 0 \\
     \Leftrightarrow 
-    \dfrac{\partial ( \Tp \rp \up}{\partial t} + \nabla_{\xp} \cdot (\Tp \rp \up \up ) + \nabla \scs + \Tp \nabla_{\xp} \p = \\ \Tp \rp \g + \MultiIntegral{2} \pd \m \d (\uf - \up) d \m d\up - \nabla_{\xp} \cdot \left[ \MultiIntegral{2} \pd \m (\up - \overline{\up}) (\up - \overline{\up}) d \m d \up \right]
+    \dfrac{\partial ( \pvf \rp \up}{\partial t} + \nabla_{\xp} \cdot (\pvf \rp \up \up ) + \nabla \scs + \pvf \nabla_{\xp} \p = \\ \pvf \rp \g + \MultiIntegral{2} \pd \m \d (\uf - \up) d \m d\up - \nabla_{\xp} \cdot \left[ \MultiIntegral{2} \pd \m (\up - \overline{\up}) (\up - \overline{\up}) d \m d \up \right]
 \end{align}
 with the mean particle velocity
 \begin{equation}
@@ -140,12 +140,12 @@ For more detailed models we can use particle density and volume instead of mass.
 Often in the gas momentum equation the pressure gradient is multiplied by the gas volume fraction. Taking the second term in the equation above \eqref{eq:InterMomTrans} we receive this term by the following calculation.
 We know that for the volume fraction
 \begin{equation}
-    \phif + \pvf = 1 \qquad \nabla p - \phif \nabla p = \pvf \nabla p
+    \fvf + \pvf = 1 \qquad \nabla p - \fvf \nabla p = \pvf \nabla p
 \end{equation}
 holds.
 From equation \eqref{eq:svf} we have
 \begin{equation}
-    \phif \nabla p =  \int \int \pd \m \dfrac{1}{\rp} d\m d\up
+    \fvf \nabla p =  \int \int \pd \m \dfrac{1}{\rp} d\m d\up
 \end{equation}
 which is included in equation \eqref{eq:InterMomTrans} in the interface momentum transfer function. 
 By setting both terms against one another only 
@@ -167,21 +167,27 @@ A second term  was introduced later which represents the scattering from particl
 \end{equation}
 
 \subsubsection{Damping term}
-The damping term above is the BGK-collision term with \sd as the collision damping time and \pdd as
+The damping term above is the BGK-collision term with \sd \ as the collision damping time and \pdd \ as
 \begin{equation}
+    \label{eq:colDamp}
     \pdd = \left[ \int \pd d \up \right] \delta (\up - \nup).
 \end{equation}
-with 
+with the mass-averaged velocity
 \begin{equation}
     \nup = \dfrac{\MultiIntegral{2}  \pd \m \up d \m d  \up}{\MultiIntegral{2} \pd \m d \m d \up}
 \end{equation}
 \Todo{\up zum integrieren richtig?}
 \Todo{BGK Term genau erklären?}
 It was introduced by Bhatnagar, Gross and Krook and is used frequently in lattice Boltzmann methods.
-Therefor the particle velocities are distributed symmetrically around the mass-averaged particle velocity \nup. This is due to collisions tending to relax the distribution function to the equilibrium \pdd.
+Therefor the particle velocities are distributed symmetrically around the local mass-averaged particle velocity \nup. This is due to collisions tending to relax the distribution function to the equilibrium \pdd.
+
+In %TODO add ref
+it is shown that the equation \eqref{eq:colDamp} is equal to the one with more dependencies.
+
 
 For a constant relaxation time $\sd$ the analytical solution to the damping term is given by
 \begin{equation}
+    \label{eq:BGKanalytical}
     \pd = e^{-\frac{\tvar}{\sd}} \pd^n + \left(1-e^{- \frac{t}{\sd}} \right) \pd_{D}.
 \end{equation}
 which we can quickly verify by partially deriving the equation above
@@ -199,7 +205,7 @@ The damping time is discussed in the section numerical discretization.
 
 \section{Numerical implementation and discretization}
 \subsection{Parcel Grouping}
-We also group together particles into parcels. We introduce the statistical weight of the parcel \wp which gives the number of particles per parcel.
+We also group together particles into parcels. We introduce the statistical weight of the parcel \wp which gives the number of particles per parcel. 
 \FloatBarrier
 \begin{figure}[h!]
 \centering
@@ -267,11 +273,68 @@ We also group together particles into parcels. We introduce the statistical weig
 
 
 \subsection{Interpolation Operators}
-The interpolation operators are used to calculate the cell volume fraction. The interpolation operator thereb
+In the \MP-method the solid phase is partially treated as a continous phase to reduce computing time.
+Different properties of the solid phase, for example the volume fraction \pvf. 
+To map a the particle properties to to and from the eulerian grid a particle located at \xp we define an interpolation operator for the $x$-component \xpx
+\begin{equation}
+    \ip_\xi^\x (\xp) = \begin{cases}
+        0 & \x_{i-1} \geq \xpx, \ \xpx \geq \x_{i+1} \\
+        1 & \xpx = \x_{i}.
+    \end{cases}
+\end{equation}
+The interpolation operator for the $x$-coordinate is independent of the $y$ and $z$ coordinate.
+An example of a linear interpolation operator 
+\begin{equation}
+    \ip_{\xi}^\x = \dfrac{\x_{i+1}- \xpx}{\x_{i+1} - \x_i} \quad \x_{i} < \xpx < \x_{i+1}
+\end{equation}
+can be seen in the following figure.
+
+\begin{figure}[h!]
+\begin{tikzpicture}[thick]
+    \draw[->] (0,0) -- (4,0);
+    \draw[purple] (0,0) -- (1,0) -- (2,1) -- (3,0) -- (4,0);
+    \node[anchor = north] at (0.5,0) {$x_{i-1}$};
+    \node[anchor = north] at (1.5,0) {$x_{i}$};
+    \node[anchor = north] at (2.5,0) {$x_{i+1}$};
+\end{tikzpicture}
+\begin{tikzpicture}[thick]
+    \draw[->] (1,0) -- (4,0);
+    \draw[blue, dotted] (1,1) -- (2,0) -- (4,0);
+    \draw[purple] (1,0) -- (2,1) -- (3,0) -- (4,0);
+    \draw[green] (1,0) -- (2,0) -- (3,1) -- (4,0);
+    \draw[magenta, dotted] (1,0) -- (3,0) -- (4,1);
+\end{tikzpicture}
+\end{figure}
+
+\begin{figure}[h!]
+    \begin{tikzpicture}[scale = 0.4, font = \huge]
+        \begin{axis}[
+    axis lines=left,
+    xmin=-3, xmax=3,
+    ymin=0, ymax=1,
+    domain=-3:3,
+    samples=200,
+    width=14cm,
+    height=6cm,
+    axis line style={->},
+    xtick = {-2,-1,0,1,2},
+    xticklabels={$x_{i-2}$, $x_{i-1}$,$x_i$,$x_{i+1}$,$x_{i+2}$},
+    ytick={0.2,0.4,0.6,0.8,1.0}
+    ]
+    \addplot[red, ultra thick] (-3,0) -- (-1,0) -- (0,1) -- (1,0) -- (3,0);
+    \addplot[red, ultra thick, domain=-3:-1] {0};
+    \addplot[red, ultra thick, domain=-1:0] {1-abs(x)/(1)};
+    \addplot[red, ultra thick, domain=0:1] {1-abs(x)/(1)};
+    \addplot[red, ultra thick, domain=1:3] {0};
+    \end{axis}
+    \end{tikzpicture}
+    \caption{Interpolation for the cell centers}
+\end{figure}
+The \MP-method uses the interpolation operator both for cell faces and for cell center interpolation.
 
 
 
-
+\subsection{Particle Normal Stress}
 To model collisions between particles in the Eulerarian phase the collisions need to be estimated. This is done by the interparticle stress where only the diagonal elements of the stress tensor are used.
 
 The equation can be regularized to prevent the singulatity at close packing by introducing the parameter $\alpha$ in the order of $10^{-7}$:
@@ -286,11 +349,22 @@ The equation can be regularized to prevent the singulatity at close packing by i
 \subsection{Discretization of collision damping term}
 First, we discretize the particle density function \pd 
 \begin{equation}
-    \pd_d^n (\x_i, \u_i, \m, \tvar^n) = \sum_{p} \Np \delta (\x_i - \x_{i,p}^n) \delta(\u_i - u_{i,p}^n) \delta (\m - \m_p).
+    \pd_d^n (\x_i, \u_i, \m, \tvar^n) = \sum_{p} \Np \delta (\x_i - \x_{i,p}^n) \delta(\u_i - \u_{i,p}^n) \delta (\m - \m_p).
 \end{equation}
-Here we have a Dirac delta-function which is zero everywhere except at zero. This transforms the distribution into a point mass function.
+Here we have a Dirac delta-function which is zero everywhere except at zero. This transforms the distribution into a point mass function. This represents the number of particles at a certain position with a certain velocity and mass. 
 The superscript $n$ denotes the discrete time step $\tvar^n$.
 The next time step is then calculated by
 \begin{equation}
     \tvar^{n+1} = \tvar^n + \Delta t.
 \end{equation}
+First we discretize $\pd_D$ by applying \eqref{eq:colDamp} to $\pd_d^n$
+\begin{align}
+    \pd_D^n = \left[ \int \pd_d^n d \u_i\right] \delta (\u_i - \overline{\u_i}) &= \sum_p \wp \delta (\x_{i} - \x_{i,p}^n) \delta (\m - \m_i) \int \delta (\u_i - \u_{i,p}^n) d \u_i \delta (\u_i - \overline{\u_i}) \\ &= \sum_p \wp \delta (\x_i - \x_{i,p}^n) \delta (\m - \m_i) \delta (\u_i - \overline{\u_i})
+\end{align}
+Substituting the discrete $\pd^n$ and $\pd^n_D$ into the analytical solution \eqref{eq:BGKanalytical} we receive the following approximation at time step $t^{n+1}$\begin{equation}
+    \Tilde{\pd} = \sum_{p} \wp \delta (\x_i - \x_{p,i}^n) \delta (\m - \m_p ) \left[ e^{- \frac{\Delta t}{\sd}} \delta \u_i - \u_{p,i}^n ) + (1- e^{- \Delta t}{\sd}) \delta (\u_i - \overline{u}_i) \right].
+\end{equation}
+
+A straight forward implementation of the equation above is not possible as it splits parcels into two. This results in an exponential growth over time. 
+
+This

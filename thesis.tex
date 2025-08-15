@@ -15,7 +15,7 @@
 %% Available page modes: oneside, twoside
 %% Available languages: english, ngerman
 %% Available modes: draft, final (see README)
-\documentclass[twoside, english]{sdqthesis}
+\documentclass[final, twoside, english]{sdqthesis}
 
 
 \newcommand{\MP}{\texttt{MP-PIC }}
@@ -80,16 +80,15 @@
 \usepackage{tikzlings-elephants}
 
 \newcommand{\Todo}[1]{\begin{wrapfigure}{r}{3cm}   \begin{tikzpicture}
-\marmot[signpost={\tiny \parbox{1cm}{#1}},
-signcolour= brown!50!black,
-signback=green!40!black]
-\end{tikzpicture}\end{wrapfigure}}
-
+    \marmot[signpost={\tiny \parbox{1cm}{#1}},
+    signcolour= brown!50!black,
+    signback=green!40!black]
+    \end{tikzpicture}\end{wrapfigure}}
+    
 \newcommand{\uf}{\ensuremath{\boldsymbol{u_f}}} %fluid velocity
 \newcommand{\up}{\ensuremath{\boldsymbol{u_p}}} %particle velocity
 \newcommand{\tvar}{\ensuremath{t}} %time
 \newcommand{\m}{\ensuremath{m}} %mass
-\newcommand{\phif}{\ensuremath{\varphi_f}} %fluid volume fraction
 \newcommand{\p}{\ensuremath{p}} %pressure
 \newcommand{\fst}{\ensuremath{\tau_f}} %fluid stress tensor
 \newcommand{\g}{\ensuremath{g}} %gravitational acceleration
@@ -99,7 +98,6 @@ signback=green!40!black]
 \newcommand{\Fcv}{\ensuremath{V_c}} %fluid cell volume
 \newcommand{\Op}{\ensuremath{\Omega_p}} %particle Volume
 \newcommand{\xp}{\ensuremath{\boldsymbol{x_p}}} %particle position
-\newcommand{\Tp}{\ensuremath{\theta_p}} %solid volume fraction
 \newcommand{\fvf}{\ensuremath{\theta_f}} %fluid volume fraction
 \newcommand{\pd}{\ensuremath{\phi}} %particle distribution function
 \newcommand{\fv}{\ensuremath{\mu_f}} %fluid viscosity
@@ -120,6 +118,8 @@ signback=green!40!black]
 \newcommand{\nup}{\ensuremath{\overline{\boldsymbol{u}_p}}} %mean particle velocity
 \newcommand{\x}{\ensuremath{x}} %position
 \renewcommand{\u}{\ensuremath{u}} %%velocity
+\newcommand{\ip}{\ensuremath{S}} %interpolation Operator
+\newcommand{\xpx}{\ensuremath{\x_p}}
 
 % \newcommand{\Todo}[1]{\begin{tikzpicture}
 % \ape[handposition=seenoevil,signpost={\tiny \parbox{1cm}{#1}},
@@ -127,28 +127,45 @@ signback=green!40!black]
 % signback=green!40!black]
 % \end{tikzpicture}}
 \usepackage{tikz}
+\usepackage{pgfplots}
 \usepackage{tikzlings}
 \usepackage{tikzpagenodes}
+\usepackage{ducksay}
 \usepackage{background}
 \usepackage[margin=1in]{geometry}
 \usepackage{lipsum} % For dummy text
-\pagestyle{empty}
+%\pagestyle{empty}
 % Set up background layer
+% \backgroundsetup{
+%   scale=1,
+%   color=black,
+%   opacity=1,
+%   angle=0,
+%   position={current page.south},
+%   vshift = 1cm,
+%   contents={
+%     \begin{tikzpicture}
+%       \node at (0,0) {
+%         \begin{tikzpicture}[scale=0.5]
+%           \owl[signpost = {\thepage}]
+%         \end{tikzpicture}
+%       };
+%     \end{tikzpicture}
+%   }
+% }
+
+
+
 \backgroundsetup{
   scale=1,
   color=black,
   opacity=1,
   angle=0,
-  position={current page.south},
-  vshift = 1cm,
+  %position={current page.south},
+  %vshift = 2.5cm,
   contents={
-    \begin{tikzpicture}
-      \node at (0,0) {
-        \begin{tikzpicture}[scale=0.5]
-          \owl[signpost = {\thepage}]
-        \end{tikzpicture}
-      };
-    \end{tikzpicture}
+        %\duckthink{\thepage}
+        %\thepage
   }
 }
 
