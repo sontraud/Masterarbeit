@@ -289,6 +289,8 @@ An example of a linear interpolation operator
     \ip_{\xi}^\x = \dfrac{\x_{i+1}- \xpx}{\x_{i+1} - \x_i} \quad \x_{i} < \xpx < \x_{i+1}
 \end{equation}
 can be seen in the following figure.
+In one dimension the the interpolation is only supported by two cell centers while in three dimension we need four. 
+
 
 \begin{figure}[h!]
 \begin{tikzpicture}[thick, scale = 1.4]
@@ -356,19 +358,95 @@ For cell faces the interpolation operators are shifted by half a cell.
 \end{equation*}
 The interpolation operator satisfies
 \begin{equation*}
-    \sum_{\xi} \ip_\xi^\x (\x_p) =1.
+    \sum_{\xi} \ip_\xi^\x (\x_p) =1,
 \end{equation*}
+when summing over all Eulerian cells this holds for $\ip$.
 For the linear case this can be observed in the sketch above.
 
 For interpolations in the three dimensional case we use the product of three interpolation operators, one for each direction 
 \begin{equation*}
     \ip = \ip^x \ip^y \ip^z,
 \end{equation*}
-with the operators $\ip^y$ and $\ip^z$ analogue to $\ip^z$. For the $\x$-face we then receive
+with the operators $\ip^y$ and $\ip^z$ analogue to $\ip^z$. For the $\x$-face, with a particle $\kappa$ located at $\xp$ we then receive
 \begin{equation*}
-    \ip_{}
+    \ip_{i+\frac{1}{2}, j,k, \kappa} = \ip^\x_{i+\frac{1}{2}, \kappa} \ip_{j, \kappa}^y \ip_{k,\kappa}^z
+\end{equation*}
+The discrete particle volume fraction is defined by
+\begin{equation*}
+    \vf_{p_{i,j,k}} = \dfrac{1}{\gcv_{i,j,k}} \sum_{\kappa = 1}^{\Np} \wp \gcv_{p_{i,j,k}} \ip_{i,j,k,\kappa}
+\end{equation*}
+The product of interpolation operators for a grid property $\gp$ where the property is mapped to a particle location and the to the grid is defined as
+\begin{equation*}
+    \ip_\zeta (\xp) \sum_{\xi}^8 \ip_\xi (\xp) \gp_\xi = \sum_{\xi}^{8} \ip_\zeta.
+\end{equation*}
+The product of two interpolation operators for cells is defined as
+\begin{equation}
+\label{eq:ipOrtho}
+    \ip_\zeta(\boldsymbol{\x}_{p_{\kappa}})\ip_{\xi} (\boldsymbol{x}_{p_\iota}) = \begin{cases}
+        \ip_{\xi}(\boldsymbol{x}_{p_\kappa}) & \text{if } \xi = \zeta \text{ and } \iota = \kappa \\
+        0 & \text{else}
+    \end{cases}
+\end{equation}
+For the \MP-method we also need an interpolation from grid properties back to the particles
+\begin{equation*}
+    \gp_p = \ip_\xi ( \xp) \gp_\xi
+\end{equation*}
+as well as the gradient
+\begin{equation*}
+    \nabla \gp_p = \sum_{\xi =1}^{N} \nabla \ip_\xi (\xp) \gp_\xi + \sum_{\xi =1}^{N} \ip_\xi ( \xp) (\nabla \gp)_{\xi}.
+\end{equation*}
+We can calculate the gradient of the linear interpolation operator with the help of
+\begin{equation*}
+    \ifg_{i+1/2} = \begin{cases}
+        1 & \text{if }   \x_i \leq \x_p < \x_{i+1} \\
+        0 & \text{if }   \x_p < \x_{i} \text{ or } \x \geq \x_{i+1}.
+    \end{cases}
 \end{equation*}
 
+\begin{equation*}
+    \dfrac{\partial \ip_i}{\partial \x} = \dfrac{1}{\Delta \x} ( \ifg_{i-1/2} - \ifg_{i+1/2})
+\end{equation*}
+\begin{figure}[h!]
+    \centering
+    \begin{tikzpicture}[thick, scale = 1.4]
+    \draw[->] (0,0) -- (4,0);
+    \draw (1, -0.1) -- (1 , 0.1);
+    \draw (2, -0.1) -- (2 , 0.1);
+    \draw (3, -0.1) -- (3 , 0.1);
+    \draw[purple] (0,0) -- (1,0) -- (2,1) -- (3,0) -- (4,0);
+    \draw[blue] (0,1) -- (2,1);
+    \draw[blue](2,-1) -- (4,-1);
+    \node[anchor = north] at (1,-0.15) {$x_{i-1}$};
+    \node[anchor = north] at (2,-0.15) {$x_{i}$};
+    \node[anchor = north] at (3,-0.15) {$x_{i+1}$};
+    %\draw[dotted] (1.5, 0.25) -- (2.5,0.25) -- (2.5, -0.25) -- (1.5, -0.25) -- cycle;
+    %\node[anchor = south] at (2, 0.25) {cell $\# i$};
+\end{tikzpicture}
+\caption{Interpolation operator $\ip_i$ in purple and the its gradient in blue. $\Delta x$ is one.}
+\end{figure}
+
+For the momentum continuity equation we also need the gradient of the interpolation operator.
+For the gird property $\gp$ mapped to the particle location $\xp$, 
+\begin{equation*}
+    \nabla \gp_p = \sum_{\xi =1}^{N} \nabla \ip_{\xi}(\xp) \gp_{\xi} + \sum_{\xi = 1}^N \ip_{\xi} ( \xp) (\nabla \gp)_\xi = \sum_{\xi =1}^N \ip_{\xi} ( \xp) (\nabla \gp)_\xi
+\end{equation*}
+here the particle position is fixed leading to the second equality.
+On top of that we can also map the gradient of a grid property $\gp$ to and from the particle
+\begin{equation*}
+    \nabla \ip_\zeta (\xp) \cdot \sum_{\xi =1}^8 \ip_\xi ( \xp ) \nabla \gp_\xi = \sum_{i=1}^8 \nabla \ip_\zeta ( \xp ) \cdot [\ip_\xi (\xp) \nabla \gp_\xi].
+\end{equation*}
+To simplify the equation we first look a the product of an interpolation operator with the gradient of an interpolation operator
+\begin{equation*}
+    \sum_\xi \ip_\xi \nabla \ip_\zeta = \sum_\xi \ip_{x_\zeta} \ip_{y_\zeta} \ip_{z_\zeta} \begin{pmatrix}
+        \frac{\partial \ip_{x_\xi}}{\partial x} \ip_{y_\xi} \ip_{z_\xi} \\
+        \frac{\partial \ip_{y_\xi}}{\partial y} \ip_{x_\xi} \ip_{z_\xi} \\
+        \frac{\partial \ip_{z_\xi}}{\partial z} \ip_{x_\xi} \ip_{y_\xi}
+    \end{pmatrix}.
+\end{equation*}
+We can apply the orthogonality property from equation \eqref{eq:ipOrtho} extended to three dimensions and then receive
+\begin{equation*}
+    \nabla \ip_\zeta ( \xp ) \cdot \sum_{\xi=1}^8 \ip_\xi ( \xp ) \nabla \gp_\xi = \ip_\zeta \left[ \dfrac{\partial \ip_{x_\zeta}}{\partial x} \boldsymbol{e}_x + \dfrac{\partial \ip_{y_\zeta}}{\partial y} \boldsymbol{e}_y + \dfrac{\partial \ip_{z_\zeta}}{\partial z} \boldsymbol{e}_z\right].
+\end{equation*}
 
 
 \subsection{Numerical Solution without damping terms}
