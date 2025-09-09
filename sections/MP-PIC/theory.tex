@@ -246,7 +246,7 @@ The parcels each contain \wp \ particles with identical particle mass \m, veloci
 \frameaxes{-1.9}{-1.0}{}
 
 % Purple group
-\draw[purple, dotted, thick] plot [smooth cycle, tension=0.8] coordinates {(-4.3,1) (-3.2,2.7) (-1.8, 1.8) (-2.2,1.2) (-2.8,-0.4)};
+\draw[darkpurple, dotted, thick] plot [smooth cycle, tension=0.8] coordinates {(-4.3,1) (-3.2,2.7) (-1.9, 1.9) (-2.3,1.1) (-2.8,-0.4)};
 \frameaxes{-3.7}{1.3}{}
 \frameaxes{-2.7}{2}{}
 \frameaxes{-3.1}{0.2}{}
@@ -357,14 +357,14 @@ In one dimension the the interpolation is only supported by two cell centers whi
 The \MP-method uses the interpolation operator both for cell faces and for cell center interpolation.
 For cell faces the interpolation operators are shifted by half a cell.
 \begin{equation*}
-    \ip_{i+1/2}^\x (\x_p) = \begin{cases}
+    \ifg_{i+1/2}^\x (\x_p) = \begin{cases}
         0 & \x_{i-1/2} \geq \x_p \geq \x_{i+1/2} \\
         1 & \x_p = \x_{i+1/2}
     \end{cases}
 \end{equation*}
-The interpolation operator satisfies
+Both interpolation operators satisfy
 \begin{equation*}
-    \sum_{\xi} \ip_\xi^\x (\x_p) =1,
+    \sum_{\xi} \ip_\xi^\x (\x_p) =1
 \end{equation*}
 when summing over all Eulerian cells this holds for $\ip$.
 For the linear case this can be observed in the sketch above.
@@ -401,7 +401,7 @@ as well as the gradient
 \begin{equation*}
     \nabla \gp_p = \sum_{\xi =1}^{N} \nabla \ip_\xi (\xp) \gp_\xi + \sum_{\xi =1}^{N} \ip_\xi ( \xp) (\nabla \gp)_{\xi}.
 \end{equation*}
-We can calculate the gradient of the linear interpolation operator with the help of
+We can calculate the spatial derivative of the linear interpolation operator with the help of the cell-face interpolation function
 \begin{equation*}
     \ifg_{i+1/2} = \begin{cases}
         1 & \text{if }   \x_i \leq \x_p < \x_{i+1} \\
@@ -428,10 +428,10 @@ We can calculate the gradient of the linear interpolation operator with the help
     %\draw[dotted] (1.5, 0.25) -- (2.5,0.25) -- (2.5, -0.25) -- (1.5, -0.25) -- cycle;
     %\node[anchor = south] at (2, 0.25) {cell $\# i$};
 \end{tikzpicture}
-\caption{Interpolation operator $\ip_i$ in purple and the its gradient in blue. $\Delta x$ is one.}
+\caption{Interpolation operator $\ip_i$ in purple and its gradient in blue. $\Delta x$ is one.}
 \end{figure}
 
-For the momentum continuity equation we also need the gradient of the interpolation operator.
+For the momentum continuitequation,on we also need the gradient of the interpolation operator.
 For the gird property $\gp$ mapped to the particle location $\xp$, 
 \begin{equation*}
     \nabla \gp_p = \sum_{\xi =1}^{N} \nabla \ip_{\xi}(\xp) \gp_{\xi} + \sum_{\xi = 1}^N \ip_{\xi} ( \xp) (\nabla \gp)_\xi = \sum_{\xi =1}^N \ip_{\xi} ( \xp) (\nabla \gp)_\xi
@@ -481,17 +481,20 @@ We applying the finite differences scheme to the fluid continuity equation
 \end{equation}
 and the momentum equation
 \begin{equation}
+    \label{eq:discMom}
     \dfrac{(\pvf \rf \uf)_{i+\frac{1}{2}}^{n+1}- \pvf \rf \uf)_{i+\frac{1}{2}}^{n}}{\Delta \tvar} + \dfrac{(\pvf \rf \up^2)^n_{i+1}-\pvf \rf \up^2)^n_{i}}{\Delta \xp} + \dfrac{\tilde{\p}_{i+1}-\tilde{p}_i}{\Delta \xp} = - \F_{i+\frac{1}{2}}-\dfrac{((\pvf \rf)_i^n + (\pvf \rf)_{i+1}^n)\g}{2}.
 \end{equation}
+\Todo{Define $(\pvf\rf\uf^2)$}
 Variables marked with a tilde $\tilde{\cdot}$ are implicit approximations to the advanced-time step. They as well as the interphase momentum transfer will be calculated in the following.
 
-For the pressure we use the assumption from above \eqref{eq:gasDensReal} that fluid pressure and the density are related and receive
+For the pressure we use the assumption from above \eqref{eq:gasDensReal} that fluid pressure and the density are related we have
 \begin{equation}
     \p = c_1 \rf^\gamma = c_1 \left( \dfrac{R}{\fvf}\right) = c_1 \left( \dfrac{R}{1 - \pvf}\right)^\gamma \quad \text{with} \quad R \coloneq \fvf \rf.
 \end{equation}
 Because the pressure is nonlinear we use an implicit approximation to the gas pressure. 
 A first order Taylor expansion around $((\fvf \rf)^{n},\pvf^n)$  evaluated at time-step $n+1$ yields
 \begin{equation}
+\label{eq:pTaylor}
     \p^{n+1} = \p^n + \dfrac{\partial \p}{\partial (\fvf \rf)}|^n \left[ (\fvf \rf )^{n+1} - (\fvf \rf)^n \right] +\dfrac{\partial \p}{\partial (\pvf)}|^n \left[ (\pvf  )^{n+1} - (\pvf)^n \right].
 \end{equation}
 Both derivatives can be explicitly calculated by
@@ -500,17 +503,70 @@ Both derivatives can be explicitly calculated by
 \end{equation*}
 and
 \begin{equation*}
-    \dfrac{\partial \p}{\partial \pvf} = c_1 \gamma \dfrac{1}{(1- \pvf} \left( \dfrac{R}{1 - \pvf}\right)^\gamma = \dfrac{\gamma}{1-\pvf} \p.
+    \dfrac{\partial \p}{\partial \pvf} = c_1 \gamma \dfrac{1}{1- \pvf} \left( \dfrac{R}{1 - \pvf}\right)^\gamma = \dfrac{\gamma}{1-\pvf} \p.
 \end{equation*}
+Inserting both back into the Taylor expansion \eqref{eq:pTaylor}
+\begin{equation}
+    \p_i^{n+1} = \p^n \left( 1 + \gamma \left[\dfrac{(\fvf \rf)^{n+1} - (\fvf \rf)^{n}}{(\fvf \rf)^n} + \dfrac{\widetilde{\pvf} - \pvf^n}{1 - \pvf^n} \right] \right)
+\end{equation}
+with $\p_i^{n}$ approximated by
+\begin{equation*}
+    c_1 \coloneq \dfrac{\p_{ref}}{\rgref^\gamma} \quad  \Rightarrow \quad \p_i^n = \p_{ref} \left[ \dfrac{(\fvf \rf )_i^n}{(1- \pvfi^n)\rgref} \right]^\gamma.
+\end{equation*}
+with $\p_{ref}$ and $\rgref$ at some reference state. For $\pvfi^n$ we use the approximation
+\begin{equation*}
+    \pvfi^n = \dfrac{1}{\Delta x} \sum_p \ip_i(\x_p^n) \dfrac{\m_p}{\rp} \Np.
+\end{equation*}
+$\pvf^{n+1}$ is approximated by $\widetilde{\pvf}$ and will be discussed later.
+
+For mapping properties defined at the faces back to the parcels, we define the provisional parcel position
+\begin{equation}
+    \xpp = \xp^n + \up^n \Delta \tvar.
+\end{equation}
+and use the cell-face interpolation function e.g.
+\begin{equation}
+    \label{eq:cellFaceInterpolation}
+    \left( \dfrac{\tilde{\p_{i+1}} - \tilde{\p_{i}}}{\Delta x} \right)_p = \sum_i \ifg_{i+ \frac{1}{2}} (\xpp ) \frac{\tilde{p}_{i+1} - \tilde{p}_i}{\Delta x}.
+\end{equation}
+For the approximation of the advanced-time solids stress we again use a an linearly implicit approximation, the Taylor expansion applied to \eqref{eq:solidStress} around $\pvfi^n$ evaluated at $\tilde{\pvfi}$
+\begin{align}
+    \ss_i^{n+1} &= \ss_i^n + \dfrac{\partial \ss}{\partial \pvf}|_n  (\pvfi^{n+1} - \pvfi^n)  \qquad \dfrac{\partial \ss}{\partial \pvf}|_n = P_s \dfrac{\pvfcp}{\pvf^2} \left( \dfrac{\pvfcp}{\pvf} -1 \right)^{-2}\\
+    \Rightarrow \tilde{\ss}_i &= \ss_i^n + P_s\dfrac{\pvfcp}{(\pvfcp - \pvf)^2} (\tilde{\pvf}- \pvfi^n).
+\end{align}
+To approximate the volume fraction for each parcel we first need to get it at the cell faces before we can interpolate it to the parcels. 
+For cell faces we use properties from the Eulerian grid
+\begin{equation}
+    \label{eq:interpolationPVFCellFace}
+    \vf_{i+ \frac{1}{2}} = \dfrac{1}{\Delta x} \sum_p \ifg_{i+\frac{1}{2}} (\xpp ) \Np \dfrac{\m_p}{\rp}
+\end{equation}
+and then weight the volume fraction by the interpolation function to get the volume fraction at the provisional parcel position
+\begin{equation}
+    \label{eq:interpolatePPP}
+    \pvf = \sum_i \ifg_{i+\frac{1}{2}} (\xpp) \vf_{i+\frac{1}{2}}.
+\end{equation}
+
+To verify the discretizations above, we look at whether the parcel momentum is conserved. 
+We multiply the discretized momentum equation \eqref{eq:discMom} by $\Np \mp$  and sum over all parcels
+\begin{align*}
+    \sum_p \Np \mp \dfrac{\up^{n+1}-\up^n}{\Delta \tvar} =& - \sum_p \Np \mp \g - \sum_p \dfrac{\Np \mp}{\rp} \left( \dfrac{\tilde{\p}_{i+1}- \tilde{\p}_i}{\Delta \x}\right)_p + \sum_p D_p \Np \mp (\tilde{\ugp} - \up^{n+1}) \\
+    &- \sum_p \dfrac{\Np \mp}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1}-\tilde{\ss}_i}{\Delta \x}\right)_p.
+\end{align*}
+Using the previous definitions the last term becomes
+\begin{align*}
+    \sum_p \dfrac{\Np \mp}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1}-\tilde{\ss}_i}{\Delta \x}\right)_p \stackrel{\eqref{eq:cellFaceInterpolation}}{=} \sum_p \dfrac{\Np \mp}{\rp \pvf} \sum_i \ifg_{i+\frac{1}{2}}(\xpp) \dfrac{\tilde{\ss}_{i+1}-\tilde{\ss_i}}{\Delta \x} = \sum_i \sum_p \left( \dfrac{\Np \mp}{\rp} \ifg_{i+\frac{1}{2}} ( \xpp)\right)\dfrac{\tilde{\ss}_{i+\frac{1}{2}}- \tilde{\ss}_i}{\vf_{i+\frac{1}{2}} \Delta \x}.
+\end{align*}
+For the last step we used
+\begin{equation*}
+    \pvf \stackrel{\eqref{eq:interpolatePPP}}{=} \sum_{i}  \ifg_i (\xpp) \vf_{i+\frac{1}{2}} = \vf_{i+\frac{1}{2}}
+\end{equation*}
+Using \eqref{eq:interpolationPVFCellFace} gives us
+\begin{align*}
+    \sum_i \sum_p \left( \dfrac{\Np \mp}{\rp} \ifg_{i+\frac{1}{2}} ( \xpp)\right)\dfrac{\tilde{\ss}_{i+\frac{1}{2}}- \tilde{\ss}_i}{\frac{1}{\Delta \x}\sum_p \dfrac{\Np \mp}{\rp} \ifg_{i+\frac{1}{2}} ( \xpp) \Delta \x} = \sum_{i=0}^{N} \tilde{\ss}_{i+1} - \tilde{\ss}_i = \tilde{\ss}_N - \tilde{\ss}_0.
+\end{align*}
+The remaining terms are boundary sources thus proving momentum conservation.
 
 
 
-For the continuity
-
-
-
-
-For the \MP-method a total of four equations have to be solved. In the following we will discuss where these equations originate from.
 
 \subsection{Interphase Drag Model}
 \Todo{Something with Gidaspow}
@@ -520,6 +576,10 @@ To model collisions between particles in the Eulerian phase the collisions need 
 In contrast to the velocity term above, the normal stress tensor is highly nonlinear especially near close packing.
 To approximate the particle normal stress the local solid volume fraction is included in the stress model. 
 
+\begin{equation}
+    \label{eq:solidStress}
+    \ss = P_s \dfrac{\pvf}{\pvfcp - \pvf}
+\end{equation}
 This is done by the interparticle stress where only the diagonal elements of the stress tensor are used.
 
 The equation is regularized to prevent the singularity at close packing by introducing the parameter $\alpha$ in the order of $10^{-7}$:

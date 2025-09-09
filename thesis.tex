@@ -86,7 +86,7 @@
     \end{tikzpicture}\end{wrapfigure}}
     
 \newcommand{\uf}{\ensuremath{\boldsymbol{u_f}}} %fluid velocity
-\newcommand{\up}{\ensuremath{\boldsymbol{u_p}}} %particle velocity
+\newcommand{\up}{\ensuremath{u_p}} %particle velocity
 \newcommand{\tvar}{\ensuremath{t}} %time
 \newcommand{\m}{\ensuremath{m}} %mass
 \newcommand{\p}{\ensuremath{p}} %pressure
@@ -97,7 +97,8 @@
 \newcommand{\F}{\ensuremath{\boldsymbol{F}}} %interphase Momentum transfer
 \newcommand{\Fcv}{\ensuremath{V_c}} %fluid cell volume
 \newcommand{\Op}{\ensuremath{\Omega_p}} %particle Volume
-\newcommand{\xp}{\ensuremath{\boldsymbol{x_p}}} %particle position
+\newcommand{\xp}{\ensuremath{\boldsymbol{x}_p}} %particle position
+\newcommand{\xpp}{\ensuremath{\tilde{\boldsymbol{x}}_p}}
 \newcommand{\fvf}{\ensuremath{\theta_f}} %fluid volume fraction
 \newcommand{\pd}{\ensuremath{\phi}} %particle distribution function
 \newcommand{\fv}{\ensuremath{\mu_f}} %fluid viscosity
@@ -114,6 +115,7 @@
 \newcommand{\scs}{\ensuremath{\tau_p}} %solid contact stress
 \newcommand{\pdd}{\ensuremath{\phi_D}} %%collision damping
 \newcommand{\pdi}{\ensuremath{\phi_G}} %collision return-to-isotropy
+\renewcommand{\ss}{\ensuremath{\tau}} %solid stress
 \newcommand{\sd}{\ensuremath{\tau_D}} %collision damping stress
 \newcommand{\si}{\ensuremath{\tau_G}} %collision return-to-isotropy stress
 \newcommand{\nup}{\ensuremath{\overline{\boldsymbol{u}_p}}} %mean particle velocity
@@ -126,6 +128,12 @@
 \newcommand{\gcv}{\ensuremath{\Omega}} %grid cell volume
 \newcommand{\gp}{\ensuremath{Q}} %grid property
 \newcommand{\ifg}{\ensuremath{T}}
+\newcommand{\rgref}{\ensuremath{\rho_{g,ref}}}
+\newcommand{\pvfi}{\ensuremath{\theta_{f,i}}}
+\newcommand{\pvfione}{\ensuremath{\theta_{f,i+1}}}
+\newcommand{\pvfcp}{\ensuremath{\tau_{cp}}} %particle volume fraction close packing
+\renewcommand{\mp}{\ensuremath{\m_p}} %particle mass
+\newcommand{\ugp}{\ensuremath{\u_{G,p}}} %advanced time gas velocity
 
 % \newcommand{\Todo}[1]{\begin{tikzpicture}
 % \ape[handposition=seenoevil,signpost={\tiny \parbox{1cm}{#1}},
