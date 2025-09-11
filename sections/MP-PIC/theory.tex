@@ -477,15 +477,33 @@ These two equations are the first of eight equations to  which we will derive in
 In total we will need eight equations which we will derive in the following.
 We applying the finite differences scheme to the fluid continuity equation
 \begin{equation}
-    \dfrac{(\pvf \rf)_i^{n+1} - (\pvf \rf)_i^n}{\Delta \tvar} + \dfrac{(\pvf \rf \uf)_{i+\frac{1}{2}}^{n+1}- \pvf \rf \uf)_{i-\frac{1}{2}}^{n+1}}{\Delta \xp} = 0,
+    \dfrac{(\fvf \rf)_i^{n+1} - (\fvf \rf)_i^n}{\Delta \tvar} + \dfrac{(\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1}- \fvf \rf \uf)_{i-\frac{1}{2}}^{n+1}}{\Delta \xp} = 0,
 \end{equation}
 and the momentum equation
 \begin{equation}
     \label{eq:discMom}
-    \dfrac{(\pvf \rf \uf)_{i+\frac{1}{2}}^{n+1}- \pvf \rf \uf)_{i+\frac{1}{2}}^{n}}{\Delta \tvar} + \dfrac{(\pvf \rf \up^2)^n_{i+1}-\pvf \rf \up^2)^n_{i}}{\Delta \xp} + \dfrac{\tilde{\p}_{i+1}-\tilde{p}_i}{\Delta \xp} = - \F_{i+\frac{1}{2}}-\dfrac{((\pvf \rf)_i^n + (\pvf \rf)_{i+1}^n)\g}{2}.
+    \dfrac{(\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1}- \fvf \rf \uf)_{i+\frac{1}{2}}^{n}}{\Delta \tvar} + \dfrac{(\fvf \rf \up^2)^n_{i+1}-\fvf \rf \up^2)^n_{i}}{\Delta \xp} + \dfrac{\tilde{\p}_{i+1}-\tilde{p}_i}{\Delta \xp} = - \F_{i+\frac{1}{2}}-\dfrac{((\fvf \rf)_i^n + (\fvf \rf)_{i+1}^n)\g}{2}.
 \end{equation}
-\Todo{Define $(\pvf\rf\uf^2)$}
+\Todo{Does this actually make sense?}
 Variables marked with a tilde $\tilde{\cdot}$ are implicit approximations to the advanced-time step. They as well as the interphase momentum transfer will be calculated in the following.
+
+To approximate the convective flux $\fvf \rf \uf^2$ we it into the mass flux and the fluid velocity.
+Since the mass flux is only known at the cell faces we use a central approximation scheme for the cell center. 
+For the velocity, we use an upwind approximation scheme.
+
+\begin{align*}
+    (\fvf \rf \uf^2)_i^n = \dfrac{\m_{i+\frac{1}{2}}+\m_{i-\frac{1}{2}}}{2} \cdot
+    \begin{cases}
+        (\uf)^n_{i- \frac{1}{2}} & \text{if } \m_{i-\frac{1}{2}} + \m_{i+\frac{1}{2}} > 0 \\
+        (\uf)^n_{i+ \frac{1}{2}} & \text{if } \m_{i-\frac{1}{2}} + \m_{i+\frac{1}{2}} < 0
+    \end{cases}
+\end{align*}
+
+with the mass flux calculated at the matching face and the fluid velocity calculated with the neighboring volume fraction times the fluid density
+\begin{align*}
+    m_{i+\frac{1}{2}} = (\fvf \rf \uf)^n_{i+\frac{1}{2}} \qquad (\uf)_{i+\frac{1}{2}}^n = \dfrac{2 (\fvf \rf \uf)_{i+\frac{1}{2}}}{(\fvf \rf)_{i} + (\fvf \rf)_{i+1}^n}.
+\end{align*}
+
 
 For the pressure we use the assumption from above \eqref{eq:gasDensReal} that fluid pressure and the density are related we have
 \begin{equation}
@@ -561,10 +579,41 @@ For the last step we used
 \end{equation*}
 Using \eqref{eq:interpolationPVFCellFace} gives us
 \begin{align*}
-    \sum_i \sum_p \left( \dfrac{\Np \mp}{\rp} \ifg_{i+\frac{1}{2}} ( \xpp)\right)\dfrac{\tilde{\ss}_{i+\frac{1}{2}}- \tilde{\ss}_i}{\frac{1}{\Delta \x}\sum_p \dfrac{\Np \mp}{\rp} \ifg_{i+\frac{1}{2}} ( \xpp) \Delta \x} = \sum_{i=0}^{N} \tilde{\ss}_{i+1} - \tilde{\ss}_i = \tilde{\ss}_N - \tilde{\ss}_0.
+    \sum_i \sum_p \left( \dfrac{\Np \mp}{\rp} \ifg_{i+\frac{1}{2}} ( \xpp)\right)\dfrac{\tilde{\ss}_{i+1}- \tilde{\ss}_i}{\frac{1}{\Delta \x}\sum_p \dfrac{\Np \mp}{\rp} \ifg_{i+\frac{1}{2}} ( \xpp) \Delta \x} = \sum_{i=0}^{N} \tilde{\ss}_{i+1} - \tilde{\ss}_i = \tilde{\ss}_N - \tilde{\ss}_0.
 \end{align*}
+The last to term are simplified to the one dimensional case but can be extended to two or three dimensional cases.
 The remaining terms are boundary sources thus proving momentum conservation.
 
+Similarly, for the advanced-time gas velocity we use the interpolation to the faces
+\begin{equation*}
+    \tilde{\ufp} = \sum_i \ifg_{i+\frac{1}{2}} (\xpp) \dfrac{2 (\pvf \rf \uf)_{i+\frac{1}{2}}^{n+1}}{(\pvf \rf)_i^n + (\pvf \rf)_{i+1}^n}.
+\end{equation*}
+This definition is also used in the particle drag function. 
+For the density and the fluid phase fraction at the provisional parcel position, we avoid calculation of extra parameters by using known quantities and interpolate to the cell middle
+\begin{align*}
+    \rf = \dfrac{\fvf \rf}{\fvf} = \dfrac{\fvf \rf}{1-\pvf} \quad
+    \Rightarrow \quad \rfp = \sum_i \ip_i (\xpp) \dfrac{(\fvf \rf)_i^n}{1 - \pvfi^ln}
+\end{align*}
+for the fluid volume fraction we use an upwind scheme
+\begin{align*}
+    \fvfp = \begin{cases}
+        \sum_i \ifg_{i+\frac{1}{2}} (\xpp) (1 - \pvfi1^n) \quad \text{if } \up^n > 0 \\
+        \sum_i \ifg_{i+\frac{1}{2}} (\xpp) (1 - \pvfi^n) \quad \text{if } \up^n \leq 0
+    \end{cases}
+\end{align*}
+
+To achieve momentum conservation we group the remaining terms into the momentum exchange term
+\begin{equation*}
+    \F_{i+\frac{1}{2}} = \left( \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \left. \left[ D_p (\tilde{\ugp} - \up^{n+1} ) - \dfrac{1}{\rp} \left( \dfrac{\tilde{\p}_{i+1} - \tilde{p}_i}{\Delta x}\right)_p \right] \Np \mp \right) \middle / \right. \Delta \x.
+\end{equation*}
+This ensures the momentum in conserved.
+
+The key feature of the \MP-method lies in the calculation of the particle volume fraction $\pvf$ for each cell. 
+The advanced particle volume fraction $\tilde{\pvfi}$ closely approximates $\pvf$.
+
+So far we have given approximations to the grid values, e.g. $\ss$ and $\p$.
+Once the grid values are calculated we can approximate the new particle positions by equation \eqref{eq:MPvelocity} and use the value to calculate the new particle positions. 
+We then map the particle properties to their positions.
 
 
 
@@ -580,7 +629,7 @@ To approximate the particle normal stress the local solid volume fraction is inc
     \label{eq:solidStress}
     \ss = P_s \dfrac{\pvf}{\pvfcp - \pvf}
 \end{equation}
-This is done by the interparticle stress where only the diagonal elements of the stress tensor are used.
+This is done by the interparticle stress, where only the diagonal elements of the stress tensor are used.
 
 The equation is regularized to prevent the singularity at close packing by introducing the parameter $\alpha$ in the order of $10^{-7}$:
 \begin{equation}
@@ -590,6 +639,8 @@ This approach does not take into account the particles velocity or size.
 More complex models for the particle normal stress have been introduced for example the.
 \Todo{Ein paar Modele einfügen, Cundall Strack}
 Since we only use the Harris and Crighton model in the simulation no further models will be discussed here.
+
+
 
 %numerical method implicit concerning pressure, velocity and volume fraction
 %model to 
