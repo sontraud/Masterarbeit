@@ -465,14 +465,23 @@ Particle positions are then calculated by
     \xp^{n+1} = \xp^{n} + \Delta t \up^{n+1}, \ n \in \mathbb{N} \qquad \xp^{0} = \x_0
 \end{equation}
 and the velocity is updated by integrating the acceleration \eqref{eq:accel}
+\Todo{Anpassen auf altes Paper}
 \begin{align}
     \nonumber
     \dfrac{\up^{n+1} - \up^{n}}{\Delta \tvar} &= \d (\upi^{n+1} -
-    \up^{n+1})  - \dfrac{1}{\rp \pvf} \nabla_{\xp} \scs^{n+1} + \g \\
-    \label{eq:MPvelocity}
-    \Leftrightarrow \up^{n+1} &= \dfrac{\up^n + \Delta \tvar \left[ \d \ip \uf^{n+1} - \dfrac{1}{\rp} \nabla_{\xp} \ppi^{n+1} - \dfrac{1}{\rp \pvf} \nabla_{\xp} \scs^{n+1} + \g \right]}{1 + \Delta \tvar \d} .
+    \up^{n+1})  - \dfrac{1}{\rp} \nabla_{\xp} \p_p^{n+1} - \dfrac{1}{\rp \pvf} \nabla_{\xp} \scs^{n+1} + \g \\
+    \Leftrightarrow \up^{n+1} &= \dfrac{\up^n + \Delta \tvar \left[ \d_p \up^{n+1} - \dfrac{1}{\rp} \nabla_{\xp} \p_p^{n+1} - \dfrac{1}{\rp \pvf} \nabla_{\xp} \scs^{n+1} + \g \right]}{1 + \Delta \tvar \d} .
 \end{align}
-The former two equations \eqref{eq:MPposition}, \eqref{eq:MPvelocity} are used at the end of a time step to calculate the new particle velocities and positions.
+
+In the following we will restrict ourselves to the one dimensional case for easier reading. 
+For the gradients we use a differential quotient and therefor our velocity is
+\begin{equation*}
+\label{eq:MPvelocity}
+    \up^{n+1} = \dfrac{\up^n + \Delta \tvar \left[\d_p \tilde{u_{G,p}} - \g - \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right]}{1 + \Delta \tvar \d_p}
+\end{equation*}
+
+
+The equations for updating the position \eqref{eq:MPposition} and velocity \eqref{eq:MPvelocity} are used at the end of a time step to calculate the new particle velocities and positions.
 These two equations are the first of eight equations to  which we will derive in the following.
 In total we will need eight equations which we will derive in the following.
 We applying the finite differences scheme to the fluid continuity equation
@@ -579,12 +588,16 @@ For the last step we used
 \end{equation*}
 Using \eqref{eq:interpolationPVFCellFace} gives us
 \begin{align*}
-    \sum_i \sum_p \left( \dfrac{\Np \mp}{\rp} \ifg_{i+\frac{1}{2}} ( \xpp)\right)\dfrac{\tilde{\ss}_{i+1}- \tilde{\ss}_i}{\frac{1}{\Delta \x}\sum_p \dfrac{\Np \mp}{\rp} \ifg_{i+\frac{1}{2}} ( \xpp) \Delta \x} = \sum_{i=0}^{N} \tilde{\ss}_{i+1} - \tilde{\ss}_i = \tilde{\ss}_N - \tilde{\ss}_0.
+    \sum_i \sum_p \left( \dfrac{\Np \mp}{\rp} \ifg_{i+\frac{1}{2}} ( \xpp)\right)\dfrac{\tilde{\ss}_{i+1}- \tilde{\ss}_i}{\frac{1}{\Delta \x}\sum_p \dfrac{\Np \mp}{\rp} \ifg_{i+\frac{1}{2}} ( \xpp) \Delta \x} = \sum_i \tilde{\ss}_{i+1}-\tilde{\ss}_i.
 \end{align*}
-The last to term are simplified to the one dimensional case but can be extended to two or three dimensional cases.
-The remaining terms are boundary sources thus proving momentum conservation.
+For the one dimensional case this simplifies to
+\begin{equation*}
+    = \sum_{i=0}^{N} \tilde{\ss}_{i+1} - \tilde{\ss}_i = \tilde{\ss}_N - \tilde{\ss}_0,
+\end{equation*}
+which are the boundary sources thus proving momentum conservation.
+This can be extended to two and three-dimensional cases with their respective boundary terms.
 
-Similarly, for the advanced-time gas velocity we use the interpolation to the faces
+Similarly, for the advanced-time gas velocity, we use the interpolation to the faces
 \begin{equation*}
     \tilde{\ufp} = \sum_i \ifg_{i+\frac{1}{2}} (\xpp) \dfrac{2 (\pvf \rf \uf)_{i+\frac{1}{2}}^{n+1}}{(\pvf \rf)_i^n + (\pvf \rf)_{i+1}^n}.
 \end{equation*}
@@ -612,10 +625,42 @@ The key feature of the \MP-method lies in the calculation of the particle volume
 The advanced particle volume fraction $\tilde{\pvfi}$ closely approximates $\pvf$.
 
 So far we have given approximations to the grid values, e.g. $\ss$ and $\p$.
-Once the grid values are calculated we can approximate the new particle positions by equation \eqref{eq:MPvelocity} and use the value to calculate the new particle positions. 
+Once the grid values are calculated we can approximate the new particle positions by using the velocity calculated in equation \eqref{eq:MPvelocity} and approximate the new particle positions. 
 We then map the particle properties to their positions.
+Next we derive the discretized fluid-phase momentum equation. 
+First we recall the particle velocity
+\begin{equation*}
+    \up^{n+1} = \dfrac{\up^n + \Delta \tvar \left[\d_p \tilde{u_{G,p}} - \g - \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right]}{1 + \Delta \tvar \d_p}
+\end{equation*}
+and use it to replace $\up^{n+1}$ in the momentum exchange term $\F_{i+\frac{1}{2}}$ and summarize the pressure and implicit velocity terms
+\begin{align*}
+    \F_{i+\frac{1}{2}} &= \left( \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \left. \left[ D_p (\tilde{\ugp} - 
+    \up^{n+1} 
+    ) - \dfrac{1}{\rp} \left( \dfrac{\tilde{\p}_{i+1} - \tilde{p}_i}{\Delta x}\right)_p \right] \Np \mp \right) \middle / \right. \Delta \x \\
+    &=  \dfrac{1}{\Delta \x} \left( \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \left[ D_p \left(\tilde{\ugp} - 
+    \dfrac{\up^n + \Delta \tvar \left[\d_p \tilde{u_{G,p}} - \g - \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right]}{1 + \Delta \tvar \d_p} \right) \right. \right. \\
+    & \left. \left. - \dfrac{1}{\rp} \left( \dfrac{\tilde{\p}_{i+1} - \tilde{p}_i}{\Delta x}\right)_p \Np \mp \right) \right] \\
+    &=  \dfrac{1}{\Delta \x} \left( \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \left[ D_p \left(- 
+    \dfrac{\up^n - \tilde{\u}_{G,p} 
+    + \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p + \Delta \tvar \left[ - \g - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right]}{1 + \Delta \tvar \d_p} \right) \Np \mp \right) \right]
+\end{align*}
+We then use the former equation to substitute $\F_{i+\frac{1}{2}}$ from the discrete momentum equation \eqref{eq:discMom} thus having
+\begin{align*}
+    &\dfrac{(\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1}- \fvf \rf \uf)_{i+\frac{1}{2}}^{n}}{\Delta \tvar} + \dfrac{(\fvf \rf \up^2)^n_{i+1}-\fvf \rf \up^2)^n_{i}}{\Delta \xp} + \dfrac{\tilde{\p}_{i+1}-\tilde{p}_i}{\Delta \xp} \\
+    &= \dfrac{1}{\Delta \x} \left( \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \left[ D_p \left(- 
+    \dfrac{\up^n - \tilde{\u}_{G,p} 
+    + \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p + \Delta \tvar \left[ - \g - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right]}{1 + \Delta \tvar \d_p} \right) \Np \mp \right) \right] \\
+    &-\dfrac{((\fvf \rf)_i^n + (\fvf \rf)_{i+1}^n)\g}{2}.
+\end{align*}
+Looking just at the pressure terms we can rearrange the terms to
+\begin{align*}
+    \dfrac{\tilde{\p}_{i+1}-\tilde{p}_i}{\Delta \xp} = 
+\sum_p \ifg_{i+\frac{1}{2}} (\xpp) 
+\end{align*}
 
 
+
+\Todo{$\tilde{\theta_{i+1/2}}$, $(\fvf \rf)_{i+1/2}$, $D_p^n$  nicht definiert im Paper}
 
 \subsection{Interphase Drag Model}
 \Todo{Something with Gidaspow}
