@@ -640,28 +640,27 @@ and use it to replace $\up^{n+1}$ in the momentum exchange term $\F_{i+\frac{1}{
     &=  \dfrac{1}{\Delta \x} \left( \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \left[ D_p \left(\tilde{\ugp} - 
     \dfrac{\up^n + \Delta \tvar \left[\d_p \tilde{u_{G,p}} - \g - \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right]}{1 + \Delta \tvar \d_p} \right) \right. \right. \\
     & \left. \left. - \dfrac{1}{\rp} \left( \dfrac{\tilde{\p}_{i+1} - \tilde{p}_i}{\Delta x}\right)_p \Np \mp \right) \right] \\
-    &=  \dfrac{1}{\Delta \x} \left( \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \left[ D_p \left(- 
-    \dfrac{\up^n - \tilde{\u}_{G,p} 
-    + \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p + \Delta \tvar \left[ - \g - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right]}{1 + \Delta \tvar \d_p} \right) \Np \mp \right) \right]
+    &=  \dfrac{1}{\Delta \x} \left( \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \left[ D_p \left(-     \dfrac{\up^n - \tilde{\u}_{G,p}     + \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p + \Delta \tvar \left[ - \g - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right]}{1 + \Delta \tvar \d_p} \right) \Np \mp \right]\right)
 \end{align*}
 We then use the former equation to substitute $\F_{i+\frac{1}{2}}$ from the discrete momentum equation \eqref{eq:discMom} thus having
 \begin{align*}
-    &\dfrac{(\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1}- \fvf \rf \uf)_{i+\frac{1}{2}}^{n}}{\Delta \tvar} + \dfrac{(\fvf \rf \up^2)^n_{i+1}-\fvf \rf \up^2)^n_{i}}{\Delta \xp} + \dfrac{\tilde{\p}_{i+1}-\tilde{p}_i}{\Delta \xp} \\
+    &\dfrac{(\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1}- (\fvf \rf \uf)_{i+\frac{1}{2}}^{n}}{\Delta \tvar} + \dfrac{(\fvf \rf \up^2)^n_{i+1}-\fvf \rf \up^2)^n_{i}}{\Delta \xp} + \dfrac{\tilde{\p}_{i+1}-\tilde{p}_i}{\Delta \xp} \\
     &= \dfrac{1}{\Delta \x} \left( \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \left[ D_p \left(- 
     \dfrac{\up^n - \tilde{\u}_{G,p} 
-    + \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p + \Delta \tvar \left[ - \g - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right]}{1 + \Delta \tvar \d_p} \right) \Np \mp \right) \right] \\
+    + \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p + \Delta \tvar \left[ - \g - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right]}{1 + \Delta \tvar \d_p} \right) \Np \mp \right] \right)\\
     &-\dfrac{((\fvf \rf)_i^n + (\fvf \rf)_{i+1}^n)\g}{2}.
 \end{align*}
-Looking just at the pressure terms we can rearrange the terms to
+Looking just at the pressure terms by rearranging the terms and using the interpolation property $\ifg_{i+\frac{1}{2}} (\xpp) \sum_j \ifg_{j+\frac{1}{2}} (\xpp) = \ifg_{i+\frac{1}{2}} (\xpp)$ to
 \begin{align*}
-    \dfrac{\tilde{\p}_{i+1}-\tilde{p}_i}{\Delta \xp} = 
-\sum_p \ifg_{i+\frac{1}{2}} (\xpp) 
+    \dfrac{\tilde{\p}_{i+1}-\tilde{\p}_i}{\Delta \xp} = \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \dfrac{\Np \mp}{\rp \Delta \x (1 + \Delta \tvar \d_p)} \left( \dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p \\
+\Leftrightarrow \left( \dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)
+ \left( 1 - \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \dfrac{\Np \mp}{\rp \Delta \x (1 + \Delta \tvar \d_p)} \right) = 0.
 \end{align*}
+
 
 
 
 \Todo{$\tilde{\theta_{i+1/2}}$, $(\fvf \rf)_{i+1/2}$, $D_p^n$  nicht definiert im Paper}
-
 \subsection{Interphase Drag Model}
 \Todo{Something with Gidaspow}
 
