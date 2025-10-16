@@ -110,7 +110,7 @@
 \newcommand{\Ap}{\ensuremath{A_p}} %Acceleration particle
 \renewcommand{\d}{\ensuremath{D}} %Drag function
 \newcommand{\nuf}{\ensuremath{\overline{u}_f}} %%mean fluid flow velocity
-\newcommand{\pvf}{\ensuremath{\varphi_p}} %particle volume fraction
+\newcommand{\pvf}{\ensuremath{\varepsilon}} %particle volume fraction
 \newcommand{\vf}{\ensuremath{\varphi}} %volume fraction
 \newcommand{\scs}{\ensuremath{\tau_p}} %solid contact stress
 \newcommand{\pdd}{\ensuremath{\phi_D}} %%collision damping
@@ -131,12 +131,14 @@
 \newcommand{\rgref}{\ensuremath{\rho_{g,ref}}}
 \newcommand{\pvfi}{\ensuremath{\theta_{f,i}}}
 \newcommand{\pvfione}{\ensuremath{\theta_{f,i+1}}}
+\newcommand{\pvfioneminus}{\ensuremath{\theta_{f,i-1}}}
 \newcommand{\pvfcp}{\ensuremath{\tau_{cp}}} %particle volume fraction close packing
 \renewcommand{\mp}{\ensuremath{\m_p}} %particle mass
 \newcommand{\ugp}{\ensuremath{\u_{G,p}}} %advanced time gas velocity
 \newcommand{\ufp}{\ensuremath{\u_{f,p}}}
 \newcommand{\rfp}{\ensuremath{\rho_{G,p}}}
 \newcommand{\fvfp}{\ensuremath{\varphi_{f,p}}}
+\newcommand{\us}{\ensuremath{\u_s}}
 
 % \newcommand{\Todo}[1]{\begin{tikzpicture}
 % \ape[handposition=seenoevil,signpost={\tiny \parbox{1cm}{#1}},
@@ -144,13 +146,13 @@
 % signback=green!40!black]
 % \end{tikzpicture}}
 \usepackage{tikz}
-\usepackage{pgfplots}
+%\usepackage{pgfplots}
 \usepackage{tikzlings}
 \usepackage{tikzpagenodes}
 %\usepackage{ducksay}
 %\usepackage{background}
 \usepackage[margin=1in]{geometry}
-\usepackage{lipsum} % For dummy text
+%\usepackage{lipsum} % For dummy text
 %\pagestyle{empty}
 % Set up background layer
 % \backgroundsetup{
@@ -241,7 +243,7 @@
 \input{}
 %\input{sections/introduction.tex}
 \input{sections/MP-PIC/theory}
-\input{sections/OpenFOAM/OpenFOAM.tex}
+%\input{sections/OpenFOAM/OpenFOAM.tex}
 
 %\input{sections/sources/sources.tex}
 %% --------------------
