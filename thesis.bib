@@ -24,5 +24,62 @@ issn = {0021-9991},
 doi = {https://doi.org/10.1006/jcph.2001.6747},
 url = {https://www.sciencedirect.com/science/article/pii/S0021999101967476},
 author = {D.M. Snider},
-%abstract = {A three-dimensional, incompressible, multiphase particle-in-cell method is presented for dense particle flows. The numerical technique solves the governing equations of the fluid phase using a continuum model and those of the particle phase using a Lagrangian model. Difficulties associated with calculating interparticle interactions for dense particle flows with volume fractions above 5% have been eliminated by mapping particle properties to an Eulerian grid and then mapping back computed stress tensors to particle positions. A subgrid particle, normal stress model for discrete particles which is robust and eliminates the need for an implicit calculation of the particle normal stress on the grid is presented. Interpolation operators and their properties are defined which provide compact support, are conservative, and provide fast solution for a large particle population. The solution scheme allows for distributions of types, sizes, and density of particles, with no numerical diffusion from the Lagrangian particle calculations. Particles are implicitly coupled to the fluid phase, and the fluid momentum and pressure equations are implicitly solved, which gives a robust solution.}
+abstract = {A three-dimensional, incompressible, multiphase particle-in-cell method is presented for dense particle flows. The numerical technique solves the governing equations of the fluid phase using a continuum model and those of the particle phase using a Lagrangian model. Difficulties associated with calculating interparticle interactions for dense particle flows with volume fractions above 5 percent have been eliminated by mapping particle properties to an Eulerian grid and then mapping back computed stress tensors to particle positions. A subgrid particle, normal stress model for discrete particles which is robust and eliminates the need for an implicit calculation of the particle normal stress on the grid is presented. Interpolation operators and their properties are defined which provide compact support, are conservative, and provide fast solution for a large particle population. The solution scheme allows for distributions of types, sizes, and density of particles, with no numerical diffusion from the Lagrangian particle calculations. Particles are implicitly coupled to the fluid phase, and the fluid momentum and pressure equations are implicitly solved, which gives a robust solution.}
+}
+
+
+@Article{mathMPPIC,
+AUTHOR = {Henríquez-Vargas, Luis and Donoso-García, Pablo and Lackey, Lawrence and Bravo-Gutiérrez, Mauricio and Cajas, Benjamín and Reyes, Alejandro and Pailahueque, Nicolás and Díaz-Aburto, Isaac and Bubnovich, Valeri},
+TITLE = {Modeling of the Solid Stress Tensor in the MP-PIC Method: A Review of Methods and Applications},
+JOURNAL = {Mathematics},
+VOLUME = {12},
+YEAR = {2024},
+NUMBER = {23},
+ARTICLE-NUMBER = {3700},
+URL = {https://www.mdpi.com/2227-7390/12/23/3700},
+ISSN = {2227-7390},
+ABSTRACT = {In recent years, the fast growth of computational power has allowed the application of computational fluid dynamics (CFD) in a wide range of areas of interest, such as gas–solid unit operations. In this context, the multiphase particle-in-cell (MP-PIC) method appears as an option to represent fluid–particle and particle–particle interactions, avoiding the complexity of tracking each particle and the high computational cost derived from this. The MP-PIC method can represent the particles as a group with the same characteristics, allowing the simulation of gas–solid systems at different scales. To achieve this, the particle–particle interactions are simplified using the solid stress tensor to represent them; this does not require explicit expressions. This approach has a low computational cost, allowing the simulation of industrial cases using just workstations. This paper provides a review of the literature on the solid stress tensor and its commercial and non-commercial applications, including its historical and mathematical development in the description of particle–particle interactions. In addition, to consolidate the knowledge and advancing understanding in this crucial aspect of multiphase flow simulations, this review identifies the current challenges and opportunities for future research in multiphase systems based on the solid stress tensor. In addition, this review identifies the current challenges and opportunities for future research in multiphase systems based on the solid stress tensor.},
+DOI = {10.3390/math12233700}
+}
+
+
+@article{damp,
+title = {An improved collision damping time for MP-PIC calculations of dense particle flows with applications to polydisperse sedimenting beds and colliding particle jets},
+journal = {Chemical Engineering Science},
+volume = {65},
+number = {22},
+pages = {6014-6028},
+year = {2010},
+issn = {0009-2509},
+doi = {https://doi.org/10.1016/j.ces.2010.08.032},
+url = {https://www.sciencedirect.com/science/article/pii/S0009250910005075},
+author = {Peter J. O’Rourke and Dale M. Snider},
+keywords = {CPFD, Fluidization, Mathematical modeling, Multiphase flow, Particle collisions, Particle processing},
+abstract = {This paper describes several improvements to a numerical model introduced by O’Rourke et al. (2009) for collisional exchange and damping in dense particle flows. O’Rourke et al. (2009) use a Bhatnagar, Gross, and Krook (BGK) approximation to the collision terms in a particle distribution function transport equation to model the effects of particle collisions on damping fluctuating particle velocities and, in gas/liquid/solid beds, fluctuating temperatures and compositions of liquid films on particle surfaces. In this paper we focus on particle flows in which the particles have no liquid films and report on an improved expression we have developed for the collision damping time of particle velocity fluctuations used in the BGK approximation. The improved expression includes the effects on the collision damping time of the particle material coefficient of restitution and of non-equilibrium particle velocity distributions. The collision model improvements are incorporated into the general-purpose computational-particle fluid dynamics (CPFD) numerical methodology for dense particle flows. Three computational examples show the benefits of using the new collision time in calculations of particle separation in polydisperse dense particle flows and calculations of colliding particle jets.}
+}
+
+@article{isotropy,
+title = {Inclusion of collisional return-to-isotropy in the MP-PIC method},
+journal = {Chemical Engineering Science},
+volume = {80},
+pages = {39-54},
+year = {2012},
+issn = {0009-2509},
+doi = {https://doi.org/10.1016/j.ces.2012.05.047},
+url = {https://www.sciencedirect.com/science/article/pii/S0009250912003284},
+author = {Peter J. O'Rourke and Dale M. Snider},
+keywords = {Mathematical modeling, Multiphase flow, Particulate processes, Computation, Complex fluids, MP-PIC},
+abstract = {We document a new method for including collisional return-to-isotropy in particle velocity distributions calculated by the MP-PIC method for numerical simulation of particle/fluid flows. Mathematically, we include the new method by adding to the transport equation for the particle distribution function (PDF), a Bhatnager, Gross, and Krook (BGK) collision term that causes velocity distributions to relax to isotropic Gaussian distributions. The numerical implementation is by a splitting technique in which we randomly sample from velocity distributions obtained as solutions to the PDF transport equation with just the return-to-isotropy source. Thus, collisions cause numerical particles to scatter in MP-PIC calculations, just as physical particles do in particle/fluid flows. The method is implemented in the Barracuda© code, and two computational examples verify proper implementation of the method and show that more realistic results are obtained in calculations of impinging particle jets. In an appendix, we derive the particle continuum-flow (PCF) equations implied by the MP-PIC method in the collision dominated limit, and we obtain the collisional relaxation time for return-to-isotropy by matching the shear viscosity of the MP-PIC PCF equations, and the kinetic part of the shear viscosity used in PCF equations in the literature.}}
+
+
+@techreport{MP2d,
+  author       = {Snider, D M and O'Rourke, P J and Andrews, M J},
+  title        = {An incompressible two-dimensional multiphase particle-in-cell model for dense particle flows},
+  institution  = {Los Alamos National Lab., NM (United States)},
+  annote       = {A two-dimensional, incompressible, multiphase particle-in-cell (MP-PIC) method is presented for dense particle flows. The numerical technique solves the governing equations of the fluid phase using a continuum model and those of the particle phase using a Lagrangian model. Difficulties associated with calculating interparticle interactions for dense particle flows with volume fractions above 5 percent have been eliminated by mapping particle properties to a Eulerian grid and then mapping back computed stress tensors to particle positions. This approach utilizes the best of Eulerian/Eulerian continuum models and Eulerian/Lagrangian discrete models. The solution scheme allows for distributions of types, sizes, and density of particles, with no numerical diffusion from the Lagrangian particle calculations. The computational method is implicit with respect to pressure, velocity, and volume fraction in the continuum solution thus avoiding courant limits on computational time advancement. MP-PIC simulations are compared with one-dimensional problems that have analytical solutions and with two-dimensional problems for which there are experimental data.},
+  doi          = {10.2172/510351},
+  url          = {https://www.osti.gov/biblio/510351},
+  place        = {United States},
+  year         = {1997},
+  month        = {06}
 }
