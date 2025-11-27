@@ -4,51 +4,59 @@
     \item Use for simulation
 \end{itemize}
 
-\section{Intorduction to OpenFOAM}
+\section{Introduction to OpenFOAM}
 \begin{itemize}
     \item Open source toolbox for CFD simulation
     \item a litte Numerics
     \item Already comes with a lot of pre made tutorials
 \end{itemize}
 
-\section{Comparison Goldschmidt and GoldschmidtMPICC}
-\subsection{Goldschmidt}
-\subsubsection{Geometry}
+\section{\MP method in OpenFOAM}
 \begin{itemize}
-    \item Cuboid with side length of $15mm \ \times \ 150mm \ \times \ 450mm$
-    \item 2,30,90 grading
-    \item 
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.8\linewidth]{sections/OpenFOAM/geometry_goldschmidt.png}
-        \caption{Caption}
-        \label{fig:enter-label}
-    \end{figure}
-    \item Top has \texttt{pressureInletOutletVelocity}: zerogrdient condition for outflow velocity with specified inlet direction
-    \item Bottom has \texttt{interstitialInletVelocity}sepecifies inlet velocity field with local phase-fraction
-    \item walls have \texttt{noSlip} fixes velocity to zero at walls
-    \item for pressure look at kinematic pressure: physical pressure/fluidDensity, unit $m²/s²$
-    \item top: \texttt{fixedValue}
-    \item bottom: \texttt{fixedFluxPressure} set pressure gradient to provide value, correct flux at fixed-flux boundaries by compensating for the body forces with the pressure gradient
-    \item front,back: symmetry (same as velocity)
-    \item walls: \texttt{noSlip}
-\end{itemize}
-\subsection{Initial Setup}
-\begin{itemize}
-    \item 24750 particles are distributed equally in five layers
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.5\linewidth]{sections/OpenFOAM/cloud_particle_initial.png}
-        \caption{Caption}
-        \label{fig:enter-label}
-    \end{figure}
-    \item highest z: 0.2955
+    \item \begin{equation}
+    \tilde{\ss}_i \approx \ss_i^n +\dfrac{\partial \ss}{\partial \pvf}\bigg|_n (\tilde{\pvf}- \pvfi^n)= \ss_i^n + \dfrac{P_s \pvf^\beta}{\max [\theta_{cp} - \theta_s, \alpha (1 - \theta_s)]} (\tilde{\pvf}- \pvfi^n),
+\end{equation}
 \end{itemize}
 
-\subsubsection{Cloud properties}
-\begin{itemize}
-    \item Difference between both methods: the cloudProperties are of different types
-    \item Classic has type \texttt{collidingCloud}
-    \item collidingCloud: Lagragian cloud class
-    \item for MPPIC: Multi-Phase Particle In Cell  modeling is used to represent collisions without resolving particle-particle interactions
-\end{itemize}
+
+% \section{Comparison Goldschmidt and GoldschmidtMPICC}
+% \subsection{Goldschmidt}
+% \subsubsection{Geometry}
+% \begin{itemize}
+%     \item Cuboid with side length of $15mm \ \times \ 150mm \ \times \ 450mm$
+%     \item 2,30,90 grading
+%     \item 
+%     \begin{figure}
+%         \centering
+%         \includegraphics[width=0.8\linewidth]{sections/OpenFOAM/geometry_goldschmidt.png}
+%         \caption{Caption}
+%         \label{fig:enter-label}
+%     \end{figure}
+%     \item Top has \texttt{pressureInletOutletVelocity}: zerogrdient condition for outflow velocity with specified inlet direction
+%     \item Bottom has \texttt{interstitialInletVelocity}sepecifies inlet velocity field with local phase-fraction
+%     \item walls have \texttt{noSlip} fixes velocity to zero at walls
+%     \item for pressure look at kinematic pressure: physical pressure/fluidDensity, unit $m²/s²$
+%     \item top: \texttt{fixedValue}
+%     \item bottom: \texttt{fixedFluxPressure} set pressure gradient to provide value, correct flux at fixed-flux boundaries by compensating for the body forces with the pressure gradient
+%     \item front,back: symmetry (same as velocity)
+%     \item walls: \texttt{noSlip}
+% \end{itemize}
+% \subsection{Initial Setup}
+% \begin{itemize}
+%     \item 24750 particles are distributed equally in five layers
+%     \begin{figure}
+%         \centering
+%         \includegraphics[width=0.5\linewidth]{sections/OpenFOAM/cloud_particle_initial.png}
+%         \caption{Caption}
+%         \label{fig:enter-label}
+%     \end{figure}
+%     \item highest z: 0.2955
+% \end{itemize}
+
+% \subsubsection{Cloud properties}
+% \begin{itemize}
+%     \item Difference between both methods: the cloudProperties are of different types
+%     \item Classic has type \texttt{collidingCloud}
+%     \item collidingCloud: Lagragian cloud class
+%     \item for MPPIC: Multi-Phase Particle In Cell  modeling is used to represent collisions without resolving particle-particle interactions
+% \end{itemize}

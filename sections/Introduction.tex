@@ -2,7 +2,41 @@
 \label{ch:Introduction}
 
 \begin{itemize}
-    \item Coal bad get away, change to renewable...
+    \item Have you ever heard of climate change?
+    \item Coal bad, change to renewable...
     \item Iron good option
+    \item Diagram: Power consumption and power production
+    \item With \url{https://climate.copernicus.eu/esotc/2022/clouds-and-sunshine-duration} "As with cloud cover, the large positive anomaly for 2022 is consistent with the pronounced trend toward longer sunshine duration observed over the past four decades."
+    \item "The world will not be able cope with climate change without a global energy transition. The burning of fossil fuels for power generation is the single most important cause of climate change."  \url{https://www.bmz.de/en/issues/climate-change-and-development/energy-and-climate}
+    \item Recognizing that without deep emissions cuts from heavy industry and advances in clean technology
+industries (including renewable energy technologies, energy storage, energy efficiency, circular
+production, and sustainable mining) – collectively referred to as ‘green industrialization’ – global
+carbon emissions reduction goals, in line with the Paris Agreement, cannot be met,
+\url{https://cop30.br/en/news-about-cop30/cop30-documents/cop30_belem-declaration-on-global-green-industrialization_final-4.pdf/@@download/file}
+\item Paris Agreement Article 2a) Holding the increase in the global average temperature to well below
+2°C above pre-industrial levels and pursuing efforts to limit the temperature
+increase to 1.5°C above pre-industrial levels, recognizing that this would
+significantly reduce the risks and impacts of climate change;
+\item Figure ES.1 from \url{https://wedocs.unep.org/bitstream/handle/20.500.11822/46404/EGR2024.pdf?sequence=3&isAllowed=y} 25\% of all emissions due to power generation
+\item \url{https://de.statista.com/statistik/daten/studie/37595/umfrage/anteil-einzelner-sektoren-an-den-co2-emissionen-in-deutschland/} CO2 emissions in Germany in 2024 31.3\% due to the energy sector
+\item Both the CPS and the STEPS project electricity demand reaching essentially the
+same level in 2035, around 37 800 terawatt-hours (TWh). This represents an increase of 40\%
+from today’s level and an acceleration of the pace of growth compared to the past decade. (Section 1.1) \url{https://iea.blob.core.windows.net/assets/9228d782-4207-4648-9c75-e6bb908cdb90/WorldEnergyOutlook2025.pdf}
     \item \ldots
+    \item Space to start MPPIC
+    \item  Particle-particle interactions are represented by models which utilise mean values calculated on the Eulerian mesh.
+    \item Collisional damping models are included to represent the mean loss in kinetic energy which occurs as particles collide. The code includes a relaxation model which uses a time-scale to calculate the rate of interaction of a particle’s momentum with that of the mean field. This helps produce physically realistic scattering behaviour, but can have a detrimental affect on the packing modelling.
+    \item Collisional isotropy models represent the scattering which occurs as a result of particle collisions. The code includes a stochastic model which uses a time-scale to calculate the probability of a particle undergoing a collision, which randomises its velocity. Momentum and energy are explicitly conserved as a second step. This approach also helps to spread the particles uniformly across cells, which improves the quality of computed averages.
+    \item MPPIC has stability issues. Mostly this is when the parcels are too large relative to the cells, meaning a reliable average cannot be computed.
+    \item Removing drag and isotropy will cause more scattering. Both act to reduce relative velocities within the system. Both will, in all likelihood, be necessary to get a physical solution. Damping, too, is important, as it is the only mechanism by which the sub-grid collision modelling dissipates energy.
+    \item The Multiphase Particle in Cell (MP-PIC) is an Eulerian-Lagrangian numerical method that resolves the particle-particle interactions using the averages mapped from the Lagrangian parcels onto the Eulerian mesh.
 \end{itemize}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\linewidth]{sections/images/SMARD_diagram___ 20240821_20240826.png}
+    \caption[Data source: SMARD]{Data source: "Bundesnetzagentur | SMARD.de" \protect\footnotemark}
+    \label{fig:placeholder}
+\end{figure}
+
+%\footnotetext{\url{https://www.smard.de/en/marktdaten?marketDataAttributes=%7B%22resolution%22:%22hour%22,%22from%22:1724197320620,%22to%22:1724715720619,%22moduleIds%22:%5B1001226,1001225,1004067,1004068,1001228,1004070,5000410,1004066%5D,%22selectedCategory%22:null,%22activeChart%22:true,%22style%22:%22color%22,%22categoriesModuleOrder%22:%7B%7D,%22region%22:%22DE%22%7D}}
+\footnotetext{\footurl}

@@ -99,41 +99,47 @@ We also assume that we have an ideal gas, which we will use later in the implici
 
 \subsection{Solid Phase}
 
-The solid phase is treated as both a continuous phase as well as a discrete phase in the \MP method.
-The behavior of the particles is governed by the Liouville equation for the particle probability distribution function.
-Consider the domain $\Omega \subset\R^3$, %partial volume $\Omega_p \subset \R^3$ 
-velocity space $\Pi \subset \R^3$ and time interval $I = [0,\T], \ \T \in \R$. For the solid phase we define a particle distribution function %$\pd: \Omega \times \Pi \times \Op \times I \times \R \times \R \to \R^+, \ \pd(\xp, \up, \Op, t, \rp, \m) $
-\begin{equation}
-    \pd : \Omega \times \Pi \times I \times \R \to \R^+, \qquad (\xp, \up, \tvar, \m) \mapsto \pd (\xp , \up , \tvar, \m)  
-\end{equation}
-with $\xp$ the particle position, $\up$ the particle velocity, $\Op$ the particle volume, $\m$ the particle mass and $\rp$ the particle mass density.
-%Assuming that the particle Volume and particle density are constant, the particle distribution function quantifies the average number of particles having velocity $\up$ at $\xp$ with particle mass $\m$ at time $\tvar$.
-The particle density function gives the probable average number of particles per unit volume $\Np$ with a velocity in the interval $(\Vp, \Vp + \Delta \Vp)$ and mass in the interval $(\M, \M + \Delta \M)$ when integrating over the velocity and mass
-%\Todo{Ahhhh why is it called distribution and not density}
-\begin{equation}
-    \Np = \int_{\M}^{\M+\Delta \M} \int_{\Vp}^{\Vp + \Delta \Vp} \pd d \up d \m. 
-\end{equation} 
-For a small volume this can be approximated by
-\begin{equation}
-    \Np \approx \pd (\xp , \Vp , \tvar, \M) \cdot \Delta \boldsymbol{V_p} \cdot \Delta M.
-\end{equation}
-The solids volume fraction is then given by taking particles of all mass and velocities
-\begin{equation}
-    \label{eq:svf}
-    \pvf = \int \int \pd \dfrac{\m}{\rp} d \m d \up.
-\end{equation}
-% The particle size is given by
-% \begin{equation}
-%     N(\boldsymbol{x}_p, \boldsymbol{v}_p, \Omega_p, t, \rho_p, m_p) = \int f(\boldsymbol{x}_p, \boldsymbol{v}_p, \Omega_p, t, \rho_p, m_p) dv_p.
-% \end{equation}
+The solid phase is governed by the Liouville equation solving for the particle probability distribution function $\pd$
+\begin{equation*}
+        \dfrac{d}{dt} \int \int \pd d \up d \xp = 0
+\end{equation*}
+for which we can add damping terms on the right hand side to account for local collisions.
 
-We assume that the total number of particles near $\xp$ with velocity $\up$ in any volume is conserved. Therefor we have
-\begin{equation}
-\label{eq:partConservation}
-    \dfrac{d}{dt} \int \int \pd d \up d \xp = 0.
-\end{equation}
-%By applying the Leipniz integral rule and, using that the volume over which we integrate is arbitrary, we transform the equation above into the Liouville equation.
-Using that the this hold for all volumes we can transform the equation above into the Liouville equation
+% The solid phase is treated as both a continuous phase as well as a discrete phase in the \MP method.
+% The behavior of the particles is governed by the Liouville equation for the particle probability distribution function.
+% Consider the domain $\Omega \subset\R^3$, %partial volume $\Omega_p \subset \R^3$ 
+% velocity space $\Pi \subset \R^3$ and time interval $I = [0,\T], \ \T \in \R$. For the solid phase we define a particle distribution function %$\pd: \Omega \times \Pi \times \Op \times I \times \R \times \R \to \R^+, \ \pd(\xp, \up, \Op, t, \rp, \m) $
+% \begin{equation}
+%     \pd : \Omega \times \Pi \times I \times \R \to \R^+, \qquad (\xp, \up, \tvar, \m) \mapsto \pd (\xp , \up , \tvar, \m)  
+% \end{equation}
+% with $\xp$ the particle position, $\up$ the particle velocity, $\Op$ the particle volume, $\m$ the particle mass and $\rp$ the particle mass density.
+% %Assuming that the particle Volume and particle density are constant, the particle distribution function quantifies the average number of particles having velocity $\up$ at $\xp$ with particle mass $\m$ at time $\tvar$.
+% The particle density function gives the probable average number of particles per unit volume $\Np$ with a velocity in the interval $(\Vp, \Vp + \Delta \Vp)$ and mass in the interval $(\M, \M + \Delta \M)$ when integrating over the velocity and mass
+% %\Todo{Ahhhh why is it called distribution and not density}
+% \begin{equation}
+%     \Np = \int_{\M}^{\M+\Delta \M} \int_{\Vp}^{\Vp + \Delta \Vp} \pd d \up d \m. 
+% \end{equation} 
+% For a small volume this can be approximated by
+% \begin{equation}
+%     \Np \approx \pd (\xp , \Vp , \tvar, \M) \cdot \Delta \boldsymbol{V_p} \cdot \Delta M.
+% \end{equation}
+% The solids volume fraction is then given by taking particles of all mass and velocities
+% \begin{equation}
+%     \label{eq:svf}
+%     \pvf = \int \int \pd \dfrac{\m}{\rp} d \m d \up.
+% \end{equation}
+% % The particle size is given by
+% % \begin{equation}
+% %     N(\boldsymbol{x}_p, \boldsymbol{v}_p, \Omega_p, t, \rho_p, m_p) = \int f(\boldsymbol{x}_p, \boldsymbol{v}_p, \Omega_p, t, \rho_p, m_p) dv_p.
+% % \end{equation}
+
+% We assume that the total number of particles near $\xp$ with velocity $\up$ in any volume is conserved. Therefor we have
+% \begin{equation}
+% \label{eq:partConservation}
+%     \dfrac{d}{dt} \int \int \pd d \up d \xp = 0.
+% \end{equation}
+% %By applying the Leipniz integral rule and, using that the volume over which we integrate is arbitrary, we transform the equation above into the Liouville equation.
+% Using that the this hold for all volumes we can transform the equation above into the Liouville equation
 \begin{align}
     \dfrac{\partial \pd}{\partial \tvar} + \dfrac{\partial}{\partial \xp} \left( \pd \dfrac{d \xp}{d \tvar} \right)+ \dfrac{\partial}{\partial \up} \left( \pd \dfrac{d \up}{d \tvar} \right) = 0 \\
     \label{eq:Liouville}
@@ -144,7 +150,7 @@ The equations are given by
 \begin{align}
     \dfrac{d \xp}{d \tvar} &= \up, \\
     \label{eq:accel}
-    \Ap = \dfrac{d \up}{d \tvar} &=\d(\uf - \up) - \dfrac{1}{\rp} \nabla \p - \dfrac{1}{\pvf \rp} \nabla \scs + \g.
+    \Ap = \dfrac{d \up}{d \tvar} &=\d(\uf - \up) - \dfrac{1}{\rp} \nabla_{\xp} \p - \dfrac{1}{\pvf \rp} \nabla_{\xp} \scs + \g.
 \end{align}
 The \MP method accounts for collisions by the spatial gradient of the solid stress. 
 To model collison behavior more locally collison terms were added to the right hand side of the Liouville equation \eqref{eq:Liouville} 
@@ -258,10 +264,7 @@ Therefor the particle velocities are distributed symmetrically around the local 
 In %TODO add ref
 it is shown that the equation \eqref{eq:colDamp} is equal to the one with more dependencies.
 
-We first solve the equation without the collision
-\begin{equation*}
-    \dfrac{\partial \pd}{\partial \tvar} = \dfrac{\pd_D -\pd}{\sd}.
-\end{equation*}
+
 For a constant relaxation time $\sd$ the analytical solution to the damping term is given by
 \begin{equation}
     \label{eq:BGKanalytical}
@@ -366,7 +369,7 @@ In the \MP method the solid phase is partially treated as a continuous phase to 
 Different properties of the solid phase, for example the volume fraction $\pvf$ are mapped to and from the Eulerian grid.
 The interpolation operators, which are defined for one dimension in \cite{MPPICFirst} were extended first to two dimensions \cite{MP2d} and then to three dimensions in \cite{MPInterpolation}.
 The \MP method uses a staggered gird with momentum properties, for example velocity, interpolated from the cell faces to the particles while scalar properties, like the volume fraction are interpolated from the cell centers.
-For a particle located at $\xp$ we define an interpolation operator for the cell center of cell $i$ for the $x$-component $\xpx$ as
+For a particle located at $\xp$ we define an interpolation operator for the cell center for the $x$-component $\xpx$ as
 \begin{equation}
     \ip_i^\x (\xp) = \begin{cases}
         0 & \x_{i-1} \geq \xpx, \ \xpx \geq \x_{i+1} \\
@@ -957,7 +960,7 @@ For the approximation of the advanced-time solids stress we again use a an linea
     \ss_i^{n+1} &= \ss_i^n + \dfrac{\partial \ss}{\partial \pvf}\bigg|_n  (\pvfi^{n+1} - \pvfi^n)  \qquad \dfrac{\partial \ss}{\partial \pvf}\bigg|_n = P_s \dfrac{\pvfcp}{\pvf^2} \left( \dfrac{\pvfcp}{\pvf} -1 \right)^{-2}\\
     \Rightarrow \tilde{\ss}_i &= \ss_i^n + P_s\dfrac{\pvfcp}{(\pvfcp - \pvf)^2} (\tilde{\pvf}- \pvfi^n).
 \end{align}
-To approximate the volume fraction for the provisional parcel positions we first need to get it at the cell faces before we can interpolate it to the parcels. 
+To approximate the volume fraction for each parcel we first need to get it at the cell faces before we can interpolate it to the parcels. 
 For cell faces we use properties from the Eulerian grid
 \begin{equation}
     \label{eq:interpolationPVFCellFace}
@@ -1272,7 +1275,6 @@ After this step we have all grid properties and can calculate the advanced parti
     \label{fig:placeholder}
     \caption{Flow chart of how the \MP method works.}
 \end{figure}
-\Todo{Include damping terms in diagram}
 %\Todo{Nochmal alle wichtigen Gleichungen aufführen?}
 
 

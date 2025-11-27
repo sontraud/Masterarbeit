@@ -77,14 +77,20 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{cleveref}
-\usepackage{graphicx}
-\makeatletter
-\renewcommand\thesubfigure{\thefigure\alph{subfigure}} % redefine subcaption number format
-\renewcommand\p@subfigure{}
-\makeatother
+%\usepackage[demo]{graphicx}
+%\usepackage[hyphens,spaces,obeyspaces]{url}
+
+\PassOptionsToPackage{hyphens,spaces,obeyspaces}{url}
+\PassOptionsToPackage{breaklinks,colorlinks}{hyperref}
+\usepackage[colorlinks]{hyperref}
+\urldef{\footurl}\url{https://www.smard.de/en/marktdaten?marketDataAttributes=%7B%22resolution%22:%22hour%22,%22from%22:1724197320620,%22to%22:1724715720619,%22moduleIds%22:%5B1001226,1001225,1004067,1004068,1001228,1004070,5000410,1004066%5D,%22selectedCategory%22:null,%22activeChart%22:true,%22style%22:%22color%22,%22categoriesModuleOrder%22:%7B%7D,%22region%22:%22DE%22%7D}
+
+% \makeatletter
+% \renewcommand\thesubfigure{\thefigure\alph{subfigure}} % redefine subcaption number format
+% \renewcommand\p@subfigure{}
+% \makeatother
 
 %\usepackage{subfigure}
-%\usepackage[colorlinks]{hyperref}
 \usepackage{tikz, tikz-3dplot}
 \usepgflibrary {shadings} 
 \usetikzlibrary{tikzlings,arrows.meta, decorations.pathreplacing, calc, shapes.geometric, arrows}
@@ -203,6 +209,7 @@
 %  }
 %}
 
+%\usepackage[colorlinks]{hyperref}
 
 
 %% ====================================
@@ -240,7 +247,7 @@
 %% The text is included from the following files:
 %% - sections/abstract
 
-%\includeabstract
+\includeabstract
 
 %% ------------------------
 %% |   Table of Contents  |
@@ -256,9 +263,14 @@
 
 \mainmatter
 \input{}
-%\input{sections/introduction.tex}
+\input{sections/introduction.tex}
+\input{sections/fluidizedReactor}
 \input{sections/MP-PIC/theory}
-%\input{sections/OpenFOAM/OpenFOAM.tex}
+%\input{sections/MP-PIC/noTheory}
+\input{sections/OpenFOAM/OpenFOAM.tex}
+\input{sections/setup}
+\input{sections/result}
+\input{sections/convergence}
 
 %\input{sections/sources/sources.tex}
 %% --------------------
