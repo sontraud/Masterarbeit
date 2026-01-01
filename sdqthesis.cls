@@ -154,6 +154,7 @@
 \newcommand{\thereviewertwo}{}
 \newcommand{\theadvisorone}{}
 \newcommand{\theadvisortwo}{}
+\newcommand{\theadvisorthree}{}
 \newcommand{\theeditstart}{}
 \newcommand{\theeditend}{}
 \newcommand{\thelocation}{}
@@ -166,6 +167,7 @@
 \newcommand{\reviewertwo}[1]{\renewcommand{\thereviewertwo}{#1}}
 \newcommand{\advisorone}[1]{\renewcommand{\theadvisorone}{#1}}
 \newcommand{\advisortwo}[1]{\renewcommand{\theadvisortwo}{#1}}
+\newcommand{\advisorthree}[1]{\renewcommand{\theadvisorthree}{#1}}
 \newcommand{\location}[1]{\renewcommand{\thelocation}{#1}}
 
 \newcommand{\editingtime}[2]{%
@@ -184,10 +186,13 @@
 \begin{tabular}{l l}
   \ifcurrentbaselanguage{English}{First examiner}{1. Prüfer/Prüferin}: & \thereviewerone\\
   \ifcurrentbaselanguage{English}{Second examiner}{2. Prüfer/Prüferin}: & \thereviewertwo\\[.5em]
-  \ifcurrentbaselanguage{English}{First advisor}{1. Betreuer/Betreuerin}: &  \theadvisorone\\
+  \ifcurrentbaselanguage{English}{Advisors}{1. Betreuer/Betreuerin}: &  \theadvisorone\\
   % if there is no second advisor, do not output this line
   \ifthenelse{\equal{\theadvisortwo}{}}{}{%
-  \ifcurrentbaselanguage{English}{Second advisor}{2. Betreuer/Betreuerin}: & \theadvisortwo\\
+  \ifcurrentbaselanguage{English}{}{2. Betreuer/Betreuerin} & \theadvisortwo\\
+  }
+  \ifthenelse{\equal{\theadvisorthree}{}}{}{%
+  \ifcurrentbaselanguage{English}{}{2. Betreuer/Betreuerin} & \theadvisorthree\\
   }
 \end{tabular}
 \vskip2em

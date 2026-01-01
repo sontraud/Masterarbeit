@@ -1,57 +1,5 @@
 \pagebreak
-\color{gray}
 \chapter{MP-PIC: Multiphase Particle-in-Cell Method}
-Our main goal is to simulate a fluidized bed reactor. In the \OF tutorials folder, a fluidized bed is pre-implemented with two different solvers. 
-The first solver is called \DP and tracks each particle and models their collisions. 
-Modeling each particle and collision requires a high computational effort.
-Therefor in this chapter we will look at the \MP solver which mitigates the complexity by modeling particle interactions through the particle normal stress on the Eulerian grid.
-On top of that particles can be grouped into parcels with similar characteristics, reducing computation time further. 
-The first one gives a more accurate solution while the latter has a lower computational effort which is useful when the trend of the experiment is more important than the accuracy.
-In this chapter, we will first look at an overview of approaches used for modeling gas-solid multiphase flows. Then we will look at one in detail, the \MP method, the governing equation and how they are solved numerically. 
-This chapter is mainly based on the paper which first presented the \MP method \cite{MPPICFirst}.
-
-\color{gray}
-\section{Overview of Gas-Solid Multiphase Flow Solvers}
-Our goal of this section is to look at a brief overview of different CFD approaches. 
-These approaches can be roughly divided into two categories: The Euler-Euler methods and the Euler-Lagrange methods. 
-The Eulerian-Eulerian methods model both the gas and the solid phase as a continuum. In the Euler-Lagrange model the gas is modeled as a continuous phase and the solid as a discrete phase.
-The \MP-model is a hybrid model, constructed in a way that exploits the advantages of both the Euler-Euler method as well as the Euler-Lagrange method.
-
-
-%\Todo{EE und EL erklären? Welche alles?} 
-
-\begin{itemize}
-    \item something about Euler-Euler and Euler-Lagrange
-    \item OpenFoams DPMFoam is not the logical Lagrangian Disecrete Phase Model (which has no collision) but brobably DDPM-KTGF (Dense Discrete Phase Model incorporated with Kinetic Theory of Granular Flow)
-\end{itemize}
-\FloatBarrier
-\begin{figure}[h!]
-    \begin{tikzpicture}[
-  sibling distance=8em,
-  level distance=4em,
-  every node/.style = {font=\normalsize},
-  edge from parent/.style = {draw, -latex},
-  level 1/.style={sibling distance=14em},
-  level 2/.style={sibling distance=8em},
-  highlight/.style={draw=kit-red, very thick}, opacity = 0.5%ellipse, inner sep=2pt}
-  ]
-
-\node[align = left, auto = right, near end]{Solid phase\\representation}
-  child {node[align = left, auto = right, near end] {Discrete}
-    child {node[align = left, auto = right, near end] {Particle Resolved\\Direct Numerical\\Simulations\\PR-DNS}}
-    child {node[align = left, auto = right, near end] {Discrete Particle\\Model\\DPM}}
-  }
-  child {node[align = left, auto = right, near end] {Hybrid Models\\HM}
-  child {node[align = left, auto = right, near end, highlight] {Multiphase-Particle-In-Cell\\MPPIC}}}
-  child {node[align = left, auto = right, near end] {Continuum}
-    child {node[align = left, auto = right, near end] {Two Fluid Model\\TFM}}
-    child {node[align = left, auto = right, near end] {Mixture Model\\MM}}
-  };
-\end{tikzpicture}
-\caption{\color{gray} Source: \url{https://www.mdpi.com/2227-7390/12/23/3700}}
-\end{figure}
-\FloatBarrier
-\color{black}
 
 %TODO: von wo aus anfangen? Euler/Euler bzw. Euler/Lagrange Modelle erklären?
 
@@ -120,7 +68,7 @@ For a small volume this can be approximated by
 The solids volume fraction is then given by taking particles of all mass and velocities
 \begin{equation}
     \label{eq:svf}
-    \pvf = \int \int \pd \dfrac{\m}{\rp} d \m d \up.
+    \pvf = \MultiIntegral{2} \pd \dfrac{\m}{\rp} d \m d \up.
 \end{equation}
 % The particle size is given by
 % \begin{equation}
@@ -130,7 +78,7 @@ The solids volume fraction is then given by taking particles of all mass and vel
 We assume that the total number of particles near $\xp$ with velocity $\up$ in any volume is conserved. Therefor we have
 \begin{equation}
 \label{eq:partConservation}
-    \dfrac{d}{dt} \int \int \pd d \up d \xp = 0.
+    \dfrac{d}{dt} \MultiIntegral{2} \pd d \up d \xp = 0.
 \end{equation}
 %By applying the Leipniz integral rule and, using that the volume over which we integrate is arbitrary, we transform the equation above into the Liouville equation.
 Using that the this hold for all volumes we can transform the equation above into the Liouville equation
@@ -160,9 +108,9 @@ Here \uf is the mean flow fluid velocity, $\d(\Op,\up, \xp,\tvar)$ is the drag f
 To arrive at the interphase momentum transfer function we look at the moments from the Liouville equation \eqref{eq:Liouville}.
 We multiply the equation by $\m$ and integrate over the mass and velocity. This yields a connection between the field properties and the interaction between the two phases
 \begin{align*}
-    \int \int \m \left( \dfrac{\partial \pd}{\partial \tvar} + \nabla_{\xp} \cdot (\pd \up) + \nabla_{\up} \cdot (\pd \Ap)\right) d \up d \m = 0 \\
+    \int \int \m \left( \dfrac{\partial \pd}{\partial \tvar} + \nabla \cdot (\pd \up) + \nabla_{\up} \cdot (\pd \Ap)\right) d \up d \m = 0 \\
     \Leftrightarrow
-    \dfrac{\partial }{\partial \tvar} \int \int \pd \m d \m d \up + \nabla_x \cdot \left( \int \int m \pd \up d\up d \m \right) = 0\\
+    \dfrac{\partial }{\partial \tvar} \int \int \pd \m d \m d \up + \nabla \cdot \left( \int \int m \pd \up d\up d \m \right) = 0\\
     \stackrel{\eqref{eq:svf}}{\Leftrightarrow} \dfrac{\partial (\pvf \rp )}{\partial t} + \nabla_{\xp} \cdot (\pvf \rp \overline{\up}) = 0    
 \end{align*}
 with the third term being zero by using integration by parts and $\pd \to 0$ for $\lvert \up \rvert \to \infty$. 
@@ -276,6 +224,43 @@ The damping time is discussed in the section numerical discretizations.
 
 
 \subsubsection{Return-to-Isotropy}
+The second damping term, called return-to-isotropy, relaxes the velocities to a Gaussian velocity distribution. The equilibrium distribution 
+\begin{equation*}
+    \pd_G(\xp,\up,\m,\tvar) = N(\xp,\m,\tvar) G(\up;\overline{\up}, \sigma^2(\m))
+\end{equation*}
+with the particle size distribution
+\begin{equation*}
+    N(\xp,\m,\tvar) = \int \pd d \up
+\end{equation*}
+and the Gaussian velocity distribution
+\begin{equation*}
+    G(\up;\overline{\up},\sigma^2(\m)) = \left( \dfrac{2}{3} \pi \sigma^2(m)\right)^{-\frac{3}{2}} e^{-(\up - \overline{\up})^2/(2/3\sigma^2(\m)))}.
+\end{equation*}
+We assume that both PDFs $\pd$ and $\pd_F$ have the same variance. The variance of $\pd_F$ is given my $\sigma^2(m)$ which is then equal to the mass-weighted variance normalized
+\begin{equation*}
+\sigma^2(m) = \dfrac{\overline{\m}}{\m} \sigma^2, \qquad \overline{\m} = \dfrac{\rp \pvf}{\int N d \m} \qquad \sigma^2 = \dfrac{\MultiIntegral{2} \pd \m (\up - \overline{\up})^2 d \m d \up}{\MultiIntegral{2} \pd \m d \m d \up}.
+\end{equation*}
+To determine whether a particle collides, we use the return-to-isotropy time, which is similar to a relaxation time
+\begin{equation*}
+\dfrac{1}{\ss_G} = \dfrac{8 \sqrt{2}}{5 \pi} \dfrac{\pvf}{r_{32}^3} \dfrac{\MultiIntegral{2} f (r+ r_{32})^4 (\up - \overline{\up})^2 d \m d \up}{\MultiIntegral{2} f (r + r_{32})^2 \sqrt{(\up - \overline{\up})^2}d \m d \up} g_0(\pvf) \eta (2-\eta)
+\end{equation*}
+that approximates the time until the next collision.
+The return-to-isotropy is derived in the Appendix of \cite{isotropy} and is obtained by comparing the particle momentum shear viscosity to the shear viscosity of continuum-fluid models.
+
+
+
+
+To factor in how often particles collide with one another we use the radial particle distribution function
+\begin{equation*}
+    g_0(\theta) = \dfrac{\pvfcp}{\pvfcp - \pvf}
+\end{equation*}
+introduced by ..., which couples the probability 
+
+
+%probability of finding another particle at contact scales inversely with the remaining free space, which vanishes linearly as θθ approaches θcpθcp. In other words, as the system gets denser, collisions and contacts become more frequent, and in a simple mean–field picture this frequency diverges like 1/(θcp−θ)1/(θcp−θ)
+\Todo{Lun zitieren}
+
+
 
 \color{black}
 \section{Numerical implementation and discretizations}
@@ -837,6 +822,8 @@ We can apply the orthogonality property from equation \eqref{eq:ipOrtho} and the
     \nabla \ip_\zeta ( \xp ) \cdot \sum_{\xi=1}^8 \ip_\xi ( \xp ) \nabla \gp_\xi = \ip_\zeta \left[ \dfrac{\partial \ip_{x_\zeta}}{\partial x} \boldsymbol{e}_x + \dfrac{\partial \ip_{y_\zeta}}{\partial y} \boldsymbol{e}_y + \dfrac{\partial \ip_{z_\zeta}}{\partial z} \boldsymbol{e}_z\right].
 \end{equation*}
 
+In \texttt{OpenFOAM} cells are divided into tetrahedrons
+\Todo{Tetrahedon}
 
 \color{black}
 
@@ -858,7 +845,7 @@ Particle positions are then calculated by
     \label{eq:MPposition}
     \xp^{n+1} = \xp^{n} + \Delta t \up^{n+1}, \ n \in \mathbb{N} \qquad \xp^{0} = \x_0
 \end{equation}
-and the velocity is updated by integrating the acceleration \eqref{eq:accel}
+and the velocity is rearranging by the discretized acceleration \eqref{eq:accel}
 % \Todo{Anpassen auf altes Paper}
 \begin{align}
     \label{eq:errVel}
@@ -881,7 +868,7 @@ In total we will need eight equations which we will derive in the following.
 We start by applying the finite differences scheme to the fluid continuity equation
 \begin{equation}
     \label{eq:gasContDisc}
-    \dfrac{(\fvf \rf)_i^{n+1} - (\fvf \rf)_i^n}{\Delta \tvar} + \dfrac{(\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1}- \fvf \rf \uf)_{i-\frac{1}{2}}^{n+1}}{\Delta \xp} = 0,
+    \dfrac{(\fvf \rf)_i^{n+1} - (\fvf \rf)_i^n}{\Delta \tvar} + \dfrac{(\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1}- (\fvf \rf \uf)_{i-\frac{1}{2}}^{n+1}}{\Delta \xp} = 0,
 \end{equation}
 and the momentum equation
 \begin{equation}
@@ -1143,7 +1130,7 @@ We then write the fluid continuity equation \eqref{eq:fluidContDiscFull} as
     \dfrac{\tilde{\pvf}_i - \pvf_i^n}{\Delta \tvar} + \left. \dfrac{\partial (\pvf \up)}{\partial \x} \middle|_{explicit} \right. + \dfrac{(\pvf \delta \up)_{i+\frac{1}{2}} - (\pvf \delta \us)_{i-\frac{1}{2}}}{\Delta \x} = 0.
 \end{equation}
 
-Because we want to sole for $(\pvf \ \delta \up)$ we want to eliminate the advanced time step $\u_p^{n+1}$ from the equation above. For that we again use equation \eqref{eq:advVelocity}
+Because we want to solve for $(\pvf \ \delta \up)$ we want to eliminate the advanced time step $\u_p^{n+1}$ from the equation above. For that we again use equation \eqref{eq:advVelocity}
 \begin{align*}
     (\pvf \ \delta \us )_{i+\frac{1}{2}} = \dfrac{1}{\Delta \x} \sum_p \dfrac{\mp \Np}{\rp} \ifg_{i+\frac{1}{2}} (\xpp) \left( \dfrac{\up^n + \Delta \tvar \left[\d \tilde{u_{G,p}} - \g - \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p - \dfrac{1}{\rp \pvfp} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right]}{1 + \Delta \tvar \d} \right).
 \end{align*}

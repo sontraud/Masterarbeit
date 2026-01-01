@@ -1,0 +1,34 @@
+\newpage
+\chapter{Simulation Setup}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+         \includegraphics[width=0.8\linewidth]{sections/Setup/1-s2.0-S0016236125021477-gr3_lrg.jpg}
+    \end{subfigure}
+    \begin{subfigure}{0.55\textwidth}
+        \includegraphics[width=1.5\linewidth]{sections/Setup/geometry_1cm.png}
+    \end{subfigure}
+    \caption{Caption}
+    \label{fig:placeholder}
+\end{figure}
+We model the
+
+
+% \begin{figure}
+%     \centering
+% \begin{tikzpicture}
+%     \node[anchor=center] (img) at (0,2) {\includegraphics[width=0.25\textwidth]{sections/Setup/1-s2.0-S0016236125021477-gr3_lrg.jpg}};
+%     % Arrow to bottom-left of the image
+%     \node[anchor = center] (img2) at (8,2) {\includegraphics[width = 0.45\textwidth,trim={10cm 0 10cm 0} ,clip]{sections/Setup/geometry_1cm.png}};
+%     %\draw[line width = 5pt, red] ($(img.south west)+(4.1cm,2.8cm)$) -- ($(img.north west)+(2.1cm,-3cm)$) -- ($(img.north east) + (-4.6cm, -3cm)$) -- ($(img.south east)+ (-4.6cm, 5.8cm)$) --cycle;
+%     \draw[->, line width=10pt, red] ($(img2.west)$) --($(img.east)$) ;
+%     \node (cap) at ($(img.south east)+(-2cm,+0.5cm)$) {\small From: \cite{malte}};
+%   \end{tikzpicture}
+% \end{figure}
+
+\section{Boundary conditions}
+Inlet is an interstialVelocityInlet which scales the inlet velocity with the volume fraction of air:
+\begin{equation*}
+    \u_{inlet} = \dfrac{\u}{\fvf}
+\end{equation*}

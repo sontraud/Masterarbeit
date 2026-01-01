@@ -52,6 +52,8 @@
 \advisorone{Dr.-Ing. Tien Duc Luu}
 %% The second advisor can be omitted
 \advisortwo{Dr.-Ing. Fabian Hagen}
+\advisorthree{Dr. Stephan Simonis}
+
 
 %% Please enter the start end end time of your thesis
 \editingtime{11. August 2026}{11. Feburary 2026}
@@ -160,6 +162,7 @@
 \newcommand{\fvfp}{\ensuremath{\fvf_{f,p}}}
 \newcommand{\us}{\ensuremath{\u_s}}
 \newcommand{\pvfp}{\ensuremath{\pvf_p}}
+\newcommand{\umf}{\ensuremath{\u_{mf}}}
 
 % \newcommand{\Todo}[1]{\begin{tikzpicture}
 % \ape[handposition=seenoevil,signpost={\tiny \parbox{1cm}{#1}},
@@ -173,6 +176,9 @@
 %\usepackage{ducksay}
 %\usepackage{background}
 \usepackage[margin=1in]{geometry}
+\usepackage[version=4,arrows=pgf-filled,
+textfontname=sffamily,
+mathfontname=mathsf]{mhchem}
 %\usepackage{lipsum} % For dummy text
 %\pagestyle{empty}
 % Set up background layer
@@ -264,13 +270,14 @@
 \mainmatter
 \input{}
 \input{sections/introduction.tex}
-\input{sections/fluidizedReactor}
+\input{sections/background/fluidizedReactor}
 \input{sections/MP-PIC/theory}
 %\input{sections/MP-PIC/noTheory}
 \input{sections/OpenFOAM/OpenFOAM.tex}
-\input{sections/setup}
+\input{sections/Setup/setup}
 \input{sections/result}
 \input{sections/convergence}
+\input{sections/conclusion}
 
 %\input{sections/sources/sources.tex}
 %% --------------------

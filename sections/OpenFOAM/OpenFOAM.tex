@@ -9,13 +9,57 @@
     \item Open source toolbox for CFD simulation
     \item a litte Numerics
     \item Already comes with a lot of pre made tutorials
+    \item Three steps: Pre-processing (Utilities, Meshing Tools), Solving (MP-PIC), Post-processing (Paraview, other)
+    \item Show different files:
+    \begin{itemize}
+        \item blockMeshDict
+        \item controlDict
+        \item fvSchemes
+    \end{itemize}
 \end{itemize}
 
 \section{\MP method in OpenFOAM}
+The \MP method in \OF can be roughly structured in the following diagram:
+\begin{figure}
+\centering
+    \begin{tikzpicture}[node distance =1.5cm]
+    \tikzset{stretch/.initial=.5}
+        \tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black]
+        \tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
+        \tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black]
+        \tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
+        \tikzstyle{arrow} = [thick,->,>=stealth]
+        \node (start) [startstop] {Time step $t_{n+1} = t_n + \Delta t$};
+        \node (in1) [process, below of=start] {Calculate provisional $x_p$ and $\pvf$ without packing model};
+        \node (dec1) [process, below of=in1] {Solve on Eulerian grid with interpolated values};
+        %\node (pro1) [process, below of=dec1] {Tridiagonal solver for $\alpha_p$ and $\alpha_f \rho_f$};
+        % \draw[thick,->] ($(pro1.north east)$) .. controls +(1.9,1) and +(1.9,-1).. node[right] {\parbox{2.5cm}{Iterate until convergence}}  ($(pro1.south east)$);
+        %\path let \p1 = ($(pro1.north east)$), \p2 = ($(pro1.south east)$) in node[draw, red, anchor=west] t (\p1) {Top Right}node[draw, blue, anchor=west] at (\p2) {Bottom Right};
+        \node (pro2) [process, below of=dec1] {Compute corrected velocity $u_p$ and move particles};
+        \node (stop) [startstop, below of = pro2] {Apply damping model(s)};
+        \draw[arrow] (start) -- (in1);
+        \draw[arrow] (in1) -- (dec1);
+        \draw[arrow] (dec1) -- (pro2);
+        %\draw[arrow] (pro1) -- (pro2);
+        %\draw[arrow] (pro2) -- (dec1);
+        \draw[arrow] (pro2) -- (stop);
+        %\draw[thick,->] (stop.west) .. controls +(-2.5,1.5) and +(-2.5,0)..  (start.west);
+        \draw[thick,->,rounded corners]
+  (stop.west) --
+  ($ ({stop.west}|-{stop.west}) + (-4,0) $) -- % move left from stop.west
+  ($ ({stop.west}|-{start.west}) + (-4,0) $) -- % vertical, x fixed from stop.west
+  (start.west);
+    \end{tikzpicture}
+\end{figure}
+
+
+
+
 \begin{itemize}
     \item \begin{equation}
     \tilde{\ss}_i \approx \ss_i^n +\dfrac{\partial \ss}{\partial \pvf}\bigg|_n (\tilde{\pvf}- \pvfi^n)= \ss_i^n + \dfrac{P_s \pvf^\beta}{\max [\theta_{cp} - \theta_s, \alpha (1 - \theta_s)]} (\tilde{\pvf}- \pvfi^n),
 \end{equation}
+
 \end{itemize}
 
 
