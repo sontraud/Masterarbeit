@@ -22,6 +22,7 @@
 \newcommand{\DP}{\texttt{DPMFoam }}
 \newcommand{\OF}{\texttt{OpenFOAM }}
 \newcommand{\R}{\mathbb{R}}
+\newcommand{\PIMP}{\texttt{PIMPLE }}
 %% ---------------------------------
 %% | Information about the thesis  |
 %% ---------------------------------
@@ -79,6 +80,9 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{cleveref}
+
+\usepackage{smartdiagram}
+\usesmartdiagramlibrary{additions}
 %\usepackage[demo]{graphicx}
 %\usepackage[hyphens,spaces,obeyspaces]{url}
 
@@ -179,6 +183,18 @@
 \usepackage[version=4,arrows=pgf-filled,
 textfontname=sffamily,
 mathfontname=mathsf]{mhchem}
+\usepackage{listings}
+
+\lstset{language=C++,
+                basicstyle=\ttfamily,
+                keywordstyle=\color{blue}\ttfamily,
+                stringstyle=\color{red}\ttfamily,
+                commentstyle=\color{green}\ttfamily,
+                morecomment=[l][\color{magenta}]{\#},
+                numbers=left,
+                stepnumber=1
+}
+\usepackage{todonotes}
 %\usepackage{lipsum} % For dummy text
 %\pagestyle{empty}
 % Set up background layer

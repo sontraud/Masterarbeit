@@ -227,13 +227,56 @@ To calculate $\u_t$ we use the diameter of the smallest particles
 
 \section{Numerical Simulation}
 To simulate a fluidized bed reactor we can look at how multiphase systems are generally modeled in CFD. 
-We can classify CFD simulations by how the solid phase is modeled, whether we model it as a continuum or a discrete phase, while the gas phase is modeled as a continuum. 
+We can classify CFD simulations by how the solid phase is modeled, whether we model it as a continuum or a discrete phase, while the gas phase is always modeled as a continuum. 
 The models differ in how particle-particle interactions are handled.
-Using a solver with a discrete particle phase, such as the \DP method in \OF we can model each particle-particle interaction, therefor each collision and the resulting behavior of the particles. With an increasing number of particles, the simulation time grows quadratically with the number of particles. 
-For industrial scale applications it is often more important to look at the trend of an experiment. For these cases one could consider modeling the particle as a continuum would result in an Euler-Euler approach where particle-particle interactions are not considered.
-This leads to a computationally inexpensive method that does not account for particle-particle interactions. 
-To midigate the disadvantages from the previously mentioned methods we will use a hybrid approach which models particle interactions through the particle normal stress and damping terms without resolving them, called the \MP method.
-In this method the particles are modeled as both a discrete and a continous phase with interpolation operators being used to transfer properties between the two.
+Using a solver with a discrete particle phase, such as the \DP method in \OF we can model each particle-particle interaction, therefor each collision and the resulting behavior of the particles. With an increasing number of particles, the simulation time grows quadratically with the number of particles, which is often not feasible for industrial scale applications.
+Here the trend of the experiment is often more important than the exact behavior.
+For these cases one could consider modeling the particle as a continuum would result in an Euler-Euler approach where particle-particle interactions needed for closure relations.
+In general this leads to a computationally less expensive method that does not account for particle-particle interactions \cite{mathMPPIC}, especially in dense systems.
+To mitigate the disadvantages from the previously mentioned methods we will use a hybrid approach which models particle interactions through the particle normal stress and damping terms without resolving them, called the \MP method.
+\FloatBarrier
+\begin{figure}[h!]
+\centering
+    \begin{tikzpicture}[
+  sibling distance=6em,
+  level distance=4em,
+  every node/.style = {font=\normalsize},
+  edge from parent/.style = {draw, -latex},
+  level 1/.style={sibling distance=12.5em},
+  level 2/.style={sibling distance=8em},
+  highlight/.style={draw=kit-red, very thick}, opacity = 1%ellipse, inner sep=2pt}
+  ]
+
+\node[align = center, auto = right, near end]{Solid phase\\representation}
+  child {node[align = center, auto = right, near end] {Discrete}
+    %child {node[align = center, auto = right, near end] (leftroot){Particle Resolved\\Direct Numerical\\Simulations\\PR-DNS}}
+    child {node[align = center, auto = right, near end] (leftroot){Discrete Particle Model\\DPM}}
+  }
+  child {node[align = center, auto = right, near end] {Hybrid Models}
+  child {node[align = center, auto = right, near end, highlight] {Multiphase-Particle-In-Cell \\ MPPIC}}}
+  child {node[align = center, auto = right, near end] {Continuum}
+    child {node[align = center, auto = right, near end] (rightmost){Two Fluid Model\\ twoPhaseEuler}}
+    % child  {node[align = center, auto = right, near end] (rightmost) {Mixture Model\\MM}}
+  };
+  \draw[->, thick]
+  ([yshift=-48pt]leftroot.west) --
+  ([yshift=-48pt]rightmost.east |- leftroot.west)
+  node[midway, above] {computationally less expensive};
+  \draw[->, thick]
+  ([yshift=-60pt]rightmost.east |- leftroot.west) --
+  ([yshift=-60pt]leftroot.west)  
+  node[midway, below] {more accurate};
+\end{tikzpicture}
+\caption{ Source: \url{https://www.mdpi.com/2227-7390/12/23/3700}}
+\end{figure}
+\FloatBarrier
+\color{black}
+
+In this method the particles are modeled as both a discrete and a continuous phase with interpolation operators being used to transfer properties between the two.
+The main advantage of this method is, that particle-particle interactions are calculated from parameters that only depend on the Eulerian grid.
+How the \MP method works in detail will be discussed in detail in the next chapter. Afterward, we will look at the \texttt{OpenFOAM} implementation in chapter \ref{ch:OpenFOAM}.
+
+
 
 
 % Our main goal is to simulate a fluidized bed reactor. In the \OF tutorials folder, a fluidized bed is pre-implemented with two different solvers. 
@@ -242,48 +285,17 @@ In this method the particles are modeled as both a discrete and a continous phas
 % Therefor in this chapter we will look at the \MP solver which mitigates the complexity by modeling particle interactions through the particle normal stress on the Eulerian grid.
 % On top of that particles can be grouped into parcels with similar characteristics, reducing computation time further. 
 % The first one gives a more accurate solution while the latter has a lower computational effort which is useful when the trend of the experiment is more important than the accuracy.
-In this chapter, we will first look at an overview of approaches used for modeling gas-solid multiphase flows. Then we will look at one in detail, the \MP method, the governing equation and how they are solved numerically. 
-This chapter is mainly based on the paper which first presented the \MP method \cite{MPPICFirst}.
-
-\color{gray}
-\section{Overview of Gas-Solid Multiphase Flow Solvers}
-Our goal of this section is to look at a brief overview of different CFD approaches. 
-These approaches can be roughly divided into two categories: The Euler-Euler methods and the Euler-Lagrange methods. 
-The Eulerian-Eulerian methods model both the gas and the solid phase as a continuum. In the Euler-Lagrange model the gas is modeled as a continuous phase and the solid as a discrete phase.
-The \MP-model is a hybrid model, constructed in a way that exploits the advantages of both the Euler-Euler method as well as the Euler-Lagrange method.
+% \color{gray}
+% \section{Overview of Gas-Solid Multiphase Flow Solvers}
+% Our goal of this section is to look at a brief overview of different CFD approaches. 
+% These approaches can be roughly divided into two categories: The Euler-Euler methods and the Euler-Lagrange methods. 
+% The Eulerian-Eulerian methods model both the gas and the solid phase as a continuum. In the Euler-Lagrange model the gas is modeled as a continuous phase and the solid as a discrete phase.
+% The \MP-model is a hybrid model, constructed in a way that exploits the advantages of both the Euler-Euler method as well as the Euler-Lagrange method.
 
 
 %\Todo{EE und EL erklären? Welche alles?} 
 
-\begin{itemize}
-    \item something about Euler-Euler and Euler-Lagrange
-    \item OpenFoams DPMFoam is not the logical Lagrangian Disecrete Phase Model (which has no collision) but brobably DDPM-KTGF (Dense Discrete Phase Model incorporated with Kinetic Theory of Granular Flow)
-\end{itemize}
-\FloatBarrier
-\begin{figure}[h!]
-    \begin{tikzpicture}[
-  sibling distance=8em,
-  level distance=4em,
-  every node/.style = {font=\normalsize},
-  edge from parent/.style = {draw, -latex},
-  level 1/.style={sibling distance=14em},
-  level 2/.style={sibling distance=8em},
-  highlight/.style={draw=kit-red, very thick}, opacity = 0.5%ellipse, inner sep=2pt}
-  ]
-
-\node[align = left, auto = right, near end]{Solid phase\\representation}
-  child {node[align = left, auto = right, near end] {Discrete}
-    child {node[align = left, auto = right, near end] {Particle Resolved\\Direct Numerical\\Simulations\\PR-DNS}}
-    child {node[align = left, auto = right, near end] {Discrete Particle\\Model\\DPM}}
-  }
-  child {node[align = left, auto = right, near end] {Hybrid Models\\HM}
-  child {node[align = left, auto = right, near end, highlight] {Multiphase-Particle-In-Cell\\MPPIC}}}
-  child {node[align = left, auto = right, near end] {Continuum}
-    child {node[align = left, auto = right, near end] {Two Fluid Model\\TFM}}
-    child {node[align = left, auto = right, near end] {Mixture Model\\MM}}
-  };
-\end{tikzpicture}
-\caption{\color{gray} Source: \url{https://www.mdpi.com/2227-7390/12/23/3700}}
-\end{figure}
-\FloatBarrier
-\color{black}
+% \begin{itemize}
+%     \item something about Euler-Euler and Euler-Lagrange
+%     \item OpenFoams DPMFoam is not the logical Lagrangian Disecrete Phase Model (which has no collision) but brobably DDPM-KTGF (Dense Discrete Phase Model incorporated with Kinetic Theory of Granular Flow)
+% \end{itemize}

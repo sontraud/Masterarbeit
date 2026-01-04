@@ -1,5 +1,8 @@
 \chapter{OpenFOAM}
 \label{ch:OpenFOAM}
+In the previous chapter we looked at the \MP method as first proposed by original authors.
+Since the goal of this master thesis is to use the \MP method implemented in \OF we will now take a closer look at how it is currently implemented.
+The \OF version used in this \texttt{v2412}.
 \begin{itemize}
     \item Use for simulation
 \end{itemize}
@@ -19,38 +22,678 @@
 \end{itemize}
 
 \section{\MP method in OpenFOAM}
+
 The \MP method in \OF can be roughly structured in the following diagram:
+
 \begin{figure}
 \centering
-    \begin{tikzpicture}[node distance =1.5cm]
+    \begin{tikzpicture}[node distance =2cm]
     \tikzset{stretch/.initial=.5}
         \tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black]
         \tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
         \tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black]
         \tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
         \tikzstyle{arrow} = [thick,->,>=stealth]
-        \node (start) [startstop] {Time step $t_{n+1} = t_n + \Delta t$};
-        \node (in1) [process, below of=start] {Calculate provisional $x_p$ and $\pvf$ without packing model};
-        \node (dec1) [process, below of=in1] {Solve on Eulerian grid with interpolated values};
+        \node (start) [startstop] {\parbox{5cm}{\centering create Mesh, initialize Fields \\ apply Boundary conditions}};
+        %\node (createMesh) [decision, right of=start,xshift = 6cm] {\texttt{createFields.H}};
+        \node (in1) [process, below of=start] {Still run time?};
+        \node (endTime) [startstop, right of=in1, xshift = 3cm] {Stop};
+        \node (dec1) [process, below of=in1] {Evaluate kinematic and dynamic viscosity};
         %\node (pro1) [process, below of=dec1] {Tridiagonal solver for $\alpha_p$ and $\alpha_f \rho_f$};
         % \draw[thick,->] ($(pro1.north east)$) .. controls +(1.9,1) and +(1.9,-1).. node[right] {\parbox{2.5cm}{Iterate until convergence}}  ($(pro1.south east)$);
         %\path let \p1 = ($(pro1.north east)$), \p2 = ($(pro1.south east)$) in node[draw, red, anchor=west] t (\p1) {Top Right}node[draw, blue, anchor=west] at (\p2) {Bottom Right};
-        \node (pro2) [process, below of=dec1] {Compute corrected velocity $u_p$ and move particles};
-        \node (stop) [startstop, below of = pro2] {Apply damping model(s)};
+        \node (pro2) [process, below of=dec1] {Evolve kinematic cloud};
+        \node (pro3) [process, below of=pro2] {Interpolate to Eulerian mesh / build source terms};
+        \node (stop) [process, below of = pro3] {\texttt{PIMPLE} loop};
         \draw[arrow] (start) -- (in1);
-        \draw[arrow] (in1) -- (dec1);
+        \draw[arrow] (in1) -- node[anchor=south] {no} (endTime);
+        \draw[arrow] (in1) -- node[anchor = west] {yes} (dec1);
         \draw[arrow] (dec1) -- (pro2);
+        \draw[arrow] (pro2) -- (pro3);
         %\draw[arrow] (pro1) -- (pro2);
         %\draw[arrow] (pro2) -- (dec1);
-        \draw[arrow] (pro2) -- (stop);
+        \draw[arrow] (pro3) -- (stop);
         %\draw[thick,->] (stop.west) .. controls +(-2.5,1.5) and +(-2.5,0)..  (start.west);
         \draw[thick,->,rounded corners]
   (stop.west) --
   ($ ({stop.west}|-{stop.west}) + (-4,0) $) -- % move left from stop.west
-  ($ ({stop.west}|-{start.west}) + (-4,0) $) -- % vertical, x fixed from stop.west
-  (start.west);
+  ($ ({stop.west}|-{in1.west}) + (-4,0) $) -- % vertical, x fixed from stop.west
+  (in1.west);
     \end{tikzpicture}
 \end{figure}
+
+In the following we will go into detail for each step.
+
+\subsection{Create Fields}
+\subsection{Continuous Phase Transport}
+
+\subsection{Evolve Kinematic Cloud}
+Evolving the kinematic cloud is done by calling \lstinline|kinematicCloud.evolve();| in the \lstinline|MPPICFoam.C| file. This calls the \lstinline|solve| method from the lagragian kinematic cloud class.
+The \MP method is worked into the standard kinematic cloud evolving, except for the \lstinline|motion| in \lstinline|evolveCloud|.
+In the following flow chart we outline which methods are called when the kinematic cloud is evolved.
+
+\FloatBarrier
+\begin{center}
+\begin{tikzpicture}[
+    node distance=12mm and 6mm,
+    every node/.style={font=\small},
+    box/.style={draw, rounded corners, minimum width=26mm, minimum height=10mm, align=center},
+    lane/.style={draw, rounded corners, fill=gray!5, minimum width=42mm, minimum height=85mm},
+    pre/.style={box, fill=red!20},
+    evo/.style={box, fill=violet!20},
+    coup/.style={box, fill=green!20},
+    post/.style={box, fill=blue!20},
+    title/.style={font=\bfseries},
+    scale = 0.9,
+    transform shape
+]
+
+% --- Swimlanes ---
+\node[lane] (L1) {};
+\node[lane, right=of L1] (L2) {};
+\node[lane, right=of L2] (L3) {};
+\node[lane, right=of L3] (L4) {};
+
+\node[title, above=1mm of L1] {pre evolve};
+\node[title, above=1mm of L2] {evolve cloud};
+\node[title, above=1mm of L3] {coupled};
+\node[title, above=1mm of L4] {post evolve};
+
+% --- Left lane ---
+%\node[pre] (pre) at (L1.center |- [yshift=-42.5mm]L1.north) {preEvolve()};
+\node[pre] (pre)
+  at ([yshift=-42.5mm] L1.center |- L1.north) {preEvolve()};
+
+% --- Evolve cloud lane ---
+\node[evo] (e1) at ([yshift=-9.5mm] L2.center |- L2.north) {evolveCloud()};
+\node[evo, below=of e1] (e2) {resetSourceTerms()};
+\node[evo, below=of e2] (e3) {inject()};
+\node[evo, below=of e3] (e4) {motion()};
+
+% --- Coupled lane ---
+\node[coup] (c1) at ([yshift=-31.5mm] L3.center |- L3.north) {coupled?};
+\node[coup, below=of c1] (c2) {relaxSources()};
+
+% --- Post lane ---
+\node[post] (p1) at ([yshift=-31.5mm] L4.center |- L4.north) {postEvolve()};
+%\node[post, below=of p1] (p2) {stochasticCollisionModel()};
+
+% --- Arrows ---
+%\draw[->, thick] (pre.east) -- (e1.west);
+\draw[->,rounded corners]
+  (pre.east) --
+  ($ ({pre.east}|-{pre.east}) + (1,0) $) -- % move left from stop.west
+  ($ ({pre.east}|-{e1.west}) + (1,0) $) -- % vertical, x fixed from stop.west
+  (e1.west);
+
+
+
+\draw[->] (e1) -- (e2);
+\draw[->] (e2) -- (e3);
+\draw[->] (e3) -- (e4);
+
+%\draw[->, thick] (e4.east) -- (c1.west);
+\draw[->,rounded corners]
+  (e4.east) --
+  ($ ({e4.east}|-{e4.east}) + (1,0) $) -- % move left from stop.west
+  ($ ({e4.east}|-{c1.west}) + (1,0) $) -- % vertical, x fixed from stop.west
+  (c1.west);
+
+
+\draw[->] (c1) -- node[right]{Yes} (c2);
+%\draw[->] (c2.east) -- (p1.west);
+
+\draw[->] (c1.east) -- node[above]{No} (p1.west);
+\draw[->,rounded corners]
+  (c2.east) --
+  ($ ({c2.east}|-{c2.east}) + (1,0) $) -- % move left from stop.west
+  ($ ({c2.east}|-{p1.west}) + (1,0) $) -- % vertical, x fixed from stop.west
+  (p1.west);
+  %\draw[thick,->,rounded corners]
+  
+  % (stop.west) --
+  % ($ ({stop.west}|-{stop.west}) + (-4,0) $) -- % move left from stop.west
+  % ($ ({stop.west}|-{in1.west}) + (-4,0) $) -- % vertical, x fixed from stop.west
+  % (in1.west);
+
+
+%\draw[->] (p1) -- (p2);
+ \end{tikzpicture}
+\end{center}
+
+
+
+
+\FloatBarrier
+
+\todo{Flow chart nochmal als Text? (Bin stark dagegen das liest doch eh niemand)}
+\subsubsection{preEvolve}
+The \lstinline|preEvolve()| command calls the following method
+\begin{lstlisting}[caption=in KinematicCloud.C \text{,} lines 782 - 828]
+    template<cklass CloudType>
+void Foam::KinematicCloud<CloudType>::preEvolve
+(
+    const typename parcelType::trackingData& td
+)
+{
+    // force calculation of mesh dimensions - needed for parallel runs
+    // with topology change due to lazy evaluation of valid mesh dimensions
+    label nGeometricD = mesh_.nGeometricD();
+
+    Log_<< "\nSolving" << nGeometricD << "-D cloud " << this->name() << endl;
+
+    this->dispersion().cacheFields(true);
+    forces_.cacheFields(true);
+
+    pAmbient_ = constProps_.dict().template
+        getOrDefault<scalar>("pAmbient", pAmbient_);
+
+    if (this->dampingModel().active() || this->packingModel().active())
+    {
+         const_cast<typename parcelType::trackingData&>(td).updateAverages(*this);
+    }
+
+    if (this->dampingModel().active())
+    {
+        this->dampingModel().cacheFields(true);
+    }
+    if (this->packingModel().active())
+    {
+        this->packingModel().cacheFields(true);
+    }
+
+    updateCellOccupancy();
+
+    functions_.preEvolve(td);
+}
+
+\end{lstlisting}
+The preEvolve prepares for the movment of the particles by caching important properties.
+First the mesh validity is checked.
+Next Eulerian fields are cached for efficient memory usage and properties from the Eulerian mesh are later used to update particle positions.
+The damping and packing models are prepared and properties needed to run them later are cashed.
+
+\subsubsection{evolveCloud}
+The method \lstinline|evolveCloud()| is what moves the particles along their trajectories. 
+This is done in four steps, as can be seen in the following code snipet:
+
+\begin{lstlisting}[firstnumber=221,caption=from kinematicCloud.C]
+    template<class CloudType>
+template<class TrackCloudType>
+void Foam::KinematicCloud<CloudType>::evolveCloud
+(
+    TrackCloudType& cloud,
+    typename parcelType::trackingData& td
+)
+{
+    if (solution_.coupled())
+    {
+        cloud.resetSourceTerms();
+    }
+
+    if (solution_.transient())
+    {
+        label preInjectionSize = this->size();
+
+        this->surfaceFilm().inject(cloud);
+
+        // Update the cellOccupancy if the size of the cloud has changed
+        // during the injection.
+        if (preInjectionSize != this->size())
+        {
+            updateCellOccupancy();
+            preInjectionSize = this->size();
+        }
+
+        injectors_.inject(cloud, td);
+
+        // Assume that motion will update the cellOccupancy as necessary
+        // before it is required.
+        cloud.motion(cloud, td);
+
+        stochasticCollision().update(td, solution_.trackTime());
+    }
+    else
+    {
+//        this->surfaceFilm().injectSteadyState(cloud);
+
+        injectors_.injectSteadyState(cloud, td, solution_.trackTime());
+
+        td.part() = parcelType::trackingData::tpLinearTrack;
+        CloudType::move(cloud, td, solution_.trackTime());
+    }
+}
+
+\end{lstlisting}
+\todo{lieber komplett lassen oder z.B. zweiten Teil (steady state) rausnehen}
+
+First the source terms are reset. The source terms that contribute to the continuous equations will be build after the kinematic cloud has evolved.
+Because the \MP solver is transient we will only look at the first part of the \lstinline|if| condition. 
+Particles are injected in two steps.
+To check whether injection of particles has taken place the current cloud size is recorded.
+First particles generated from films, e.g walls are injected.
+If necessary cell occupancy is updated.
+In the second step particles are injected from inlets.
+Properties such as the velocity, size of the particles which is either pre-defined or given via a distribution etc. are set in this step from the tracking data \lstinline|td|.
+The \lstinline|cloud.motion| command then moves the particles to their new time steps.
+The motion method is defined in the \lstinline|MPPICCloud.C| file. This differs from the standard motion of the kinematic cloud. It will be discussed in the next section.
+The stochastic collision model which is executed at the end of the evolve function is turned off in the \MP model, because a similar term is included in the return-to-isotropy damping model.
+
+\subsubsection{motion}
+\begin{lstlisting}[firstnumber=176,caption= motion from  MPPICCloud/MPPICCloud.C]
+    template<class CloudType>
+template<class TrackCloudType>
+void Foam::MPPICCloud<CloudType>::motion
+(
+    TrackCloudType& cloud,
+    typename parcelType::trackingData& td
+)
+{
+    // Kinematic
+    // ~~~~~~~~~
+
+    // force calculation and tracking
+    td.part() = parcelType::trackingData::tpLinearTrack;
+    CloudType::move(cloud, td, this->db().time().deltaTValue());
+
+
+    // Preliminary
+    // ~~~~~~~~~~~
+
+    // switch forces off so they are not applied in corrector steps
+    this->forces().setCalcNonCoupled(false);
+    this->forces().setCalcCoupled(false);
+
+
+    // Damping
+    // ~~~~~~~
+
+    if (dampingModel_->active())
+    {
+        if (this->mesh().moving())
+        {
+            FatalErrorInFunction
+                << "MPPIC damping modelling does not support moving meshes."
+                << exit(FatalError);
+        }
+
+        // update averages
+        td.updateAverages(cloud);
+
+        // memory allocation and eulerian calculations
+        dampingModel_->cacheFields(true);
+
+        // calculate the damping velocity corrections without moving the parcels
+        td.part() = parcelType::trackingData::tpDampingNoTrack;
+        CloudType::move(cloud, td, this->db().time().deltaTValue());
+
+        // correct the parcel positions and velocities
+        td.part() = parcelType::trackingData::tpCorrectTrack;
+        CloudType::move(cloud, td, this->db().time().deltaTValue());
+
+        // finalise and free memory
+        dampingModel_->cacheFields(false);
+    }
+    
+
+    // Packing
+    // ~~~~~~~
+
+    if (packingModel_->active())
+    {
+        if (this->mesh().moving())
+        {
+            FatalErrorInFunction
+                << "MPPIC packing modelling does not support moving meshes."
+                << exit(FatalError);
+        }
+
+        // same procedure as for damping
+        td.updateAverages(cloud);
+        packingModel_->cacheFields(true);
+        td.part() = parcelType::trackingData::tpPackingNoTrack;
+        CloudType::move(cloud, td, this->db().time().deltaTValue());
+        td.part() = parcelType::trackingData::tpCorrectTrack;
+        CloudType::move(cloud, td, this->db().time().deltaTValue());
+        packingModel_->cacheFields(false);
+    }
+
+
+    // Isotropy
+    // ~~~~~~~~
+
+    if (isotropyModel_->active())
+    {
+        // update averages
+        td.updateAverages(cloud);
+
+        // apply isotropy model
+        isotropyModel_->calculate();
+    }
+
+
+    // Final
+    // ~~~~~
+
+    // update cell occupancy
+    this->updateCellOccupancy();
+
+    // switch forces back on
+    this->forces().setCalcNonCoupled(true);
+    this->forces().setCalcCoupled(this->solution().coupled());
+}
+
+\end{lstlisting}
+
+Here the motion of the particles are defined. In this part of the evolving of the cloud lies the core of the \MP method.
+The \lstinline|motion| file can be split into several steps outlined in the following flowchart.
+
+\begin{figure}
+\centering
+    \begin{tikzpicture}[node distance =2cm]
+    \tikzset{stretch/.initial=.5}
+        \tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black]
+        \tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
+        \tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black]
+        \tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
+        \tikzstyle{arrow} = [thick,->,>=stealth]
+        \node (start) [startstop] {Predict particle motion through particle forces (drag, gravity, etc)};
+        \node (start1) [process, below of=start] {move particles according to forces};
+        %\node (createMesh) [decision, right of=start,xshift = 6cm] {\texttt{createFields.H}};
+        \node (in1) [process, below of=start1] {Switch Forces off};
+        % \node (endTime) [startstop, right of=in1, xshift = 3cm] {Stop};
+        \node (dec1) [process, below of=in1] {Apply collision damping model};
+        \node (pro2) [process, below of=dec1] {Move particles according to damping model};
+        \node (pro3) [process, below of=pro2] {Apply packing model};
+        \node (pro4) [process, below of=pro3] {Move particles according to packing model};
+        \node (pro5) [process, below of=pro4] {Apply return-to-isotropy damping model};
+        \node (pro6) [process, below of=pro5] {Move particles according to return-to-isotropy damping model};
+        \node (stop) [process, below of = pro6] {Update cells/ turn forces back on};
+        
+        \draw[arrow] (start) -- (start1);
+        \draw[arrow] (start1) -- (in1);
+        %\draw[arrow] (in1) -- node[anchor=south] {no} (endTime);
+        %\draw[arrow] (in1) -- node[anchor = west] {yes} (dec1);
+        \draw[arrow] (in1) --  (dec1);
+        \draw[arrow] (dec1) -- (pro2);
+        \draw[arrow] (pro2) -- (pro3);
+        \draw[arrow] (pro3) -- (pro4);
+        \draw[arrow] (pro4) -- (pro5);
+        \draw[arrow] (pro5) -- (pro6);
+        %\draw[arrow] (pro1) -- (pro2);
+        %\draw[arrow] (pro2) -- (dec1);
+        \draw[arrow] (pro6) -- (stop);
+        %\draw[thick,->] (stop.west) .. controls +(-2.5,1.5) and +(-2.5,0)..  (start.west);
+        %\draw[thick,->,rounded corners]
+  %(stop.west) --
+  %($ ({stop.west}|-{stop.west}) + (-4,0) $) -- % move left from stop.west
+  %($ ({stop.west}|-{in1.west}) + (-4,0) $) -- % vertical, x fixed from stop.west
+  %(in1.west);
+    \end{tikzpicture}
+\end{figure}
+
+\subsubsection{coupled}
+\begin{lstlisting}
+    if (solution_.coupled())
+        {
+            cloud.relaxSources(cloud.cloudCopy());
+        }
+\end{lstlisting}
+Here the code checks if the solver is coupled. Since the \MP method is coupled the following code is executed.
+\begin{lstlisting}
+    template<class CloudType>
+void Foam::KinematicCloud<CloudType>::relaxSources
+(
+    const KinematicCloud<CloudType>& cloudOldTime
+)
+{
+    this->relax(rhokTrans_(), cloudOldTime.rhokTrans(), "rhok");
+    this->relax(UTrans_(), cloudOldTime.UTrans(), "U");
+    this->relax(UCoeff_(), cloudOldTime.UCoeff(), "U");
+}
+\end{lstlisting}
+
+This reduces numerical instabilities to to the old fields being used and prevents abrupt changes between time steps.
+The new cloud properties are scalled by $\alpha$ while the old cloud properties are scaled by $(1- \alpha)$
+\begin{equation*}
+    new = \alpha new + (1- \alpha ) old
+\end{equation*}
+The default, used in the \MP method is to use $\alpha = 1$. 
+\todo{hab niergends relaxation gefunden, wird nicht verwendet?}
+
+Here 
+\MP is coupled
+\subsubsection{postEvolve}
+The \lstinline|postEvolve| function is the counterpart of the \lstinline|preEvolve| function. Previously cashed function are released. This includes the Eulerina fields. Cloud properties as such as the particle positions are written out as needed and the iteration advanced. In line boundary and wall interactions are finalized.
+\begin{lstlisting}[firstline=266, caption=KinematicCloud.C]
+template<class CloudType>
+void Foam::KinematicCloud<CloudType>::postEvolve
+(
+    const typename parcelType::trackingData& td
+)
+{
+    Log_<< endl;
+
+    if (debug)
+    {
+        this->writePositions();
+    }
+
+    this->dispersion().cacheFields(false);
+
+    this->patchInteraction().postEvolve();
+
+    forces_.cacheFields(false);
+
+    functions_.postEvolve(td);
+
+    solution_.nextIter();
+
+    if (this->db().time().writeTime())
+    {
+        outputProperties_.writeObject
+        (
+            IOstreamOption
+            (
+                IOstreamOption::ASCII,
+                this->db().time().writeCompression()
+            ),
+            true
+        );
+    }
+
+    if (this->dampingModel().active())
+    {
+        this->dampingModel().cacheFields(false);
+    }
+    if (this->packingModel().active())
+    {
+        this->packingModel().cacheFields(false);
+    }
+}    
+\end{lstlisting}
+
+
+
+\subsection{Interpolation}
+\begin{lstlisting}
+        const volScalarField& thetaField = kinematicCloud.theta();
+    
+        alphac = max(1.0 - kinematicCloud.theta(), alphacMin);
+        
+        alphac.correctBoundaryConditions();
+        
+        alphacf = fvc::interpolate(alphac);
+        
+        alphaPhic = alphacf*phic;
+        
+        fvVectorMatrix cloudSU(kinematicCloud.SU(Uc));
+        volVectorField cloudVolSUSu
+        (
+            IOobject
+            (
+                "cloudVolSUSu",
+                runTime.timeName(),
+                mesh
+            ),
+            mesh,
+            dimensionedVector(cloudSU.dimensions()/dimVolume, Zero),
+            fvPatchFieldBase::zeroGradientType()
+        );
+
+        cloudVolSUSu.primitiveFieldRef() = -cloudSU.source()/mesh.V();
+        cloudVolSUSu.correctBoundaryConditions();
+        cloudSU.source() = Zero;
+
+
+
+\end{lstlisting}
+This calculates the particle volume fraction and uses this to calculate the fluid volume fraction
+\begin{equation*}
+    \fvf = \max (1-\pvf,\fvf_{min}
+\end{equation*}
+with $\fvf_{min}$ as a user defined input. This is used to prevent overpacking in cells that could lead to numerical instabilities.
+Boundary conditions are corrected.
+\lstinline|fvc::interpolate(alphac)| interpolates the fluid volume fraction previously calculated to the Eulerian mesh.
+In \lstinline|system/fvSchemes| the interpolation scheme is defined as linear. 
+The interpolation used by \OF is the barycentric interpolation.
+\Todo{interpolation in OpenFOAM}
+The effective flux is calculated as \lstinline|alphaPhic| by accounting for the particle effect.
+The calculated velocity of the kinematic cloud is used in the momentum source term. This is later used in the \lstinline|PIMPLE| loop.
+%SU explicit part, Sp implicit part second part to get per volume
+
+
+\subsection{Continous Phase, \texttt{PIMPLE} loop}
+
+
+
+
+
+
+
+\url{https://doc.cfd.direct/notes/cfd-general-principles/the-pimple-algorithm} how the PIMPLE algorithm works.
+The \PIMP algorithm is called in the following loop
+\begin{lstlisting}[caption=from MPPICFoam.C]
+ while (pimple.loop())
+        {
+            #include "UcEqn.H"
+
+            // --- PISO loop
+            while (pimple.correct())
+            {
+                #include "pEqn.H"
+            }
+
+            if (pimple.turbCorr())
+            {
+                continuousPhaseTurbulence->correct();
+            }
+        }
+
+        runTime.write();
+
+        runTime.printExecutionTime(Info);
+    }
+\end{lstlisting}
+
+
+
+
+\FloatBarrier
+\begin{lstlisting}[caption=UcEqn.H]
+    fvVectorMatrix UcEqn
+(
+    fvm::ddt(alphac, Uc) + fvm::div(alphaPhic, Uc)
+  - fvm::Sp(fvc::ddt(alphac) + fvc::div(alphaPhic), Uc)
+  + continuousPhaseTurbulence->divDevRhoReff(Uc)
+ ==
+    (1.0/rhoc)*cloudSU
+);
+
+UcEqn.relax();
+
+volScalarField rAUc(1.0/UcEqn.A());
+surfaceScalarField rAUcf("Dp", fvc::interpolate(rAUc));
+
+surfaceScalarField phicForces
+(
+   fvc::flux(rAUc*cloudVolSUSu/rhoc) + rAUcf*(g & mesh.Sf())
+);
+
+if (pimple.momentumPredictor())
+{
+    solve
+    (
+        UcEqn
+     ==
+        fvc::reconstruct
+        (
+            phicForces/rAUcf - fvc::snGrad(p)*mesh.magSf()
+        )
+    );
+}
+
+\end{lstlisting}
+\FloatBarrier
+
+\begin{lstlisting}[caption=pEqn.H]
+{
+    volVectorField HbyA(constrainHbyA(rAUc*UcEqn.H(), Uc, p));
+
+    surfaceScalarField phiHbyA
+    (
+        "phiHbyA",
+        (
+           fvc::flux(HbyA)
+         + alphacf*rAUcf*fvc::ddtCorr(Uc, phic)
+        )
+    );
+
+    if (p.needReference())
+    {
+        adjustPhi(phiHbyA, Uc, p);
+    }
+
+    phiHbyA += phicForces;
+
+    // Update the pressure BCs to ensure flux consistency
+    constrainPressure(p, Uc, phiHbyA, rAUcf);
+
+    // Non-orthogonal pressure corrector loop
+    while (pimple.correctNonOrthogonal())
+    {
+        fvScalarMatrix pEqn
+        (
+            fvm::laplacian(alphacf*rAUcf, p)
+         ==
+            fvc::ddt(alphac) + fvc::div(alphacf*phiHbyA)
+        );
+
+        pEqn.setReference(pRefCell, pRefValue);
+
+        pEqn.solve(p.select(pimple.finalInnerIter()));
+
+        if (pimple.finalNonOrthogonalIter())
+        {
+            phic = phiHbyA - pEqn.flux()/alphacf;
+
+            p.relax();
+
+            Uc = HbyA
+              + rAUc*fvc::reconstruct((phicForces - pEqn.flux()/alphacf)/rAUcf);
+            Uc.correctBoundaryConditions();
+        }
+    }
+}
+
+#include "continuityErrs.H"
+
+\end{lstlisting}
+
+
+
+The \texttt{PIMPLE} 
+
 
 
 
@@ -59,6 +702,7 @@ The \MP method in \OF can be roughly structured in the following diagram:
     \item \begin{equation}
     \tilde{\ss}_i \approx \ss_i^n +\dfrac{\partial \ss}{\partial \pvf}\bigg|_n (\tilde{\pvf}- \pvfi^n)= \ss_i^n + \dfrac{P_s \pvf^\beta}{\max [\theta_{cp} - \theta_s, \alpha (1 - \theta_s)]} (\tilde{\pvf}- \pvfi^n),
 \end{equation}
+\item For Lagrangian \url{https://openfoamwiki.net/index.php/OpenFOAM_guide/UML/lagrangian}
 
 \end{itemize}
 
