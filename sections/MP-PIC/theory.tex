@@ -1,5 +1,6 @@
 \pagebreak
 \chapter{MP-PIC: Multiphase Particle-in-Cell Method}
+\label{ch:MPPIC}
 
 In this chapter, we will look at how the \MP method works. First we will look at which governing equations are used, especially how the particles are modeled.
  Afterward we will discuss the first numerical implementation based on the paper which first presented the \MP method, \cite{MPPICFirst}.
@@ -239,7 +240,11 @@ with the particle size distribution
 \end{equation*}
 and the Gaussian velocity distribution
 \begin{equation*}
-    G(\up;\overline{\up},\sigma^2(\m)) = \left( \dfrac{2}{3} \pi \sigma^2(m)\right)^{-\frac{3}{2}} e^{-(\up - \overline{\up})^2/(2/3\sigma^2(\m)))}.
+    G(\up;\overline{\up},\sigma^2(\m)) = \left( \dfrac{2}{3} \pi \sigma^2(m)\right)^{-\frac{3}{2}} e^{-(\up - \overline{\up})^2/(2/3\sigma^2(\m)))},
+\end{equation*}
+with the mean velocity
+\begin{equation*}
+    \overline{\up} = \dfrac{\MultiIntegral{2} \pd \m \up d \m d \up}{\MultiIntegral{2}\pd \m d \m d \up}.
 \end{equation*}
 We assume that both PDFs $\pd$ and $\pd_F$ have the same variance. The variance of $\pd_F$ is given my $\sigma^2(m)$ which is then equal to the mass-weighted variance normalized
 \begin{equation*}
@@ -249,7 +254,16 @@ To determine whether a particle collides, we use the return-to-isotropy time, wh
 \begin{equation*}
 \dfrac{1}{\ss_G} = \dfrac{8 \sqrt{2}}{5 \pi} \dfrac{\pvf}{r_{32}^3} \dfrac{\MultiIntegral{2} f (r+ r_{32})^4 (\up - \overline{\up})^2 d \m d \up}{\MultiIntegral{2} f (r + r_{32})^2 \sqrt{(\up - \overline{\up})^2}d \m d \up} g_0(\pvf) \eta (2-\eta)
 \end{equation*}
-that approximates the time until the next collision.
+that approximates the time until the next collision. Here we have the particle Sauter mean radius
+\begin{equation*}
+    r_{32} = \dfrac{\int \pd r^3 d\m d \up}{\int \pd r^2 d\m d\up}.
+\end{equation*}
+and $g_0 (\pvf)$ is the approximation to the radial distribution function
+\begin{equation*}
+    g_0 ( \pvf ) = \dfrac{\pvfcp}{\pvfcp - \pvf}
+\end{equation*}
+which modifies the probability of collision for particles.
+The probability function is low in a dilute case but high when the particle packing is dense.
 The return-to-isotropy is derived in the Appendix of \cite{isotropy} and is obtained by comparing the particle momentum shear viscosity to the shear viscosity of continuum-fluid models.
 
 
@@ -853,10 +867,9 @@ Particle positions are then calculated by
 and the velocity is rearranging by the discretized acceleration \eqref{eq:accel}
 % \Todo{Anpassen auf altes Paper}
 \begin{align}
-    \label{eq:errVel}
     \dfrac{\up^{n+1} - \up^{n}}{\Delta \tvar} &= \d (\upi^{n+1} -
-    \up^{n+1})  - \dfrac{1}{\rp} \nabla_{\xp} \p_p^{n+1} - \dfrac{1}{\rp \pvf} \nabla_{\xp} \scs^{n+1} - \g \\
-    \Leftrightarrow \up^{n+1} &= \dfrac{\up^n + \Delta \tvar \left[ \d_p \up^{n+1} - \dfrac{1}{\rp} \nabla_{\xp} \p_p^{n+1} - \dfrac{1}{\rp \pvf} \nabla_{\xp} \scs^{n+1} - \g \right]}{1 + \Delta \tvar \d} .
+    \up^{n+1})  - \dfrac{1}{\rp} \nabla_{\xp} \p_p^{n+1} - \dfrac{1}{\rp \pvf} \nabla_{\xp} \scs^{n+1} - \g  \nonumber \\
+    \Leftrightarrow \up^{n+1} &= \dfrac{\up^n + \Delta \tvar \left[ \d_p \up^{n+1} - \dfrac{1}{\rp} \nabla_{\xp} \p_p^{n+1} - \dfrac{1}{\rp \pvf} \nabla_{\xp} \scs^{n+1} - \g \right]}{1 + \Delta \tvar \d} .\label{eq:errVel} 
 \end{align}
 
 In the following we will restrict ourselves to the one dimensional case for easier reading. 
@@ -1293,6 +1306,7 @@ After this step we have all grid properties and can calculate the advanced parti
 %\Todo{Something with Gidaspow}
 
 \subsection{Particle Normal Stress Model}
+\label{sec:particleNormalStress}
 \Todo{Abschnitt weiter vor}
 To model collisions between particles in the Eulerian phase the collisions need to be estimated. 
 In contrast to the velocity term above, the normal stress tensor is highly nonlinear especially near close packing.

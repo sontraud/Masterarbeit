@@ -125,7 +125,7 @@
 \newcommand{\Op}{\ensuremath{\Omega_p}} %particle Volume
 \newcommand{\xp}{\ensuremath{\boldsymbol{x}_p}} %particle position
 \newcommand{\xpp}{\ensuremath{\tilde{\boldsymbol{x}}_p}}
-\newcommand{\fvf}{\ensuremath{\epsilon}} %fluid volume fraction
+\newcommand{\fvf}{\ensuremath{\alpha}} %fluid volume fraction
 \newcommand{\pd}{\ensuremath{\phi}} %particle distribution function
 \newcommand{\fv}{\ensuremath{\mu_f}} %fluid viscosity
 \renewcommand{\wp}{\ensuremath{W_p}} %weight particle
@@ -158,7 +158,7 @@
 \newcommand{\pvfi}{\ensuremath{\pvf_i}}
 \newcommand{\pvfione}{\ensuremath{\theta_{f,i+1}}}
 \newcommand{\pvfioneminus}{\ensuremath{\theta_{f,i-1}}}
-\newcommand{\pvfcp}{\ensuremath{\tau_{cp}}} %particle volume fraction close packing
+\newcommand{\pvfcp}{\ensuremath{\pvf_{cp}}} %particle volume fraction close packing
 \renewcommand{\mp}{\ensuremath{\m_p}} %particle mass
 \newcommand{\ugp}{\ensuremath{\u_{G,p}}} %advanced time gas velocity
 \newcommand{\ufp}{\ensuremath{\u_{f,p}}}
@@ -177,6 +177,7 @@
 %\usepackage{pgfplots}
 \usepackage{tikzlings}
 \usepackage{tikzpagenodes}
+\usepackage{circuitikz}
 %\usepackage{ducksay}
 %\usepackage{background}
 \usepackage[margin=1in]{geometry}
@@ -189,11 +190,13 @@ mathfontname=mathsf]{mhchem}
                 basicstyle=\ttfamily,
                 keywordstyle=\color{blue}\ttfamily,
                 stringstyle=\color{red}\ttfamily,
-                commentstyle=\color{green}\ttfamily,
+                commentstyle=\color{ForestGreen}\ttfamily,
                 morecomment=[l][\color{magenta}]{\#},
                 numbers=left,
                 stepnumber=1
 }
+
+
 \usepackage{todonotes}
 %\usepackage{lipsum} % For dummy text
 %\pagestyle{empty}
@@ -241,18 +244,22 @@ mathfontname=mathsf]{mhchem}
 %% ||                                ||
 %% ====================================
 %% ====================================
+
+\newif\ifcode
+\codefalse  % \codetrue enables code in pdf, \codefalse disables code in pdf
+
 \begin{document}
 
 %% Set PDF metadata
 \setpdf
 
 %% Set the title
-\maketitle
+%\maketitle
 
 %% The Preamble begins here
-\frontmatter
+%\frontmatter
 
-\input{sections/declaration.tex}
+%\input{sections/declaration.tex}
 
 \setcounter{page}{1}
 \pagenumbering{roman}
@@ -269,14 +276,14 @@ mathfontname=mathsf]{mhchem}
 %% The text is included from the following files:
 %% - sections/abstract
 
-\includeabstract
+%\includeabstract
 
 %% ------------------------
 %% |   Table of Contents  |
 %% ------------------------
-\tableofcontents
+%\tableofcontents
 
-\listoffigures
+%\listoffigures
 %\listoftables
 
 %% -----------------
@@ -284,7 +291,7 @@ mathfontname=mathsf]{mhchem}
 %% -----------------
 
 \mainmatter
-\input{}
+%\input{}
 \input{sections/introduction.tex}
 \input{sections/background/fluidizedReactor}
 \input{sections/MP-PIC/theory}
