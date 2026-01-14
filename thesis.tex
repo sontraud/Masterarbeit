@@ -102,7 +102,7 @@
 \usetikzlibrary{tikzlings,arrows.meta, decorations.pathreplacing, calc, shapes.geometric, arrows}
 \usepackage{tikzlings-addons}
 \usepackage{tikzlings-elephants}
-\usetikzlibrary {arrows.meta} 
+\usetikzlibrary {arrows.meta,fit,backgrounds} 
 \usepackage[dvipsnames]{xcolor}
 \newcommand{\Todo}[1]{\begin{wrapfigure}{r}{3cm}   \begin{tikzpicture}
     \koala[signpost={\tiny \parbox{1cm}{#1}},
@@ -110,8 +110,192 @@
     signback=green!40!black]
     \end{tikzpicture}\end{wrapfigure}}
 
+% KIT color  green :
+\definecolor{kit-green}{RGB}{0, 150, 130}
+\colorlet{kit-green100}{kit-green}
+\colorlet{kit-green90}{kit-green!90!white}
+\colorlet{kit-green80}{kit-green!80!white}
+\colorlet{kit-green70}{kit-green!70!white}
+\colorlet{kit-green60}{kit-green!60!white}
+\colorlet{kit-green50}{kit-green!50!white}
+\colorlet{kit-green40}{kit-green!40!white}
+\colorlet{kit-green30}{kit-green!30!white}
+\colorlet{kit-green25}{kit-green!25!white}
+\colorlet{kit-green20}{kit-green!20!white}
+\colorlet{kit-green15}{kit-green!15!white}
+\colorlet{kit-green10}{kit-green!10!white}
+\colorlet{kit-green5}{kit-green!5!white}
+
+% KIT color blue:
+\definecolor{kit-blue}{RGB}{70, 100, 170}
+\colorlet{kit-blue100}{kit-blue}
+\colorlet{kit-blue90}{kit-blue!90!white}
+\colorlet{kit-blue80}{kit-blue!80!white}
+\colorlet{kit-blue70}{kit-blue!70!white}
+\colorlet{kit-blue60}{kit-blue!60!white}
+\colorlet{kit-blue50}{kit-blue!50!white}
+\colorlet{kit-blue40}{kit-blue!40!white}
+\colorlet{kit-blue30}{kit-blue!30!white}
+\colorlet{kit-blue25}{kit-blue!25!white}
+\colorlet{kit-blue20}{kit-blue!20!white}
+\colorlet{kit-blue15}{kit-blue!15!white}
+\colorlet{kit-blue10}{kit-blue!10!white}
+\colorlet{kit-blue5}{kit-blue!5!white}
+
+\definecolor{kit-royalblue}{RGB}{0, 45, 76}
+\colorlet{kit-royalblue100}{kit-royalblue}
+\colorlet{kit-royalblue90}{kit-royalblue!90!white}
+\colorlet{kit-royalblue80}{kit-royalblue!80!white}
+\colorlet{kit-royalblue70}{kit-royalblue!70!white}
+\colorlet{kit-royalblue60}{kit-royalblue!60!white}
+\colorlet{kit-royalblue50}{kit-royalblue!50!white}
+\colorlet{kit-royalblue40}{kit-royalblue!40!white}
+\colorlet{kit-royalblue30}{kit-royalblue!30!white}
+\colorlet{kit-royalblue25}{kit-royalblue!25!white}
+\colorlet{kit-royalblue20}{kit-royalblue!20!white}
+\colorlet{kit-royalblue15}{kit-royalblue!15!white}
+\colorlet{kit-royalblue10}{kit-royalblue!10!white}
+\colorlet{kit-royalblue5}{kit-royalblue!5!white}
+
+% Powerpoint-"Eisblau"
+\definecolor{kit-iceblue100}{RGB}{30, 53, 69}
+\definecolor{kit-iceblue70}{RGB}{68, 94, 111}
+\definecolor{kit-iceblue50}{RGB}{168, 185, 196}
+\definecolor{kit-iceblue30}{RGB}{218, 225, 230}
+
+% KIT color  red :
 \definecolor{kit-red}{RGB}{162, 34, 35}
-\newcommand{\uf}{\ensuremath{u_f}} %fluid velocity
+\colorlet{kit-red100}{kit-red}
+\colorlet{kit-red90}{kit-red!90!white}
+\colorlet{kit-red80}{kit-red!80!white}
+\colorlet{kit-red70}{kit-red!70!white}
+\colorlet{kit-red60}{kit-red!60!white}
+\colorlet{kit-red50}{kit-red!50!white}
+\colorlet{kit-red40}{kit-red!40!white}
+\colorlet{kit-red30}{kit-red!30!white}
+\colorlet{kit-red25}{kit-red!25!white}
+\colorlet{kit-red20}{kit-red!20!white}
+\colorlet{kit-red15}{kit-red!15!white}
+\colorlet{kit-red10}{kit-red!10!white}
+\colorlet{kit-red5}{kit-red!5!white}
+
+% KIT color  yellow :
+\definecolor{kit-yellow}{RGB}{252, 229, 0}
+\colorlet{kit-yellow100}{kit-yellow}
+\colorlet{kit-yellow90}{kit-yellow!90!white}
+\colorlet{kit-yellow80}{kit-yellow!80!white}
+\colorlet{kit-yellow70}{kit-yellow!70!white}
+\colorlet{kit-yellow60}{kit-yellow!60!white}
+\colorlet{kit-yellow50}{kit-yellow!50!white}
+\colorlet{kit-yellow40}{kit-yellow!40!white}
+\colorlet{kit-yellow30}{kit-yellow!30!white}
+\colorlet{kit-yellow25}{kit-yellow!25!white}
+\colorlet{kit-yellow20}{kit-yellow!20!white}
+\colorlet{kit-yellow15}{kit-yellow!15!white}
+\colorlet{kit-yellow10}{kit-yellow!10!white}
+\colorlet{kit-yellow5}{kit-yellow!5!white}
+
+% KIT color  orange :
+\definecolor{kit-orange}{RGB}{223, 155, 27}
+\colorlet{kit-orange100}{kit-orange}
+\colorlet{kit-orange90}{kit-orange!90!white}
+\colorlet{kit-orange80}{kit-orange!80!white}
+\colorlet{kit-orange70}{kit-orange!70!white}
+\colorlet{kit-orange60}{kit-orange!60!white}
+\colorlet{kit-orange50}{kit-orange!50!white}
+\colorlet{kit-orange40}{kit-orange!40!white}
+\colorlet{kit-orange30}{kit-orange!30!white}
+\colorlet{kit-orange25}{kit-orange!25!white}
+\colorlet{kit-orange20}{kit-orange!20!white}
+\colorlet{kit-orange15}{kit-orange!15!white}
+\colorlet{kit-orange10}{kit-orange!10!white}
+\colorlet{kit-orange5}{kit-orange!5!white}
+
+% KIT color  lightgreen :
+\definecolor{kit-lightgreen}{RGB}{140, 182, 60}
+\colorlet{kit-lightgreen100}{kit-lightgreen}
+\colorlet{kit-lightgreen90}{kit-lightgreen!90!white}
+\colorlet{kit-lightgreen80}{kit-lightgreen!80!white}
+\colorlet{kit-lightgreen70}{kit-lightgreen!70!white}
+\colorlet{kit-lightgreen60}{kit-lightgreen!60!white}
+\colorlet{kit-lightgreen50}{kit-lightgreen!50!white}
+\colorlet{kit-lightgreen40}{kit-lightgreen!40!white}
+\colorlet{kit-lightgreen30}{kit-lightgreen!30!white}
+\colorlet{kit-lightgreen25}{kit-lightgreen!25!white}
+\colorlet{kit-lightgreen20}{kit-lightgreen!20!white}
+\colorlet{kit-lightgreen15}{kit-lightgreen!15!white}
+\colorlet{kit-lightgreen10}{kit-lightgreen!10!white}
+\colorlet{kit-lightgreen5}{kit-lightgreen!5!white}
+
+
+% KIT color  purple :
+\definecolor{kit-purple}{RGB}{163, 16, 124}
+\colorlet{kit-purple100}{kit-purple}
+\colorlet{kit-purple90}{kit-purple!90!white}
+\colorlet{kit-purple80}{kit-purple!80!white}
+\colorlet{kit-purple70}{kit-purple!70!white}
+\colorlet{kit-purple60}{kit-purple!60!white}
+\colorlet{kit-purple50}{kit-purple!50!white}
+\colorlet{kit-purple40}{kit-purple!40!white}
+\colorlet{kit-purple30}{kit-purple!30!white}
+\colorlet{kit-purple25}{kit-purple!25!white}
+\colorlet{kit-purple20}{kit-purple!20!white}
+\colorlet{kit-purple15}{kit-purple!15!white}
+\colorlet{kit-purple10}{kit-purple!10!white}
+\colorlet{kit-purple5}{kit-purple!5!white}
+
+% KIT color  brown :
+\definecolor{kit-brown}{RGB}{167, 130, 46}
+\colorlet{kit-brown100}{kit-brown}
+\colorlet{kit-brown90}{kit-brown!90!white}
+\colorlet{kit-brown80}{kit-brown!80!white}
+\colorlet{kit-brown70}{kit-brown!70!white}
+\colorlet{kit-brown60}{kit-brown!60!white}
+\colorlet{kit-brown50}{kit-brown!50!white}
+\colorlet{kit-brown40}{kit-brown!40!white}
+\colorlet{kit-brown30}{kit-brown!30!white}
+\colorlet{kit-brown25}{kit-brown!25!white}
+\colorlet{kit-brown20}{kit-brown!20!white}
+\colorlet{kit-brown15}{kit-brown!15!white}
+\colorlet{kit-brown10}{kit-brown!10!white}
+\colorlet{kit-brown5}{kit-brown!5!white}
+
+% KIT color  cyan :
+\definecolor{kit-cyan}{RGB}{35, 161, 224}
+\colorlet{kit-cyan100}{kit-cyan}
+\colorlet{kit-cyan90}{kit-cyan!90!white}
+\colorlet{kit-cyan80}{kit-cyan!80!white}
+\colorlet{kit-cyan70}{kit-cyan!70!white}
+\colorlet{kit-cyan60}{kit-cyan!60!white}
+\colorlet{kit-cyan50}{kit-cyan!50!white}
+\colorlet{kit-cyan40}{kit-cyan!40!white}
+\colorlet{kit-cyan30}{kit-cyan!30!white}
+\colorlet{kit-cyan25}{kit-cyan!25!white}
+\colorlet{kit-cyan20}{kit-cyan!20!white}
+\colorlet{kit-cyan15}{kit-cyan!15!white}
+\colorlet{kit-cyan10}{kit-cyan!10!white}
+\colorlet{kit-cyan5}{kit-cyan!5!white}
+
+% KIT color  gray :
+\definecolor{kit-gray}{RGB}{0, 0, 0}
+\colorlet{kit-gray100}{kit-gray}
+\colorlet{kit-gray90}{kit-gray!90!white}
+\colorlet{kit-gray80}{kit-gray!80!white}
+\colorlet{kit-gray70}{kit-gray!70!white}
+\colorlet{kit-gray60}{kit-gray!60!white}
+\colorlet{kit-gray50}{kit-gray!50!white}
+\colorlet{kit-gray40}{kit-gray!40!white}
+\colorlet{kit-gray30}{kit-gray!30!white}
+\colorlet{kit-gray25}{kit-gray!25!white}
+\colorlet{kit-gray20}{kit-gray!20!white}
+\colorlet{kit-gray15}{kit-gray!15!white}
+\colorlet{kit-gray10}{kit-gray!10!white}
+\colorlet{kit-gray5}{kit-gray!5!white}
+
+
+
+
+\newcommand{\uf}{\ensuremath{u_c}} %fluid velocity
 \newcommand{\up}{\ensuremath{u_p}} %particle velocity
 \newcommand{\tvar}{\ensuremath{t}} %time
 \newcommand{\m}{\ensuremath{m}} %mass
@@ -135,7 +319,7 @@
 \newcommand{\M}{\ensuremath{M}} %value Mass
 \newcommand{\Ap}{\ensuremath{A_p}} %Acceleration particle
 \renewcommand{\d}{\ensuremath{D}} %Drag function
-\newcommand{\nuf}{\ensuremath{\overline{u}_f}} %%mean fluid flow velocity
+\newcommand{\nuf}{\ensuremath{\overline{u}_c}} %%mean fluid flow velocity
 \newcommand{\pvf}{\ensuremath{\theta}} %particle volume fraction
 \newcommand{\vf}{\ensuremath{\varphi}} %volume fraction
 \newcommand{\scs}{\ensuremath{\tau_p}} %solid contact stress
@@ -161,12 +345,24 @@
 \newcommand{\pvfcp}{\ensuremath{\pvf_{cp}}} %particle volume fraction close packing
 \renewcommand{\mp}{\ensuremath{\m_p}} %particle mass
 \newcommand{\ugp}{\ensuremath{\u_{G,p}}} %advanced time gas velocity
-\newcommand{\ufp}{\ensuremath{\u_{f,p}}}
+\newcommand{\ufp}{\ensuremath{\u_{c,p}}}
 \newcommand{\rfp}{\ensuremath{\rho_{G,p}}}
-\newcommand{\fvfp}{\ensuremath{\fvf_{f,p}}}
+\newcommand{\fvfp}{\ensuremath{\fvf_{c,p}}}
 \newcommand{\us}{\ensuremath{\u_s}}
 \newcommand{\pvfp}{\ensuremath{\pvf_p}}
 \newcommand{\umf}{\ensuremath{\u_{mf}}}
+\newcommand{\ufc}{\ensuremath{\u_{c,P}}}
+\newcommand{\ufn}{\ensuremath{\u_{c,N}}}
+\newcommand{\abar}{\ensuremath{a}}
+\newcommand{\bbar}{\ensuremath{b}}
+\newcommand{\cbar}{\ensuremath{c}}
+\newcommand{\dbar}{\ensuremath{d}}
+\newcommand{\bwe}{\ensuremath{\lambda}}
+\newcommand{\bwea}{\ensuremath{\lambda_a}}
+\newcommand{\bweb}{\ensuremath{\lambda_b}}
+\newcommand{\bwec}{\ensuremath{\lambda_c}}
+\newcommand{\bwed}{\ensuremath{\lambda_d}}
+\newcommand{\pbar}{\ensuremath{p}}
 
 % \newcommand{\Todo}[1]{\begin{tikzpicture}
 % \ape[handposition=seenoevil,signpost={\tiny \parbox{1cm}{#1}},
@@ -184,7 +380,10 @@
 \usepackage[version=4,arrows=pgf-filled,
 textfontname=sffamily,
 mathfontname=mathsf]{mhchem}
-\usepackage{listings}
+\usepackage[final]{listings}
+
+\let\Bbbk\relax
+\usepackage{amssymb}
 
 \lstset{language=C++,
                 basicstyle=\ttfamily,
@@ -198,6 +397,7 @@ mathfontname=mathsf]{mhchem}
 
 
 \usepackage{todonotes}
+\usepackage{dirtree}
 %\usepackage{lipsum} % For dummy text
 %\pagestyle{empty}
 % Set up background layer
@@ -248,6 +448,8 @@ mathfontname=mathsf]{mhchem}
 \newif\ifcode
 \codefalse  % \codetrue enables code in pdf, \codefalse disables code in pdf
 
+\newif\ifkeepcode
+\keepcodetrue
 \begin{document}
 
 %% Set PDF metadata
@@ -308,7 +510,7 @@ mathfontname=mathsf]{mhchem}
 %% --------------------
 
 %% Add entry to the table of contents for the bibliography
-\printbibliography[heading=bibintoc]
+%\printbibliography[heading=bibintoc]
 
 %% ----------------
 %% |   Appendix   |

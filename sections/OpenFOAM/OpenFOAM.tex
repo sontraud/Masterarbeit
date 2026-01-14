@@ -1,29 +1,75 @@
 \chapter{OpenFOAM}
 \label{ch:OpenFOAM}
 In the previous chapter we looked at the \MP method as first proposed by original authors.
-Since the goal of this master thesis is to use the \MP method implemented in \OF we will now take a closer look at how it is currently implemented.
-The \OF version used in this \texttt{v2412}.
-\begin{itemize}
-    \item Use for simulation
-\end{itemize}
+Since the goal of this master thesis is to use the \MP method from \OF we will now take a closer look at how it is currently implemented.
+The \OF version used in this master thesis is \texttt{v2412} which is freely available under the GNU General Public License.
 
 \section{Introduction to OpenFOAM}
-\begin{itemize}
-    \item Open source toolbox for CFD simulation
-    \item Three steps: Pre-processing (Utilities, Meshing Tools), Solving (MP-PIC), Post-processing (Paraview, other)
-    \item Show different files:
-    \begin{itemize}
-        \item blockMeshDict
-        \item controlDict
-        \item fvSchemes
-    \end{itemize}
-\end{itemize}
+\texttt{OpenFOAM}, short for Open Source Field Operation and Manipulation, is a \lstinline|C++| based toolbox for continuum mechanics problems, including computational fluid dynamics.
+Provided in \OF are pre-processing tools, e.g. for meshing, solvers, e.g. the \lstinline|MPPICFoam| and post-processing tools which we will use later in the results chapter. \todo{paraview würde ich erst später erwähnen}
+
+A typical \MP \OF case is constructed as seen in figure \ref{fig:fileStruc}. 
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.5\linewidth,trim = {0 0 2cm 0}, clip]{sections/OpenFOAM/structureOF.png}
+%     \caption{Caption}
+%     \label{fig:placeholder}
+% \end{figure}
+\begin{figure}
+\dirtree{%
+.1 Case.
+.2 0.
+.3 U.air.
+.3 p.
+.2 system.
+.3 controlDict.
+.3 fvSchemes.
+.3 fvSolution.
+.3 blockMeshDict.
+.2 constant.
+.3 g.
+.3 kinematicCloudPositions.
+.3 kinematicCloudProperties.
+.3 transportProperties.
+.3 turbulenceProperties.air.
+.3 polyMesh.
+.4 boundary.
+.4 faces.
+.4 neighbour.
+.4 owner.
+.4 points.
+.2 time directories.
+}
+\caption{Adapted from \cite{fileStruc}.}
+\label{fig:fileStruc}
+\end{figure}
+
+In the \lstinline|0| directory we define the initial conditions, in this case for the fluid velocity and the kinematic pressure.
+
+In the \lstinline|system| directory we set the parameters for solving. In \lstinline|controlDict| run parameters are defined including the time step, start and end times as well as post-processing procedures. In \lstinline|fvSchemes| we set the discretization schemes used and in \lstinline|fvSolution| we specify the solvers and their respective tolerances. In \lstinline|blockMeshDict| we set up our geometry.
+
+In the \lstinline|constant| directory we specify physical properties. Contained in the subdirectory \lstinline|polyMesh| is the information about the mesh for our simulation. In \lstinline|kinematicCloudProperties| we define the properties of the Lagrangian phase including the models and constants used for the injection of the particles, the particle normal stress model and the damping terms.
+
+In the time directories the data of the specified fields in output during the simulation. In our case these are among other outputs the fluid velocity, fluid volume fraction, pressure and the \lstinline|lagrangian| folder which includes output about the velocity and position of the particles.
 
 \section{\MP method in OpenFOAM}
 
-The \MP method in \OF can be roughly structured in the following diagram:
+The \MP method in \OF is called \lstinline|MPPICFoam| and can be executed by running the likewise named command.
+The solver is located under \lstinline|applications/solvers/lagrangian/| \lstinline|DPMFoam/MPPICFoam|. The \MP method is an incompressible transient solver that calls upon the \lstinline|Lagrangian| framework to solve for the particle trajectories. 
+For the Eulerian phase we recall the governing equations from the previous chapter: mass conservation and momentum conservation
+\begin{align*}
+    \dfrac{\partial (\fvf \rf)}{\partial \tvar} + \nabla \cdot (\fvf \rf \uf) &= 0, \\
+    \dfrac{\partial (\fvf \rf \uf)}{\partial \tvar} + \nabla \cdot (\fvf \rf \uf \uf) &= - \nabla \p -\nabla \cdot \fst - \F + \fvf \rf \g .
+\end{align*}
 
-\begin{figure}
+For the discrete phase we previously looked at the particle continuity equation and at the particle momentum equation.
+These are not solved directly in the \MP implementation in \OF since the Lagragian class is explicitly tracking particles.
+Both of these terms are necessary to see where the  kinematic stress and the interphase momentum transport arise. For both of these models are implemented in \OF that account for their contribution to the particle velocity.
+
+
+The \MP method in \OF is executed in the \lstinline|MPPICFoam.C| file can be roughly structured in the following diagram \ref{fig:FCMPPIC}.
+
+\begin{figure}[h!]
 \centering
     \begin{tikzpicture}[node distance =2cm]
     \tikzset{stretch/.initial=.5}
@@ -58,13 +104,32 @@ The \MP method in \OF can be roughly structured in the following diagram:
   ($ ({stop.west}|-{in1.west}) + (-4,0) $) -- % vertical, x fixed from stop.west
   (in1.west);
     \end{tikzpicture}
+    \caption{Flow chart showing the implementation of the \MP method.}
+    \label{fig:FCMPPIC}
 \end{figure}
-
+In \OF the two phases are split into the Lagragian loop (evolve kinematic cloud) and the Eulerian loop (\texttt{PIMPLE}). The steps in-between connect the two phases.
 In the following we will go into detail for each step.
+The implementation of the \MP method in \OF is partially explained in \cite{reportMPPIC}, \cite{chimera} and \cite{ImplemInter}. The former focuses more on the current \MP implementation, while the latter extends the current implementation to include a chimera mesh or respectively coarse particles.
 
 \subsection{Create Fields}
-\subsection{Continuous Phase Transport}
+In the file \lstinline|createFields.H| the fields used later are defined and initialized. 
+In the \MP method we first initialize the Eulerian fields, therefor the velocity, kinematic pressure, face flux, turbulence, density and kinematic viscosity and the fluid volume fraction, which is initialized as zero and calculated at the end of \lstinline|createFields.H|.
+Afterward, the particles are inserted as a kinematic cloud. The upper limit of the particle volume fraction is calculated by using the maximum packing, which can be defined in \lstinline|kinematicCloudProperties|.
+The fluid volume fraction is calculated by interpolating the particle positions to the Eulerian grid.
+Finally, the turbulence model is initialized.
 
+
+\subsection{Continuous Phase Transport}
+We start by updating the fluid transport properties, e.g. the kinematic viscosity.
+The dynamic viscosity is then calculated by multiplying the kinematic viscosity with the density.
+These are needed to update the particle positions.
+
+\ifkeepcode
+ \begin{lstlisting}
+     continuousPhaseTransport.correct();
+        muc = rhoc*continuousPhaseTransport.nu();
+ \end{lstlisting}
+\fi
 \subsection{Evolve Kinematic Cloud}
 Evolving the kinematic cloud is done by calling \lstinline|kinematicCloud.evolve();| in the \lstinline|MPPICFoam.C| file. This calls the \lstinline|solve| method from the Lagrangian kinematic cloud class.
 It can be split into roughly four steps. First the kinematic cloud is prepared in the \lstinline|preEvolve| step and relevant data is cashed. Then the particles are moved in \lstinline|evolveCloud|. 
@@ -77,17 +142,17 @@ We will look at each step in more detail in the following.
 
 
 \FloatBarrier
-\begin{figure}
+\begin{figure}[h!]
     \centering
 \begin{tikzpicture}[
     node distance=12mm and 6mm,
     every node/.style={font=\small},
     box/.style={draw, rounded corners, minimum width=26mm, minimum height=10mm, align=center},
-    lane/.style={draw, rounded corners, fill=gray!10, minimum width=42mm, minimum height=85mm},
-    pre/.style={box, fill=MidnightBlue!20},
-    evo/.style={box, fill=RedViolet!20},
-    coup/.style={box, fill=ForestGreen!20},
-    post/.style={box, fill=YellowOrange!20},
+    lane/.style={draw, rounded corners, fill=kit-gray!10, minimum width=42mm, minimum height=85mm},
+    pre/.style={box, fill=kit-cyan!30},
+    evo/.style={box, fill=kit-red!30},
+    coup/.style={box, fill=kit-green!30},
+    post/.style={box, fill=kit-orange!30},
     title/.style={font=\bfseries},
     scale = 0.9,
     transform shape
@@ -175,7 +240,6 @@ We will look at each step in more detail in the following.
  \end{figure}
 \FloatBarrier
 
-\todo{Flow chart nochmal als Text? (Bin stark dagegen das liest doch eh niemand)}
 \subsubsection{preEvolve}
 The \lstinline|preEvolve| prepares for the movement of the particles by caching important properties.
 First, the mesh validity is checked.
@@ -224,7 +288,10 @@ void Foam::KinematicCloud<CloudType>::preEvolve
 \fi
 
 \subsubsection{evolveCloud}
-The method \lstinline|evolveCloud()| is what moves the particles along their trajectories. For details the code is included in the following listing \ref{code:evolveCloud}.
+The method \lstinline|evolveCloud()| is what moves the particles along their trajectories. 
+% In the Lagrangian loop the we split the time step into sub time steps which is limited by the maximal Courant number. 
+% First \lstinline|canEvolve()| is called, which checks if we have reached the next time step.
+%For details the code is included in the following listing \ref{code:evolveCloud}.
 First the source terms are reset. The source terms that contribute to the continuous equations will be built after the kinematic cloud has evolved.
 Because the \MP solver is transient, we will only look at the first part of the \lstinline|if| condition. 
 Particles are injected in two steps.
@@ -287,7 +354,7 @@ void Foam::KinematicCloud<CloudType>::evolveCloud
 
 \end{lstlisting}
 \fi
-\todo{lieber komplett lassen oder z.B. zweiten Teil (steady state) rausnehen}
+
 \todo{trackTime ist nicht das selbe wie simulation time?}
 
 
@@ -296,6 +363,7 @@ void Foam::KinematicCloud<CloudType>::evolveCloud
 The method \lstinline|motion| is called from \lstinline|MPPICCloud.C| which differs from the previous code which was executed in \lstinline|KinematicCloud.C|. This is the core of the \MP method which was described in the previous section \ref{ch:MPPIC}. 
 The outline of how the code is executed is shown in the following flow chart \ref{fig:FCMPPIC}.
 
+%Step fraction $\Delta \tau = (t_{n+1}-t_{n}*StepFraction)$
 \FloatBarrier
 \begin{figure}[h!]
 \centering
@@ -304,11 +372,11 @@ The outline of how the code is executed is shown in the following flow chart \re
         \tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black]
         \tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
         \tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black]
-        \tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
+        \tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black]
         \tikzstyle{arrow} = [thick,->,>=stealth]
         \node (start) [startstop] {Predict particle motion through particle forces (drag, gravity, etc)};
         \node (mv1) [process, below of=start] {Move Particles};
-        \node (tau) [decission, below of = mv1] {$\tau < \tvar_{n+1}$};
+        \node (tau) [decision, below of = mv1] {$\tvar_{lag} < \tvar_{n+1}$};
         %\node (start1) [process, below of=start] {move particles according to forces};
         %\node (createMesh) [decision, right of=start,xshift = 6cm] {\texttt{createFields.H}};
         \node (in1) [process, below of=tau] {Switch Forces off};
@@ -324,7 +392,7 @@ The outline of how the code is executed is shown in the following flow chart \re
         %\draw[arrow] (start) -- (start1);
         \draw[arrow] (start) -- (mv1);
         \draw[arrow] (mv1) -- (tau);
-        \draw[arrow] (tau) -- node[anchor=west) {no}(in1);
+        \draw[arrow] (tau) -- node[anchor=west] {no} (in1);
         %\draw[arrow] (in1) -- node[anchor=south] {no} (endTime);
         %\draw[arrow] (in1) -- node[anchor = west] {yes} (dec1);
         \draw[arrow] (in1) --  (dec1);
@@ -339,7 +407,7 @@ The outline of how the code is executed is shown in the following flow chart \re
         %\draw[thick,->] (stop.west) .. controls +(-2.5,1.5) and +(-2.5,0)..  (start.west);
         \draw[thick,->,rounded corners]
   (tau.east) --
-  ($ ({tau.east}|-{tau.east}) + (6,0) $) -- node[anchor=east] {$\tau = $}
+  ($ ({tau.east}|-{tau.east}) + (6,0) $) -- node[anchor=east] {$\tvar_{lag,n+1} = \tvar_{lag,n} + (\tvar_{n+1}-\tvar_n) \tvar_{frac}$}
   ($ ({tau.east}|-{start.east}) + (6,0) $) -- 
   (start.east);
     \end{tikzpicture}
@@ -347,32 +415,49 @@ The outline of how the code is executed is shown in the following flow chart \re
     \label{fig:FCMPPIC}
 \end{figure}
 \FloatBarrier
-\Todo{Add time loop for particle time $\tau$}
+In this section we are going to exclude the collision damping model described in \ref{sec:DiscCollDamp} as stated in \cite{chimera} including this model currently causes errors.
+Because the results discussed in \Todo{Referenz} also do not show promising results we do not discuss the implementation here.
+
+
 In the previous section we defined the advanced time velocity in equation \ref{eq:errVel} as
 \begin{equation*}
     \up^{n+1} = \dfrac{\up^n + \Delta \tvar \left[ \d_p \up^{n+1} - \dfrac{1}{\rp} \nabla \p_p^{n+1} - \dfrac{1}{\rp \pvf} \nabla \scs^{n+1} - \g \right]}{1 + \Delta \tvar \d} .
 \end{equation*}
-In the \MP implementation this is split up into two different terms.
+Since small changes in the particle solid stress can have a big influence the particle normal stress the velocity is updated in a first step without the particle normal stress. 
+With the new particle positions the particle normal stress is applied.
+The terms are split as follows
 \begin{align*}
     \up^{n+1} & = \tilde{\up}^{n+1} + \u_{p,\scs} \\
-    \tilde{\up^{n+1}} &= \dfrac{\up^n + \Delta \tvar \left[ \d_p \up^{n+1} - \dfrac{1}{\rp} \nabla \p_p^{n+1} - \g \right]}{1 + \Delta \tvar \d} \qquad \u_{p,\scs} = - \dfrac{\Delta \tvar \nabla \scs}{\rp \pvf (1+\Delta \tvar \d)}
+    \tilde{\up}^{n+1} &= \dfrac{\up^n + \Delta \tvar \left[ \d_p \up^{n+1} - \dfrac{1}{\rp} \nabla \p_p^{n+1} + \g \left( 1- \dfrac{\rf}{\rp}\right) \right]}{1 + \Delta \tvar \d} \qquad \u_{p,\scs} = - \dfrac{\Delta \tvar \nabla \scs}{\rp \pvf (1+\Delta \tvar \d)}
 \end{align*}
+with the previously unregarded buoyancy force included in the first term.
+In the \OF implementation the drag term is neglected due to it being either dominated by the pressure term or insignificant. Instead a small factor is included
+\todo{stimmt das?}
+\begin{equation*}
+    \u_{p,\scs} = - \dfrac{\Delta \tvar \nabla \scs}{\rp (\pvf + \operatorname{SMALL})}
+\end{equation*}
+
+
+
 In the first step only the first term that depends on particle forces is applied to the particles and they are moved accordingly.
 The new particle positions are
 \begin{equation*}
-    \xp^{n+1} = \xp^n + \tilde{\up}^{n+1}.
+    \xp^{n+1} = \xp^n + \tilde{\up}^{lag}.
 \end{equation*}
+The time step that is chosen here is based on the time step fraction.
+\Todo{Fraction erklären}
+
 Next the collision damping model is applied.
 This is currently not properly implemented in \OF and will therefor not be discussed further here \cite{chimera}.
 
-\Todo{stimmt zweiter Term?}
+%\Todo{stimmt zweiter Term?}
 To model particle-particle interactions the particle normal stress is applied in the packing model.
 Different models can be used here, as discussed in \ref{sec:particleNormalStress}.
 To prevent unphysical behavior the packing model is only applied in certain cases \cite{MPInterpolation}.
 The criterion depends on the relative velocity $\u_r$ which calculated the difference between the particle velocity and the averaged Eulerian particle velocity.
 \begin{align*}
     \begin{cases}
-        \u_{p,\scs} = - \dfrac{\Delta \tvar \nabla \scs}{\rp \pvf (1+\Delta \tvar \d)} & \text{if } \u_r \cdot \nabla \scs > 0  \\
+        \u_{p,\scs} = - \dfrac{\Delta \tvar \nabla \scs}{\rp (\pvf + \operatorname{SMALL})} & \text{if } \u_r \cdot \nabla \scs > 0  \\
         \u_{p,\scs} = 0 & \text{if } \u_r \cdot \nabla \scs \leq 0
     \end{cases} \qquad \u_r = \up - \overline{\up}
 \end{align*}
@@ -391,9 +476,9 @@ In the other three cases accelerating the particle would lead to unphysical beha
 \resizebox{0.55\textwidth}{!}{%
 \begin{circuitikz}
 \tikzstyle{every node}=[font=\LARGE]
-\draw[fill=ForestGreen!12] (8.75,4.75) -- (13.75,-0.25) -- (13.75,4.75);
-\draw[fill=ForestGreen!12] (13.75,-0.25) -- (13.75,-5.25) -- (8.75,-5.25) -- (8.75,-0.25);
-\draw[fill=ForestGreen!12] (18.75,-5.25) -- (13.75,-0.25) -- (13.75,-5.25);
+\draw[fill=kit-green!12] (8.75,4.75) -- (13.75,-0.25) -- (13.75,4.75);
+\draw[fill=kit-green!12] (13.75,-0.25) -- (13.75,-5.25) -- (8.75,-5.25) -- (8.75,-0.25);
+\draw[fill=kit-green!12] (18.75,-5.25) -- (13.75,-0.25) -- (13.75,-5.25);
 \draw (8.75,7.25) to[short] (8.75,-5.25);
 \draw (13.75,7.25) to[short] (13.75,-5.25);
 \draw (18.75,7.25) to[short] (18.75,-5.25);
@@ -413,7 +498,7 @@ In the other three cases accelerating the particle would lead to unphysical beha
 \node [font=\large] at (7.5,-2) {Moving};
 \node [font=\large] at (7.5,-2.75) {away from};
 \node [font=\large] at (7.5,-3.5) {close pack};
-\draw [ fill={rgb,255:red,0; green,0; blue,0} ] (12.5,3.5) circle (0.25cm);
+\draw [ fill=black ] (12.5,3.5) circle (0.25cm);
 \draw  (12.5,3.5) circle (0cm);
 \draw [->, >=Stealth] (12.25,3.5) -- (10.5,3.5);
 \draw [->, >=Stealth] (11.75,4.25) -- (11,4.25);
@@ -425,21 +510,21 @@ In the other three cases accelerating the particle would lead to unphysical beha
 \draw [->, >=Stealth] (12.5,2.25) -- (11.75,2.25);
 \draw [->, >=Stealth] (13.5,1.25) -- (12.75,1.25);
 \draw [->, >=Stealth] (10.75,4) -- (10,4);
-\draw [->, >=Stealth, color = red, very thick] (12.5,2.8) --(11.5,2.8); 
-\draw [ fill={rgb,255:red,0; green,0; blue,0} ] (11.25,1) circle (0.25cm);
+\draw [->, >=Stealth, color = kit-red, very thick] (12.5,2.8) --(11.5,2.8); 
+\draw [ fill=black ] (11.25,1) circle (0.25cm);
 \draw [->, >=Stealth] (11,1) -- (10.25,1) ;
 \draw [->, >=Stealth] (11.5,1.75) -- (9.5,1.75);
 \draw [->, >=Stealth] (12.5,0) -- (10.5,0);
-\draw [->, >=Stealth, color = red, very thick] (9.75,1.5) -- (11,1.5); 
+\draw [->, >=Stealth, color = kit-red, very thick] (9.75,1.5) -- (11,1.5); 
 \draw [->, >=Stealth] (10.75,2.5) -- (9,2.5);
 \draw [->, >=Stealth] (11,0.5) -- (9,0.5);
 \draw [->, >=Stealth] (10.25,3) -- (8.75,3);
-\draw [ fill={rgb,255:red,0; green,0; blue,0} ] (16.25,-1.5) circle (0.25cm);
-\draw [ fill={rgb,255:red,0; green,0; blue,0} ] (15,-4) circle (0.25cm);
-\draw [ fill={rgb,255:red,0; green,0; blue,0} ] (16.25,2.25) circle (0.25cm);
-\draw [ fill={rgb,255:red,0; green,0; blue,0} ] (11.25,-2.75) circle (0.25cm);
+\draw [ fill=black ] (16.25,-1.5) circle (0.25cm);
+\draw [ fill=black ] (15,-4) circle (0.25cm);
+\draw [ fill=black ] (16.25,2.25) circle (0.25cm);
+\draw [ fill=black ] (11.25,-2.75) circle (0.25cm);
 \draw [->, >=Stealth] (16.25,1) -- (15,1);
-\draw [->, >=Stealth, color = red, very thick] (14.75,1.9) --(17.75,1.9); 
+\draw [->, >=Stealth, color = kit-red, very thick] (14.75,1.9) --(17.75,1.9); 
 \draw [->, >=Stealth] (16.25,2.25) -- (17.5,2.25);
 \draw [->, >=Stealth] (16.25,3.5) -- (15,3.5);
 \draw [->, >=Stealth] (15.5,2.25) -- (14.25,2.25);
@@ -476,21 +561,21 @@ In the other three cases accelerating the particle would lead to unphysical beha
 \draw [->, >=Stealth] (18,-1) -- (18.75,-1);
 \draw [short] (8.75,4.75) -- (8.75,4.75);
 \draw [short] (8.75,4.75) -- (13.75,-0.25);
-\draw [->, >=Stealth, color = red, very thick] (16.25,-2.35) --(17.75,-2.35); 
-\draw [->, >=Stealth, color = red, very thick] (12.5,-2.25) --(10,-2.25); 
-\draw [->, >=Stealth, color = red, very thick] (15.25,-3.5) --(14.25,-3.5); 
+\draw [->, >=Stealth, color = kit-red, very thick] (16.25,-2.35) --(17.75,-2.35); 
+\draw [->, >=Stealth, color = kit-red, very thick] (12.5,-2.25) --(10,-2.25); 
+\draw [->, >=Stealth, color = kit-red, very thick] (15.25,-3.5) --(14.25,-3.5); 
 %\draw [ color={rgb,255:red,38; green,162; blue,105}!20 , fill={rgb,255:red,46; green,194; blue,126}, line width=1pt ] (8.75,-0.25) rectangle (13.75,-5.25);
 % \draw [ color={rgb,255:red,38; green,162; blue,105}, line width=2pt, short] (13.75,0) -- (13.75,0);
 % \draw [ color={rgb,255:red,38; green,162; blue,105}, line width=2pt, short] (8.75,4.75) -- (8.75,4.75);
-\draw [ color={rgb,255:red,38; green,162; blue,105}, line width=2pt, short] (8.75,4.75) -- (13.75,-0.25);
-\draw [ color={rgb,255:red,38; green,162; blue,105}, line width=2pt, short] (8.75,4.75) -- (13.75,4.75);
-\draw [ color={rgb,255:red,38; green,162; blue,105}, line width=2pt, short] (13.75,4.75) -- (13.75,-0.25);
-\draw [ color={rgb,255:red,38; green,162; blue,105}, line width=2pt, short] (8.75,-0.25) -- (8.75,-5.25);
+\draw [ color=kit-green, line width=2pt, short] (8.75,4.75) -- (13.75,-0.25);
+\draw [ color=kit-green, line width=2pt, short] (8.75,4.75) -- (13.75,4.75);
+\draw [ color=kit-green, line width=2pt, short] (13.75,4.75) -- (13.75,-0.25);
+\draw [ color=kit-green, line width=2pt, short] (8.75,-0.25) -- (8.75,-5.25);
 \draw [ color={rgb,255:red,38; green,162; blue,105}, line width=2pt, short] (8.75,-5.25) -- (13.75,-5.25);
-\draw [ color={rgb,255:red,38; green,162; blue,105}, line width=2pt, short] (13.75,-5.25) -- (13.75,-0.25);
-\draw [ color={rgb,255:red,38; green,162; blue,105}, line width=2pt, short] (13.75,-0.25) -- (8.75,-0.25);
-\draw [ color={rgb,255:red,38; green,162; blue,105}, line width=2pt, short] (13.75,-0.25) -- (18.75,-5.25);
-\draw [ color={rgb,255:red,38; green,162; blue,105}, line width=2pt, short] (18.75,-5.25) -- (13.75,-5.25);
+\draw [ color=kit-green, line width=2pt, short] (13.75,-5.25) -- (13.75,-0.25);
+\draw [ color=kit-green, line width=2pt, short] (13.75,-0.25) -- (8.75,-0.25);
+\draw [ color=kit-green, line width=2pt, short] (13.75,-0.25) -- (18.75,-5.25);
+\draw [ color=kit-green, line width=2pt, short] (18.75,-5.25) -- (13.75,-5.25);
 
 \end{circuitikz}
 }%
@@ -563,11 +648,13 @@ Foam::vector Foam::PackingModels::Explicit<CloudType>::velocityCorrection
 \end{lstlisting}
 \fi
 
-How the gradient of the particle normal stress \lstinline|tauGrad| is calculated depends on the chosen particle normal stress model. 
-Here we will only discuss the Harris and Crigthon model
-\begin{equation*}
-    \scs = \dfrac{P_s \pvf^\beta}{\pvfcp - \pvf}.
-\end{equation*}
+How the gradient of the particle normal stress \lstinline|tauGrad| is calculated depends on the chosen particle normal stress model.
+In \OF two particle normal stress models are implemented.
+The here discussed Harris and Crighton model
+% \begin{equation*}
+%     \scs = \dfrac{P_s \pvf^\beta}{\pvfcp - \pvf}.
+% \end{equation*}
+as well as the Lun particle normal stress model. 
 For numerical stability the denominator is restricted with a small number $\varepsilon$ to prevent divergence.
 In the Harris and Crighton model this is 
 \begin{equation*}
@@ -577,7 +664,9 @@ In the Harris and Crighton model this is
 \end{equation*}
 with the constant \lstinline|SMALL| that is executed by the \lstinline|C++| library \verb|numeric_limits| and is a system-dependent number that depends on the used floating-point arithmetic.
 This further restricts the denominator to prevent numerical instabilities near close pack.
-The Harris and Crighton model is executed in the following code \ref{code:HarrisCrighton}.
+\todo{aktuell ist das nur explizit, soll implizit auch? Ist nur semi interessant ...}
+%The Harris and Crighton model is executed in the following code \ref{code:HarrisCrighton}.
+
 
 \ifcode
 \begin{lstlisting}[firstline=81,caption = intermediate/submodels/MPPIC/ParticleStressModels/HarrisCrighton/HarrisCrighton.C,label={code:HarrisCrighton}]
@@ -647,7 +736,7 @@ Lastly the return-to-isotropy damping term is applied.
 The return-to-isotropy damping term is implemented as depicted in the following flow chart.
 \begin{figure}[h!]
     \centering
-    \resizebox{0.4\textwidth}{!}{%
+    \resizebox{0.55\textwidth}{!}{%
     \begin{tikzpicture}[node distance=2cm]
 \tikzstyle{startstop} = [rectangle, rounded corners, 
 minimum width=3cm, 
@@ -676,7 +765,7 @@ minimum height=1cm,
 text centered, 
 draw=black, 
 fill=green!30]
-\tikzstyle{arrow} = [line width = 1mm,->,>=stealth]
+\tikzstyle{arrow} = [line width = 0.5mm,->,>=stealth]
 
 
 
@@ -692,11 +781,11 @@ fill=green!30]
 %\draw [arrow] (in1) -- (pro2a);
 % \draw [arrow] (pro1) -- (dec1);
 \draw [arrow] (in1) -- node[anchor=east] {yes} (pro2a);
-\draw [arrow] (in1) -- node[anchor=south] {no} (pro2b);
+\draw [arrow] (in1.east) -- node[anchor=south west] {no} (pro2b.north);
 % \draw [arrow] (pro2b) |- (pro1);
 \draw [arrow] (pro2a) -- (out1);
 \draw [arrow] (out1) -- (stop);
-
+\draw [arrow] (pro2b.south) -- (stop.east);
 \end{tikzpicture}
 }
     \caption{Return-to-isotropy damping term.}
@@ -704,8 +793,9 @@ fill=green!30]
 \end{figure}
 
 For each particle we preform an accept-reject algorithm by first drawing from a uniform distribution $X_p \sim \mathcal{U}([0,1))$. 
-If the drawn value is smaller or equal than $\operatorname{exp}(-\Delta \tvar / \ss_G)$ than no collision has taken place and the velocity of the particle stays the same.
-This implies that the probability of collision goes towards $1$ for the damping term approaching zero or in physical terms that when we expect the time until the next collision to be zero that there is a collision.
+If the drawn value is smaller or equal than $\operatorname{exp}(-\Delta \tvar / \ss_G)$ than no collision has taken place and the velocity of the particle stays the same. The return-to-isotropy damping time is defined in the previous chapter \eqref{eq:DampingTimeG}.
+This implies that the probability of collision goes towards $1$ for the damping term approaching zero or in physical terms that when we expect the time until the next collision to be zero that there is a collision, see figure 
+\Todo{Farben anpassen} \ref{fig:colNoCol}.
 \begin{figure}
     \centering
     \includegraphics[width=0.7\linewidth]{sections/OpenFOAM/acceptReject.png}
@@ -713,11 +803,323 @@ This implies that the probability of collision goes towards $1$ for the damping 
     \label{fig:colNoCol}
 \end{figure}
 
-If the code determines that a collision has taken place an updated velocity is drawn from a Gaussian distribution centered around the mean velocity $\overline{\up}$
+If the code determines that a collision has taken place an updated velocity is drawn from a Gaussian distribution centered around the mean velocity $\overline{\up}$ with the velocity variance $\sigma^2$.
+% \begin{equation*}
+%     G(\up ; \overline{\up}, \sigma^2(\m)) = \left(\dfrac{2}{3} \pi \sigma^2(\m)\right)^{-\frac{3}{2}} \operatorname{exp} [-(\up - \overline{\up})/(2/3\sigma^2(\m)).
+% \end{equation*}
+\todo{chi2 Ver\-teilung $\sim$ Exp(1/2), uninteressant?}
+For the Gaussian standard distribution a Box-Muller sampling algorithm is used. 
+Since 
+\todo{Zählt das noch als Allgemein\-bildung oder zitieren?}
 \begin{equation*}
-    G(\up ; \overline{\up}, \sigma^2(\m)) = \left(\dfrac{2}{3} \pi \sigma^2(\m)\right)^{-\frac{3}{2}} \operatorname{exp} [-(\up - \overline{\up})/(2/3\sigma^2(\m)).
+    X \sim \mathcal{N}(\mu , \sigma^2) \qquad \Rightarrow \qquad aX+b \sim \mathcal{N} (a \mu + b, a^2 \sigma^2)
 \end{equation*}
+we can avoid calculating the Gaussian distribution but instead shift the normal distribution.
+The distribution we calculate first is centered around zero with a variance of one. Adding the mean velocity and the velocity variance we thus get our desired distribution.
+To account for the three dimensional method in \OF we norm the added velocities by $\sqrt{1/3}$
+\begin{equation*}
+    \up = \overline{\u} + \dfrac{1}{\sqrt{3}} g \left( \sum_p \Np \mp (\up - \overline{\u})^2\right) 
+\end{equation*}
+This differs from the Gaussian distribution from the paper \eqref{eq:rtiDist} but holds the same mean and variance properties.
+The previous velocity of the particle is overwritten.
+\ifkeepcode
+\begin{lstlisting}
+    p.U() = u + r*uRms*oneBySqrtThree;
+\end{lstlisting}
+\fi
+Here \lstinline|uRms| is the variance, \lstinline|u| is the mean particle velocity and \lstinline|oneBySqrtThree| is $\sqrt{1/3}$.
 Afterward, velocities are adjusted for momentum conservation.
+\ifkeepcode
+\begin{lstlisting}
+    p.U() = u + (p.U() - uTilde)*uRms/max(uTildeRms, SMALL);
+\end{lstlisting}
+\fi
+This is done as described above in equation \eqref{eq:rtiUpdate}
+\begin{equation*}
+     \up^{n+1} = \overline{\u} + \alpha (\tilde{\up} + \delta \u - \overline{\u}) \\
+     \Leftrightarrow
+     \up^{n+1} = \overline{\u} + \left(\tilde{\up} - \dfrac{\sum_p \Np \mp \tilde{\up}}{\sum \Np \mp} \right)\sqrt{\dfrac{\sum_p \Np \mp (\up^n - \overline{\u})^2}{\sum_p \Np \mp \left( \tilde{\up} - \dfrac{\sum_p \Np \mp \tilde{\up}}{\sum_p \Np \mp}\right)}}.
+\end{equation*}
+
+
+
+\ifcode
+\begin{lstlisting}
+    template<class CloudType>
+void Foam::IsotropyModels::Stochastic<CloudType>::calculate()
+{
+    const fvMesh& mesh = this->owner().mesh();
+    const scalar deltaT(this->owner().db().time().deltaTValue());
+    Random& rndGen = this->owner().rndGen();
+
+    const scalar oneBySqrtThree = sqrt(1.0/3.0);
+
+    const auto& volumeAverage =
+        mesh.lookupObject<AveragingMethod<scalar>>
+        (
+            IOobject::scopedName(this->owner().name(), "volumeAverage")
+        );
+    const auto& radiusAverage =
+        mesh.lookupObject<AveragingMethod<scalar>>
+        (
+            IOobject::scopedName(this->owner().name(), "radiusAverage")
+        );
+    const auto& uAverage =
+        mesh.lookupObject<AveragingMethod<vector>>
+        (
+            IOobject::scopedName(this->owner().name(), "uAverage")
+        );
+    const auto& uSqrAverage =
+        mesh.lookupObject<AveragingMethod<scalar>>
+        (
+            IOobject::scopedName(this->owner().name(), "uSqrAverage")
+        );
+    const auto& frequencyAverage =
+        mesh.lookupObject<AveragingMethod<scalar>>
+        (
+            IOobject::scopedName(this->owner().name(), "frequencyAverage")
+        );
+    const auto& massAverage =
+        mesh.lookupObject<AveragingMethod<scalar>>
+        (
+            IOobject::scopedName(this->owner().name(), "massAverage")
+        );
+
+
+    // calculate time scales and pdf exponent
+    autoPtr<AveragingMethod<scalar>> exponentAveragePtr
+    (
+        AveragingMethod<scalar>::New
+        (
+            IOobject
+            (
+                IOobject::scopedName(this->owner().name(), "exponentAverage"),
+                this->owner().db().time().timeName(),
+                mesh
+            ),
+            this->owner().solution().dict(),
+            mesh
+        )
+    );
+    AveragingMethod<scalar>& exponentAverage = exponentAveragePtr();
+    exponentAverage =
+        exp
+        (
+          - deltaT
+           *this->timeScaleModel_->oneByTau
+            (
+                volumeAverage,
+                radiusAverage,
+                uSqrAverage,
+                frequencyAverage
+            )
+        )();
+
+
+    // random sampling
+    for (typename CloudType::parcelType& p : this->owner())
+    {
+        const tetIndices tetIs(p.currentTetIndices());
+
+        const scalar x = exponentAverage.interpolate(p.coordinates(), tetIs);
+
+        if (x < rndGen.sample01<scalar>())
+        {
+            const vector r(sampleGauss(), sampleGauss(), sampleGauss());
+
+            const vector u = uAverage.interpolate(p.coordinates(), tetIs);
+            const scalar uRms =
+                sqrt(max(uSqrAverage.interpolate(p.coordinates(), tetIs), 0.0));
+
+            p.U() = u + r*uRms*oneBySqrtThree;
+        }
+    }
+
+
+    // correction velocity averages
+    autoPtr<AveragingMethod<vector>> uTildeAveragePtr
+    (
+        AveragingMethod<vector>::New
+        (
+            IOobject
+            (
+                IOobject::scopedName(this->owner().name(), "uTildeAverage"),
+                this->owner().db().time().timeName(),
+                mesh
+            ),
+            this->owner().solution().dict(),
+            mesh
+        )
+    );
+    AveragingMethod<vector>& uTildeAverage = uTildeAveragePtr();
+    for (typename CloudType::parcelType& p : this->owner())
+    {
+        const tetIndices tetIs(p.currentTetIndices());
+        uTildeAverage.add(p.coordinates(), tetIs, p.nParticle()*p.mass()*p.U());
+    }
+    uTildeAverage.average(massAverage);
+
+    autoPtr<AveragingMethod<scalar>> uTildeSqrAveragePtr
+    (
+        AveragingMethod<scalar>::New
+        (
+            IOobject
+            (
+                IOobject::scopedName(this->owner().name(), "uTildeSqrAverage"),
+                this->owner().db().time().timeName(),
+                mesh
+            ),
+            this->owner().solution().dict(),
+            mesh
+        )
+    );
+    AveragingMethod<scalar>& uTildeSqrAverage = uTildeSqrAveragePtr();
+    for (typename CloudType::parcelType& p : this->owner())
+    {
+        const tetIndices tetIs(p.currentTetIndices());
+        const vector uTilde = uTildeAverage.interpolate(p.coordinates(), tetIs);
+        uTildeSqrAverage.add
+        (
+            p.coordinates(),
+            tetIs,
+            p.nParticle()*p.mass()*magSqr(p.U() - uTilde)
+        );
+    }
+    uTildeSqrAverage.average(massAverage);
+
+ // conservation correction
+    for (typename CloudType::parcelType& p : this->owner())
+    {
+        const tetIndices tetIs(p.currentTetIndices());
+
+        const vector u = uAverage.interpolate(p.coordinates(), tetIs);
+        const scalar uRms =
+            sqrt(max(uSqrAverage.interpolate(p.coordinates(), tetIs), 0.0));
+
+        const vector uTilde = uTildeAverage.interpolate(p.coordinates(), tetIs);
+        const scalar uTildeRms =
+            sqrt
+            (
+                max(uTildeSqrAverage.interpolate(p.coordinates(), tetIs), 0.0)
+            );
+
+        p.U() = u + (p.U() - uTilde)*uRms/max(uTildeRms, SMALL);
+    }
+}
+
+\end{lstlisting}
+
+
+\begin{lstlisting}[caption = average]
+template<class ParcelType>
+template<class TrackCloudType>
+inline void Foam::MPPICParcel<ParcelType>::trackingData::updateAverages
+(
+    const TrackCloudType& cloud
+)
+{
+    // zero the sums
+    volumeAverage_() = 0;
+    radiusAverage_() = 0;
+    rhoAverage_() = 0;
+    uAverage_() = Zero;
+    uSqrAverage_() = 0;
+    frequencyAverage_() = 0;
+    massAverage_() = 0;
+
+    // temporary weights
+    autoPtr<AveragingMethod<scalar>> weightAveragePtr
+    (
+        AveragingMethod<scalar>::New
+        (
+            IOobject
+            (
+                IOobject::scopedName(cloud.name(), "weightAverage"),
+                cloud.db().time().timeName(),
+                cloud.mesh()
+            ),
+            cloud.solution().dict(),
+            cloud.mesh()
+        )
+    );
+    AveragingMethod<scalar>& weightAverage = weightAveragePtr();
+
+    // averaging sums
+    for (const typename TrackCloudType::parcelType& p : cloud)
+    {
+        const tetIndices tetIs = p.currentTetIndices();
+
+        const scalar m = p.nParticle()*p.mass();
+
+        volumeAverage_->add(p.coordinates(), tetIs, p.nParticle()*p.volume());
+        rhoAverage_->add(p.coordinates(), tetIs, m*p.rho());
+        uAverage_->add(p.coordinates(), tetIs, m*p.U());
+        massAverage_->add(p.coordinates(), tetIs, m);
+    }
+    volumeAverage_->average();
+    massAverage_->average();
+    rhoAverage_->average(*massAverage_);
+    uAverage_->average(*massAverage_);
+
+        // squared velocity deviation
+    for (const typename TrackCloudType::parcelType& p : cloud)
+    {
+        const tetIndices tetIs = p.currentTetIndices();
+
+        const vector u = uAverage_->interpolate(p.coordinates(), tetIs);
+
+        uSqrAverage_->add
+        (
+            p.coordinates(),
+            tetIs,
+            p.nParticle()*p.mass()*magSqr(p.U() - u)
+        );
+    }
+    uSqrAverage_->average(*massAverage_);
+
+    // sauter mean radius
+    radiusAverage_() = volumeAverage_();
+    weightAverage = 0;
+    for (const typename TrackCloudType::parcelType& p : cloud)
+    {
+        const tetIndices tetIs = p.currentTetIndices();
+
+        weightAverage.add
+        (
+            p.coordinates(),
+            tetIs,
+            p.nParticle()*pow(p.volume(), 2.0/3.0)
+        );
+    }
+    weightAverage.average();
+    radiusAverage_->average(weightAverage);
+
+    // collision frequency
+    weightAverage = 0;
+    for (const typename TrackCloudType::parcelType& p : cloud)
+    {
+        const tetIndices tetIs = p.currentTetIndices();
+
+        const scalar a = volumeAverage_->interpolate(p.coordinates(), tetIs);
+        const scalar r = radiusAverage_->interpolate(p.coordinates(), tetIs);
+        const vector u = uAverage_->interpolate(p.coordinates(), tetIs);
+
+        const scalar f = 0.75*a/pow3(r)*sqr(0.5*p.d() + r)*mag(p.U() - u);
+
+        frequencyAverage_->add(p.coordinates(), tetIs, p.nParticle()*f*f);
+
+        weightAverage.add(p.coordinates(), tetIs, p.nParticle()*f);
+    }
+    frequencyAverage_->average(weightAverage);
+}
+
+\end{lstlisting}
+\fi
+
+
+
+
+
 
 \ifcode
 \begin{lstlisting}[firstline=140]
@@ -842,18 +1244,22 @@ Afterward, velocities are adjusted for momentum conservation.
 \end{lstlisting}
 \fi
 
-\Todo{Adjust velocity einfügen}
-\Todo{$\tilde{u}_{p,i}$ einfügen}
+%\Todo{Adjust velocity einfügen}
+%\Todo{$\tilde{u}_{p,i}$ einfügen}
 
 
 
-\Todo{damping zeit einfügen}
+%\Todo{damping zeit einfügen}
 
 
 Lastly cell occupancy is again calculated which will be used to calculate the fluid volume fraction in the next step.
 The forces are turned back on for the calculations of the Eulerian grid.
 
-This can be observed in the code below.
+%This can be observed in the code below.
+
+
+
+
 
 \ifcode
 \begin{lstlisting}[firstnumber=176,caption= motion from  MPPICCloud/MPPICCloud.C]
@@ -994,10 +1400,10 @@ The new cloud properties are scalled by $\alpha$ while the old cloud properties 
     new = \alpha new + (1- \alpha ) old
 \end{equation*}
 The default, used in the \MP method is to use $\alpha = 1$. 
-\todo{hab niergends relaxation gefunden, wird nicht verwendet?}
+%\todo{hab niergends relaxation gefunden, wird nicht verwendet?}
 
 Here 
-\MP is coupled
+%\MP is coupled
 \subsubsection{postEvolve}
 The \lstinline|postEvolve| function is the counterpart of the \lstinline|preEvolve| function. Previously cashed function are released. This includes the Eulerina fields. Cloud properties as such as the particle positions are written out as needed and the iteration advanced. In line boundary and wall interactions are finalized.
 \ifcode
@@ -1095,58 +1501,343 @@ Boundary conditions are corrected.
 \lstinline|fvc::interpolate(alphac)| interpolates the fluid volume fraction previously calculated to the Eulerian mesh.
 In \lstinline|system/fvSchemes| the interpolation scheme is defined as linear. 
 The interpolation used by \OF is the barycentric interpolation.
-For the interpolation the cells are divided into tetrahedrons. In the \MP method we use linear interpolation functions
-\begin{align*}
-    N_1 (x,y,z) &= 1-x-y-z \\
-    N_2 (x,y,z) &= x \\
-    N_3 (x,y,z) &= y \\
-    N_4 (x,y,z) &= z 
-\end{align*}
+For the interpolation the cells are divided into eight tetrahedrons using the cell center and three vertices which we will call $\abar = (\abar_1, \abar_2, \abar_3),\bbar = (\bbar_1, \bbar_2, \bbar_3),\cbar = (\cbar_1, \cbar_2, \cbar_3),\dbar = (\dbar_1, \dbar_2, \dbar_3)$, given in global coordinates.\hfill
 
-\Todo{interpolation in OpenFOAM}
+\begin{figure}[h!]
+\begin{subfigure}[b]{0.45\textwidth}
+\begin{tikzpicture}[scale=4,
+    x={(1cm,0cm)}, y={(0.3545cm,0.3545cm)}, z={(0cm,1cm)}]
+
+% Cube vertices
+\coordinate (A) at (0,0,0);
+\coordinate (B) at (1,0,0);
+\coordinate (C) at (1,1,0);
+\coordinate (D) at (0,1,0);
+
+\coordinate (E) at (0,0,1);
+\coordinate (F) at (1,0,1);
+\coordinate (G) at (1,1,1);
+\coordinate (H) at (0,1,1);
+
+\coordinate (center) at (1/2,1/2,1/2);
+
+\shade[shading=axis, bottom color=kit-blue!20, top color=kit-blue!20, opacity =0.5] (E) -- (F) -- (G) -- cycle;
+\shade[shading=axis, bottom color=kit-blue!80, top color=kit-blue!20, opacity =0.5] (E) -- (F) -- (center) -- cycle;
+\shade[shading=axis, bottom color=kit-blue!80, top color=kit-blue!20, opacity =0.5] (E) -- (G) -- (center) -- cycle;
+\shade[shading=axis, bottom color=kit-blue!80, top color=kit-blue!20, opacity =0.5] (F) -- (G) -- (center) -- cycle;
+
+\draw[ultra thick] (A)--(B)--(C)--(D)--cycle;
+\draw[ultra thick] (E)--(F)--(G)--(H)--cycle;
+\draw[ultra thick] (A)--(E);
+\draw[ultra thick] (B)--(F);
+\draw[ultra thick] (C)--(G);
+\draw[ultra thick] (D)--(H);
+
+\draw[kit-blue,opacity=0.5,ultra thick] (E) -- (F) -- (G) -- (E);
+\draw[kit-blue,opacity=0.5,ultra thick] (E) -- (center);
+\draw[kit-blue,opacity=0.5,ultra thick] (F) -- (center);
+\draw[kit-blue,opacity=0.5,ultra thick] (G) -- (center);
+
+% Draw cube edges
+
+
+% Label vertices
+%\node[left] at (A) {$A$};
+%\node[right] at (B) {$B$};
+%\node[right] at (C) {$C$};
+%\node[left] at (D) {$D$};
+%\node[left] at (E) {$\abar$};
+%\node[right] at (F) {$\bbar$};
+%\node[right] at (G) {$\cbar$};
+%\node[left] at (H) {$H$};
+%\node[left] at (center) {$\dbar$};
+
+
+
+\filldraw[black] (1/2,1/2,1/2) circle (0.5pt) node[anchor = north]{$\dbar$};
+\filldraw[black] (0,0,1) circle (0.5pt) node[anchor = east]{$\abar$};
+\filldraw[black] (1,0,1) circle (0.5pt) node[anchor = south east]{$\bbar$};
+\filldraw[black] (1,1,1) circle (0.5pt) node[anchor = west]{$\cbar$};
+
+\end{tikzpicture}    
+\caption{One tetrahedron inside the cell.}
+\end{subfigure}
+\begin{subfigure}[b]{0.45\textwidth}
+\begin{tikzpicture}[scale=3.5,
+    x={(1cm,0cm)}, y={(0.6cm,0.4cm)}, z={(0cm,1cm)}]
+\coordinate (A) at (1.2,0,0);
+\coordinate (B) at (0.8,-0.5,-0.1);
+\coordinate (C) at (0,-1,0.2);
+\coordinate (D) at (0,0,1);
+\coordinate (P) at (0,0,0.2);
+
+\draw[ultra thick] (A)--(B)--(C)--(D)--cycle;
+\draw[ultra thick] (D) -- (B);
+\draw[ultra thick, dashed] (A) -- (C);
+
+\node[right] at (A) {$\abar$};
+\node[below] at (B) {$\bbar$};
+\node[left] at (C) {$\cbar$};
+\node[above] at (D) {$\dbar$};
+\node[right] at (P) {$p$};
+
+\draw[kit-blue,dotted,thick] (P) -- (A);
+\draw[kit-blue,dotted,thick] (P) -- (B);
+\draw[kit-blue,dotted,thick] (P) -- (C);
+\draw[kit-blue,dotted,thick] (P) -- (D);
+
+\foreach \pt in {A,B,C,D,P}
+    \fill (\pt) circle[radius=0.5pt];
+\end{tikzpicture}
+\caption{Tetrahedron split into four sub tetrahedron: $\widetilde{\pbar \abar \bbar \cbar},\widetilde{\pbar \abar \bbar \dbar},\widetilde{\pbar \abar \cbar \dbar},\widetilde{\pbar \bbar \cbar \dbar}$}
+\label{fig:tetSub}
+\end{subfigure}
+\caption{Tetrahedral decomposition.}
+\end{figure}
+
+%\Todo{Bild einfügen}
+
+
+An  arbitrary point $p$ inside the tetrahedron can be represented using the four vertices and barycentric coordinates $\bwea, \bweb, \bwec, \bwed \in \mathbb{R}$, sometimes called weights
+\begin{equation*}
+    \pbar = \bwea \abar + \bweb \bbar + \bwec \cbar + \bwed \dbar
+\end{equation*}
+which must fulfill the following properties
+\begin{align*}
+    0 \leq \bwea, \bweb, \bwec, \bwed \leq 1  \qquad &\forall \pbar \in tetrahedron \\
+    \bwea + \bweb + \bwec + \bwed = 1 \qquad &\forall \pbar.
+\end{align*}
+The second property is necessary to have a unique weight combination for each point.
+The weights are proportional to the sub-tetrahedrons that are formed using $\pbar$, see \ref{fig:tetSub}.
+%\Todo{Draw a picture}
+The volume of a tetrahedron is a sixth of the corresponding parallelepiped with the lengths given by the edge length of the tetrahedron
+\begin{equation*}
+    V_{\abar, \bbar, \cbar, \dbar} = \dfrac{1}{6}\operatorname{det} \begin{pmatrix}
+        \abar_1 & \abar_2 & \abar_3 & 1 \\
+        \bbar_1 & \bbar_2 & \bbar_3 & 1 \\
+        \cbar_1 & \cbar_2 & \cbar_3 & 1 \\
+        \dbar_1 & \dbar_2 & \dbar_3 & 1        
+    \end{pmatrix} = \operatorname{det} \begin{pmatrix}
+        \abar_1 - \dbar_1& \abar_2 - \dbar_2& \abar_3 - \dbar_3& 0 \\
+        \bbar_1 - \dbar_1& \bbar_2 - \dbar_2& \bbar_3 - \dbar_3& 0 \\
+        \cbar_1 - \dbar_1& \cbar_2 - \dbar_2& \cbar_3 - \dbar_3& 0 \\
+        \dbar_1 & \dbar_2 & \dbar_3 & 1  
+    \end{pmatrix}= \operatorname{det} \begin{pmatrix}
+     \overrightarrow{\dbar \abar} & \overrightarrow{\dbar \bbar} & \overrightarrow{\dbar \cbar}   
+    \end{pmatrix}
+\end{equation*}
+The barycentric coordinates are then given by
+\begin{align*}
+    \bwea &= \dfrac{V_{\pbar, \bbar, \cbar, \dbar}}{V_{\abar, \bbar, \cbar, \dbar}} = \dfrac{\begin{pmatrix}
+     \overrightarrow{\dbar \pbar} & \overrightarrow{\dbar \bbar} & \overrightarrow{\dbar \cbar}   
+    \end{pmatrix}}{\begin{pmatrix}
+    \overrightarrow{\dbar \abar} & \overrightarrow{\dbar \bbar} & \overrightarrow{\dbar \cbar}      
+    \end{pmatrix}} \qquad
+    &\bweb = \dfrac{V_{\pbar, \abar, \cbar, \dbar}}{V_{\abar, \bbar, \cbar, \dbar}} = \dfrac{\begin{pmatrix}
+     \overrightarrow{\dbar \pbar} & \overrightarrow{\dbar \abar} & \overrightarrow{\dbar \cbar}   
+    \end{pmatrix}}{\begin{pmatrix}
+    \overrightarrow{\dbar \abar} & \overrightarrow{\dbar \bbar} & \overrightarrow{\dbar \cbar}      
+    \end{pmatrix}}\\
+    \bwec &= \dfrac{V_{\pbar, \abar, \bbar, \dbar}}{V_{\abar, \bbar, \cbar, \dbar}}= \dfrac{\begin{pmatrix}
+     \overrightarrow{\dbar \pbar} & \overrightarrow{\dbar \abar} & \overrightarrow{\dbar \bbar}   
+    \end{pmatrix}}{\begin{pmatrix}
+    \overrightarrow{\dbar \abar} & \overrightarrow{\dbar \bbar} & \overrightarrow{\dbar \cbar}      
+    \end{pmatrix}} \qquad
+    &\bwed = \dfrac{V_{\pbar, \abar, \bbar, \cbar}}{V_{\abar, \bbar, \cbar, \dbar}}= \dfrac{\begin{pmatrix}
+     \overrightarrow{\cbar \pbar} & \overrightarrow{\cbar \abar} & \overrightarrow{\cbar \bbar}   
+    \end{pmatrix}}{\begin{pmatrix}
+    \overrightarrow{\dbar \abar} & \overrightarrow{\dbar \bbar} & \overrightarrow{\dbar \cbar}      
+    \end{pmatrix}}
+\end{align*}
+with the last one simplifying to
+\begin{equation}
+\label{eq:baryNorm}
+    \bwed = 1 - \bwea - \bweb - \bwec
+\end{equation}
+due to our properties.
+\todo{Könnte Beispiel einfügen $\lambda_a = 0$ -> $p \in (b,c,d)_\triangle$ }
+We can use the following transformation to switch between our barycentric coordinate system and the global coordinates
+\begin{equation*}
+    \pbar = A \bwe (p) \Leftrightarrow \begin{pmatrix}
+        x_p \\ y_p \\ z_p
+    \end{pmatrix} =
+    \begin{pmatrix}
+        x_\abar & x_\bbar & x_\cbar & x_\dbar \\
+        y_\abar & y_\bbar & x_\cbar & x_\dbar \\
+        z_\abar & z_\bbar & z_\cbar & z_\dbar
+    \end{pmatrix}
+    \begin{pmatrix}
+        \bwea \\ \bweb \\ \bwec \\ \bwed
+    \end{pmatrix}
+    \Leftrightarrow
+    \begin{pmatrix}
+        x_p \\ y_p \\ z_p
+    \end{pmatrix} =
+    \begin{pmatrix}
+        x_\abar - x_\dbar & x_\bbar- x_\dbar & x_\cbar- x_\dbar \\
+        y_\abar- y_\dbar & y_\bbar - y_\dbar& x_\cbar- y_\dbar \\
+        z_\abar - z_\dbar & z_\bbar - z_\dbar & z_\cbar - z_\dbar
+    \end{pmatrix} \begin{pmatrix}
+         \bweb \\ \bwec \\ \bwed
+    \end{pmatrix}
+\end{equation*}
+where we used \eqref{eq:baryNorm} in the last step.
+Therefor transforming between our global coordinates and our local barycentric coordinates can be done by inverting a $3 \times 3$ matrix.
+\todo{Zshg Interpolation Stepfraction erläutern?}
+
+The barycentric coordinates are used as weights to interpolate Eulerian filed properties to the parcels
+\begin{equation}
+    \phi_p = \sum_{n=\{\abar,\bbar, \cbar, \dbar\}} \phi_{p,n} n.
+\end{equation}
+Analogy particle properties are interpolated to vertices.
+
+
+
+% In the \MP method we use a first-order finite element basis, therefor linear interpolation functions
+% \begin{align*}
+%     N_1 (x,y,z) &= 1-x-y-z \\
+%     N_2 (x,y,z) &= x \\
+%     N_3 (x,y,z) &= y \\
+%     N_4 (x,y,z) &= z 
+% \end{align*}
+
+%\Todo{interpolation in OpenFOAM}
 The effective flux is calculated as \lstinline|alphaPhic| by accounting for the particle effect.
 The calculated velocity of the kinematic cloud is used in the momentum source term. This is later used in the \lstinline|PIMPLE| loop.
+\todo{Was ist Volumen Teil?}
+
+
+The momentum transfer is included in \lstinline|cloudSU|. This includes two terms, one for
+Afterward the momentum transfer term is set. 
+
+\Todo{Cite Forum} %https://www.cfd-online.com/Forums/openfoam-post-processing/137291-questions-about-lagrangian-postprocessing.html
+
+
 %SU explicit part, Sp implicit part second part to get per volume
 
 
 \subsection{Continous Phase, \texttt{PIMPLE} loop}
 For the continuous phase, we use the \lstinline|PIMPLE| algorithm for coupling the pressure and the velocity conservation equations.
 The name as well as the algorithm is a combination of the \lstinline|PISO| (Pressure Implicit with Splitting of Operator) algorithm with the \lstinline|SIMPLE| (Semi-Implicit Method for Pressure-Linked Equations) algorithm.
+All three are explained in the Notes on Computational Fluid Dynamics \cite{cdfNotes}.
 In each time step we create two linear matrix systems and solve for the velocity and pressure fields.
 The systems are defined in \lstinline|UcEqn| and \lstinline|pEqn|.
 For the momentum exchange term between the particles and the fluid the solid force is split up into the explicit and implicit part.
-The implicit part \lstinline|cloudSU| is added in \lstinline|UcEqn| and the explicit part  in \lstinline|pEqn|.y
+The implicit part \lstinline|cloudSU| is added in \lstinline|UcEqn| and the explicit part  in \lstinline|pEqn|. \todo{Das Paper lügt vermutlich, kommt beides in UcEqn}
 
-In \lstinline|UcEqn| we start with the momentum equation omitting the pressure term and looking only at the coupled forces
-\begin{equation*}
-    \dfrac{\partial}{\partial \tvar} (\fvf \uf) + \nabla \cdot (\fvf \phi_f \uf)   -  \left(\dfrac{\partial}{\partial \tvar} \fvf + \nabla \cdot (\phi_f) \right) \uf + S_{turbulence} = \dfrac{1}{\rf} S_{u,exp}
-\end{equation*}
-The turbulence is set to \lstinline|laminar| in the standard \MP method.
-The term subtracted from the equation is zero because of the continuity equation
-\begin{equation*}
-    \dfrac{\partial}{\partial \tvar} \fvf + \nabla \cdot (\fvf \uf) = 0
-\end{equation*}
-% fvm::ddt(alphac, Uc) + fvm::div(alphaPhic, Uc)
-%   - fvm::Sp(fvc::ddt(alphac) + fvc::div(alphaPhic), Uc)
-%   + continuousPhaseTurbulence->divDevRhoReff(Uc)
-%  ==
-%     (1.0/rhoc)*cloudSU
 
-In \OF these equations are rewritten as
+We start with the momentum equation which is build in \lstinline|UcEqn|.
+\begin{lstlisting}[caption=\texttt{UcEqn.C}]
+    fvVectorMatrix UcEqn
+(
+    fvm::ddt(alphac, Uc) + fvm::div(alphaPhic, Uc)
+  - fvm::Sp(fvc::ddt(alphac) + fvc::div(alphaPhic), Uc)
+  + continuousPhaseTurbulence->divDevRhoReff(Uc)
+ ==
+    (1.0/rhoc)*cloudSU
+);
+\end{lstlisting}
+and amended with the missing forces.
+The following 
 \begin{align*}
-    A \uf = b 
+    \dfrac{\partial}{\partial \tvar} (\fvf  \uf ) &+ \nabla \cdot (\fvf \uf \langle \uf \rangle) - \langle \uf \rangle \left( \dfrac{\partial \fvf}{\partial \tvar} + \nabla \cdot (\fvf \uf) \right) - \nabla \cdot (\fvf \ss) = 
+    -g +    \fvf \nabla \dfrac{\p}{\rf} 
+    - \dfrac{f_d}{\rf}
 \end{align*}
-Next relax is called which limits the change that can occur from the previous iteration to the current iteration. Since we do not specify a relaxation factor this has no effect here. Relax also ensures that the matrix $A$ is diagonal dominant, ensuring convergence. 
-Before we include the pressure term we define the non-coupled forces for the flux as
-\begin{equation*}
-    F_{\phi_c} = \left( \dfrac{1}{\rf}A^{-1} S_{u,impl} \right)_{v \to f} + (A^{-1})_{v \to f} (\g \cdot n)
-\end{equation*}
+with the third term, which is zero due to the continuity equation, being added for numerical stability.
+Here we divided by the fluid density $\rf$. From here on we therefor solve for the kinematic pressure.
+\todo{Neue Variable wäre schon sinnvoll $P_{kin}$}
+The formulation of the fluid stress term does not match the definition of the original paper, outlined in the previous chapter. This is due to different approaches which are sometimes mixed up for the momentum equations. This is detailed in \cite{differentTau}. 
+For the \MP method the fluid stress term does not play a significant role and we therefor stick to the \OF usage. 
+For the momentum equation we have four unknowns, three velocity contributions and the pressure, but only three equations.
+To solve this we at first use the old pressure term and calculate a preliminary velocity which we then use in the Poisson pressure equation. The calculated pressure is then used to calculate the velocity and repeat until convergence.
 
-Lastly we add the pressure terms and solve
+% \begin{align*}
+%     \dfrac{\partial}{\partial \tvar} (\fvf \langle \uf \rangle) &+ \nabla \cdot (\fvf \uf \langle \uf \rangle) - \langle \uf \rangle \left( \dfrac{\partial \fvf}{\partial \tvar} + \nabla \cdot (\fvf \uf) \right) - \nabla \cdot (\fvf \ss') - \nabla \cdot (\fvf \nu_f \nabla \langle \uf \rangle ) \\
+%     &= - \fvf \nabla \dfrac{P_{rgh}}{\rf} - \left( \fvf \dfrac{\rho}{\rf}-1 \right) \g - \dfrac{\fvf}{\rf} g \cdot  h\nabla \rho - \dfrac{f_d}{\rf}
+% \end{align*}
+This is discretized as
+\begin{align*}
+    A_P \ufc + \sum_N A_N \ufn - S_p = - (\fvf \nabla \p)_P - g - \left. \dfrac{f_p}{\rf}  \middle|_c \right.
+\end{align*}
+Here the subscript $P$ refers to the center of said cell while the subscript $N$ refers to the neighboring cells.
+The last term $f_p$ is the momentum exchange term between the phases.
+The Matrix $A$ is therefor split into two parts: $A_P$ are just diagonal values while $A_N$ refers to the off-diagonal elements. In \OF the former is referred to as \lstinline|A| while the later is part of \lstinline|H| along with the source terms excluding the pressure source.
+For an arbitrary cell we therefor solve the equation
 \begin{equation*}
-    A \uf -b = F_{\phi_c}(A^{-1})_{v \to f}^{-1} - \nabla \cdot \p A
+    \up =  \dfrac{H(u)}{a_p} - \dfrac{\nabla \p}{a_p}.
 \end{equation*}
-for a first approximation of the velocity.
+Here we have three equations for four variables, three for the velocity and the pressure. 
+The 
+
+For the cell faces we then have
+\begin{equation*}
+    \ufc = \left( \dfrac{H(u)}{a_p} \right)_f - \left( \dfrac{\nabla \p}{a_p} \right)_f.
+\end{equation*}
+We combine this with the continuity equation
+\begin{equation*}
+    \sum_f S \cdot \fvf \left( \dfrac{\nabla \p}{a_p}\right)_f = \dfrac{\partial \fvf}{\partial \tvar} + \sum_f S \cdot\fvf \left(\dfrac{H(u)}{a_p}\right),
+\end{equation*}
+where we used the Gauss' theorem to get the mass face flux $S \cdot (\fvf \u)_f$.
+
+\ifkeepcode
+\begin{lstlisting}[caption=\texttt{pEqn.C},showlines=true]
+    fvScalarMatrix pEqn
+        (
+            fvm::laplacian(alphacf*rAUcf, p)
+         ==
+            fvc::ddt(alphac) + fvc::div(alphacf*phiHbyA)
+        );
+\end{lstlisting}
+\fi
+
+After solving for the pressure the velocity at cell centers is updated by
+\begin{equation*}
+    \u = \dfrac{H(u)}{a_P} - \dfrac{(\nabla \p)_P}{a_P}
+\end{equation*}
+and as
+\begin{equation*}
+    \u_f = \left( \u_P + \dfrac{(\nabla \p)_P}{a_P}\right)_f - \left( \dfrac{\nabla \p}{a_p} \right)_f
+\end{equation*}
+at the faces.
+Iterating 
+
+
+\todo[inline]{Dinge die mir hier aktuell noch unklar sind: 
+initial guess p alter Zeitwert?, wieso verwenden wir ständig flux und nicht velocity at face, Non orthogonal sind wir nicht aber brauchen den Teil für die Iteration?}
+\todo[inline]{Was wurde hier noch nicht behandelt was aber evtl. relevant wäre: Wie funktioniert die Gruppierung von Particles zu Parcels?}
+
+
+% In \lstinline|UcEqn| we start with the momentum equation omitting the pressure term and looking only at the coupled forces
+% \begin{equation*}
+%     \dfrac{\partial}{\partial \tvar} (\fvf \uf) + \nabla \cdot (\fvf \phi_f \uf)   -  \left(\dfrac{\partial}{\partial \tvar} \fvf + \nabla \cdot (\phi_f) \right) \uf + S_{turbulence} = \dfrac{1}{\rf} S_{u,exp}
+% \end{equation*}
+% The turbulence is set to \lstinline|laminar| in the standard \MP method.
+% The term subtracted from the equation is zero because of the continuity equation
+% \begin{equation*}
+%     \dfrac{\partial}{\partial \tvar} \fvf + \nabla \cdot (\fvf \uf) = 0
+% \end{equation*}
+% % fvm::ddt(alphac, Uc) + fvm::div(alphaPhic, Uc)
+% %   - fvm::Sp(fvc::ddt(alphac) + fvc::div(alphaPhic), Uc)
+% %   + continuousPhaseTurbulence->divDevRhoReff(Uc)
+% %  ==
+% %     (1.0/rhoc)*cloudSU
+
+% In \OF these equations are rewritten as
+% \begin{align*}
+%     A \uf = b 
+% \end{align*}
+% Next relax is called which limits the change that can occur from the previous iteration to the current iteration. Since we do not specify a relaxation factor this has no effect here. Relax also ensures that the matrix $A$ is diagonal dominant, ensuring convergence. 
+% Before we include the pressure term we define the non-coupled forces for the flux as
+% \begin{equation*}
+%     F_{\phi_c} = \left( \dfrac{1}{\rf}A^{-1} S_{u,impl} \right)_{v \to f} + (A^{-1})_{v \to f} (\g \cdot n)
+% \end{equation*}
+
+% Lastly we add the pressure terms and solve
+% \begin{equation*}
+%     A \uf -b = F_{\phi_c}(A^{-1})_{v \to f}^{-1} - \nabla \cdot \p A
+% \end{equation*}
+% for a first approximation of the velocity.
 
 
 
@@ -1156,24 +1847,24 @@ for a first approximation of the velocity.
 
 
 %with the continuous face flux $\phi_f$ and the implicit momentum exchange source term $S_u$
-\todo{flux einfach $ \uf$ in Zellinnerem und uA an Boundary, gravity in Source term?}
+% \todo{flux einfach $ \uf$ in Zellinnerem und uA an Boundary, gravity in Source term?}
 
-Flux corrector 
-Next we look at the non-coupled forces
-\begin{itemize}
-    \item $rAUc = (1/UcEqn.A())$ -> .A: invert $A$
-    \item surfaceScalarField rAUcf("Dp", fvc::interpolate(rAUc)); interpolieren von cell centers zu cell boundaries
-    \item surfaceScalarField phicForces
-(
-   fvc::flux(rAUc*cloudVolSUSu/rhoc) + rAUcf*(g \& mesh.Sf())
-   Gleichung lösen
-   \begin{equation*}
-       \dfrac{A^{-1} S_{Su}}{\rf} + (A^{-1})|_f (g A)
-   \end{equation*}
-   with $n$ the normal vector on the corresponding face. With \lstinline|fvf::flux| we once again have the values at cell center.
-\end{itemize}
+% Flux corrector 
+% Next we look at the non-coupled forces
+% \begin{itemize}
+%     \item $rAUc = (1/UcEqn.A())$ -> .A: invert $A$
+%     \item surfaceScalarField rAUcf("Dp", fvc::interpolate(rAUc)); interpolieren von cell centers zu cell boundaries
+%     \item surfaceScalarField phicForces
+% (
+%    fvc::flux(rAUc*cloudVolSUSu/rhoc) + rAUcf*(g \& mesh.Sf())
+%    Gleichung lösen
+%    \begin{equation*}
+%        \dfrac{A^{-1} S_{Su}}{\rf} + (A^{-1})|_f (g A)
+%    \end{equation*}
+%    with $n$ the normal vector on the corresponding face. With \lstinline|fvf::flux| we once again have the values at cell center.
+% \end{itemize}
 
-Lastly in \lstinline|UcEqn.C| we include the pressure term and solve the equation
+% Lastly in \lstinline|UcEqn.C| we include the pressure term and solve the equation
 
 %The flux is for compressible solvers rho*u*A or otherwise u*A on the faces
 
@@ -1192,10 +1883,10 @@ Lastly in \lstinline|UcEqn.C| we include the pressure term and solve the equatio
 %         (
 %             phicForces/rAUcf - fvc::snGrad(p)*mesh.magSf()
 %         )
-\begin{equation*}
-    A\uf - b=\dfrac{(\dfrac{rAUc S_{Su}}{\rf} + rAUc_f (g \cdot n))|_{cell-centers}}{rAUcf} - (\nabla p)|_f A_f
-\end{equation*}
-which is called the momentum predictor and is solved for $\uf$.
+% \begin{equation*}
+%     A\uf - b=\dfrac{(\dfrac{rAUc S_{Su}}{\rf} + rAUc_f (g \cdot n))|_{cell-centers}}{rAUcf} - (\nabla p)|_f A_f
+% \end{equation*}
+% which is called the momentum predictor and is solved for $\uf$.
 
 
 
@@ -1204,11 +1895,83 @@ which is called the momentum predictor and is solved for $\uf$.
 
 
 
-In the \lstinline|pEqn| file the \lstinline|PISO| loop is executed.
+%In the \lstinline|pEqn| file the \lstinline|PISO| loop is executed.
 
 
-\url{https://doc.cfd.direct/notes/cfd-general-principles/the-pimple-algorithm} how the PIMPLE algorithm works.
-The \PIMP algorithm is called in the following loop
+%\FloatBarrier
+
+\begin{figure}[h!]
+\centering
+    \begin{tikzpicture}[node distance =2cm]
+    \tikzset{stretch/.initial=.5}
+        \tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black]
+        \tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
+        \tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black]
+        \tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black]
+        \tikzstyle{arrow} = [thick,->,>=stealth]
+        \node (start) [startstop] {Build discretized momentum equation and predict velocity field};
+        \node (mv1) [process, below of=start] {Contruct phase momentum flux \lstinline|HbyA|};
+        \node (tau) [process, below of = mv1] {Solve Pressure Poisson Equation};
+        %\node (start1) [process, below of=start] {move particles according to forces};
+        %\node (createMesh) [decision, right of=start,xshift = 6cm] {\texttt{createFields.H}};
+        \node (in1) [process, below of=tau] {Update velocity field};
+        % \node (endTime) [startstop, right of=in1, xshift = 3cm] {Stop};
+        \node (dec1) [process, below of=in1] {Last Iteration?};
+        % %\node (pro2) [process, below of=dec1] {Move particles according to damping model};
+        \node (pro3) [process, below of=dec1] {End \lstinline|PIMPLE| Loop};
+        % %\node (pro4) [process, below of=pro3] {Move particles according to packing model};
+        % \node (pro5) [process, below of=pro3] {Apply return-to-isotropy damping model, move particles accordingly};
+        % %\node (pro6) [process, below of=pro5] {Move particles according to return-to-isotropy damping model};
+        % \node (stop) [process, below of = pro5] {Update cells/ turn forces back on};
+
+        \begin{scope}[on background layer]
+        \node[
+        draw=kit-lightgreen!70!black,
+        fill=kit-lightgreen!40,
+        fill opacity=0.25,
+        rounded corners,
+        minimum width=8cm,
+        inner sep=8pt,
+        fit=(tau) (dec1)
+        ] (pisoBox) {};
+        \end{scope}
+        
+        %\draw[arrow] (start) -- (start1);
+        \draw[arrow] (start) -- (mv1);
+        \draw[arrow] (mv1) -- (tau);
+        \draw[arrow] (tau) -- (in1);
+        %\draw[arrow] (in1) -- node[anchor=south] {no} (endTime);
+        %\draw[arrow] (in1) -- node[anchor = west] {yes} (dec1);
+        \draw[arrow] (in1) --  (dec1);
+        \draw[arrow] (dec1) -- node[anchor=west] {yes} (pro3);
+        %\draw[arrow] (pro2) -- (pro3);
+        %\draw[arrow] (pro3) -- (pro5);
+        %\draw[arrow] (pro4) -- (pro5);
+        %\draw[arrow] (pro5) -- (pro6);
+        %\draw[arrow] (pro1) -- (pro2);
+        %\draw[arrow] (pro2) -- (dec1);
+        %\draw[arrow] (pro5) -- (stop);
+        %\draw[thick,->] (stop.west) .. controls +(-2.5,1.5) and +(-2.5,0)..  (start.west);
+        \draw[thick,->,rounded corners]
+  (dec1.east) --
+  ($ ({dec1.east}|-{dec1.east}) + (2,0) $) -- node[anchor=east] {No}
+  ($ ({dec1.east}|-{tau.east}) + (2,0) $) -- 
+  (tau.east);
+
+
+% PISO label
+\node[right=5mm of pisoBox.east, text=kit-lightgreen!60!black, font=\bfseries]
+{PISO};
+
+
+    \end{tikzpicture}
+    \caption{Flow chart of the \lstinline|PIMPLE| algorithm.}
+    \label{fig:FCMPPIC}
+\end{figure}
+%\FloatBarrier
+
+%\url{https://doc.cfd.direct/notes/cfd-general-principles/the-pimple-algorithm} how the PIMPLE algorithm works.
+%The \PIMP algorithm is called in the following loop
 \ifcode
 \begin{lstlisting}[caption=from MPPICFoam.C]
  while (pimple.loop())
@@ -1332,16 +2095,19 @@ if (pimple.momentumPredictor())
 
 
 
-The \texttt{PIMPLE} 
+%The \texttt{PIMPLE} 
+
+
+ %Since we are explicitly tracking particles we do not need to be worried about having
+%accurate closures for these types of expressions, they are implied by solving Lagrangian particle
+%tracks.
 
 
 
+% \begin{itemize}
+% \item For Lagrangian \url{https://openfoamwiki.net/index.php/OpenFOAM_guide/UML/lagrangian}
 
-
-\begin{itemize}
-\item For Lagrangian \url{https://openfoamwiki.net/index.php/OpenFOAM_guide/UML/lagrangian}
-
-\end{itemize}
+% \end{itemize}
 
 
 % \section{Comparison Goldschmidt and GoldschmidtMPICC}

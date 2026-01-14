@@ -192,7 +192,6 @@ The terms will be explained in the following.
     \left( \frac{\partial \pd}{\partial \tvar} \right)_{coll} = \underbrace{\dfrac{\pdd - \pd}{\sd}}_{\text{daming term}} + \underbrace{\dfrac{\pdi - \pd}{\si}}_{\text{return-to-isotropy}}.
 \end{equation}
 
-\color{gray}
 \subsubsection{Damping term}
 \label{sec:damping}
 The damping term above is the BGK-collision term with \sd \ as the collision damping time and \pdd \ as
@@ -204,7 +203,7 @@ with the mass-averaged velocity
 \begin{equation}
     \nup = \dfrac{\MultiIntegral{2}  \pd \m \up d \m d  \up}{\MultiIntegral{2} \pd \m d \m d \up}
 \end{equation}
-\Todo{$\up$ mess fixen}
+%\Todo{$\up$ mess fixen}
 %\Todo{BGK Term genau erklären?}
 It was introduced by Bhatnagar, Gross and Krook and is used frequently in lattice Boltzmann methods.
 Therefor the particle velocities are distributed symmetrically around the local mass-averaged particle velocity \nup. This is due to collisions tending to relax the distribution function to the equilibrium \pdd.
@@ -230,7 +229,7 @@ The damping time is discussed in the section numerical discretizations.
 
 
 \subsubsection{Return-to-Isotropy}
-The second damping term, called return-to-isotropy, relaxes the velocities to a Gaussian velocity distribution. The equilibrium distribution 
+The second damping term, called return-to-isotropy, relaxes the velocities to a Gaussian velocity distribution. The equilibrium distribution is a particle distribution function with a Gaussian velocity distribution
 \begin{equation*}
     \pd_G(\xp,\up,\m,\tvar) = N(\xp,\m,\tvar) G(\up;\overline{\up}, \sigma^2(\m))
 \end{equation*}
@@ -239,10 +238,11 @@ with the particle size distribution
     N(\xp,\m,\tvar) = \int \pd d \up
 \end{equation*}
 and the Gaussian velocity distribution
-\begin{equation*}
-    G(\up;\overline{\up},\sigma^2(\m)) = \left( \dfrac{2}{3} \pi \sigma^2(m)\right)^{-\frac{3}{2}} e^{-(\up - \overline{\up})^2/(2/3\sigma^2(\m)))},
-\end{equation*}
-with the mean velocity
+\begin{equation}
+\label{eq:rtiDist}
+    G(\up;\overline{\up},\sigma^2(\m)) = \left( \dfrac{2}{3} \pi \sigma^2(m)\right)^{-\frac{3}{2}} e^{-(\up - \overline{\up})^2/(2/3\sigma^2(\m)))}.
+\end{equation}
+The Gaussian velocity distribution is centered around the mean velocity
 \begin{equation*}
     \overline{\up} = \dfrac{\MultiIntegral{2} \pd \m \up d \m d \up}{\MultiIntegral{2}\pd \m d \m d \up}.
 \end{equation*}
@@ -251,33 +251,32 @@ We assume that both PDFs $\pd$ and $\pd_F$ have the same variance. The variance 
 \sigma^2(m) = \dfrac{\overline{\m}}{\m} \sigma^2, \qquad \overline{\m} = \dfrac{\rp \pvf}{\int N d \m} \qquad \sigma^2 = \dfrac{\MultiIntegral{2} \pd \m (\up - \overline{\up})^2 d \m d \up}{\MultiIntegral{2} \pd \m d \m d \up}.
 \end{equation*}
 To determine whether a particle collides, we use the return-to-isotropy time, which is similar to a relaxation time
-\begin{equation*}
+\begin{equation}
+\label{eq:DampingTimeG}
 \dfrac{1}{\ss_G} = \dfrac{8 \sqrt{2}}{5 \pi} \dfrac{\pvf}{r_{32}^3} \dfrac{\MultiIntegral{2} f (r+ r_{32})^4 (\up - \overline{\up})^2 d \m d \up}{\MultiIntegral{2} f (r + r_{32})^2 \sqrt{(\up - \overline{\up})^2}d \m d \up} g_0(\pvf) \eta (2-\eta)
-\end{equation*}
+\end{equation}
 that approximates the time until the next collision. Here we have the particle Sauter mean radius
 \begin{equation*}
     r_{32} = \dfrac{\int \pd r^3 d\m d \up}{\int \pd r^2 d\m d\up}.
 \end{equation*}
-and $g_0 (\pvf)$ is the approximation to the radial distribution function
+and an approximation to the radial distribution function
 \begin{equation*}
     g_0 ( \pvf ) = \dfrac{\pvfcp}{\pvfcp - \pvf}
 \end{equation*}
 which modifies the probability of collision for particles.
 The probability function is low in a dilute case but high when the particle packing is dense.
 The return-to-isotropy is derived in the Appendix of \cite{isotropy} and is obtained by comparing the particle momentum shear viscosity to the shear viscosity of continuum-fluid models.
-
-
-
-
-To factor in how often particles collide with one another we use the radial particle distribution function
-\begin{equation*}
-    g_0(\theta) = \dfrac{\pvfcp}{\pvfcp - \pvf}
-\end{equation*}
-introduced by ..., which couples the probability 
-
+We split the collision of the particles from the rest of the particle properties, thus solving
+\begin{equation}
+    \dfrac{\partial \pd}{\partial \tvar} = \dfrac{\pd_G - \pd}{\ss_G} \qquad \Rightarrow \qquad \pd= \underbrace{\pd_0 e^{\frac{-\tvar}{\ss_G}}}_{\text{No collision}} + \underbrace{\pd_G \left[ 1 - e^{- \frac{\tvar}{\ss_G}} \right]}_{\text{Collision}}
+    \label{eq:rtiSol}
+\end{equation}
+% introduced by ..., which couples the probability 
+with $\pd_0$ the distribution at time $t=0$.
+The physical representation of this is that for the first term no collision has taken place at time $[0,t]$ which happens with a probability of $\operatorname{exp}(-\tvar / \ss_G)$, while a collision has taken place with the probability of $1 - \operatorname{exp}(-\tvar / \ss_G)$.
 
 %probability of finding another particle at contact scales inversely with the remaining free space, which vanishes linearly as θθ approaches θcpθcp. In other words, as the system gets denser, collisions and contacts become more frequent, and in a simple mean–field picture this frequency diverges like 1/(θcp−θ)1/(θcp−θ)
-\Todo{Lun zitieren}
+
 
 
 
@@ -294,10 +293,10 @@ The sketch below illustrates the grouping of particles. The sketches on the left
 \begin{tikzpicture}
 
 % Define colors
-\definecolor{purple}{RGB}{153, 51, 255}
-\definecolor{cyan}{RGB}{0, 204, 255}
-\definecolor{orange}{RGB}{255, 153, 51}
-\definecolor{darkpurple}{RGB}{102, 0, 153}
+% \definecolor{purple}{RGB}{153, 51, 255}
+% \definecolor{cyan}{RGB}{0, 204, 255}
+% \definecolor{orange}{RGB}{255, 153, 51}
+% \definecolor{purple}{RGB}{102, 0, 153}
 
 % Function to draw a frame
 \newcommand{\frameaxes}[3]{
@@ -308,19 +307,19 @@ The sketch below illustrates the grouping of particles. The sketches on the left
 
 % Draw left clusters
 % Orange group
-\draw[orange, dotted, thick] plot [smooth cycle, tension=0.8] coordinates {(-4.2,-2.0) (-2.8,-2.8) (-2.4,-2.2) (-2.8, -1.9) (-3.1,-1.0)};
+\draw[kit-orange, dotted, thick] plot [smooth cycle, tension=0.8] coordinates {(-4.2,-2.0) (-2.8,-2.8) (-2.4,-2.2) (-2.8, -1.9) (-3.1,-1.0)};
 \frameaxes{-3.7}{-2.0}{0.2}
 \frameaxes{-3.3}{-1.5}{0.2}
 \frameaxes{-3.0}{-2.4}{0.2}
 
 % Cyan group
-\draw[cyan, dotted, thick] plot [smooth cycle, tension=0.8] coordinates {(-2.3,1.5) (-0.1,-0.2) (-2.2,-2.0) (-2.7,-0.5)};
+\draw[kit-cyan, dotted, thick] plot [smooth cycle, tension=0.8] coordinates {(-2.3,1.5) (-0.1,-0.2) (-2.2,-2.0) (-2.7,-0.5)};
 \frameaxes{-2.0}{0.7}{0.6}
 \frameaxes{-1.0}{-0.2}{0.6}
 \frameaxes{-2.0}{-1.1}{0.6}
 
 % Purple group
-\draw[darkpurple, dotted, thick] plot [smooth cycle, tension=0.8] coordinates {(-4.6,1) (-3.3,2.3) (-2.4, 2.1) (-3.0,1.1) (-3.1,-0.4)};
+\draw[kit-purple, dotted, thick] plot [smooth cycle, tension=0.8] coordinates {(-4.6,1) (-3.3,2.3) (-2.4, 2.1) (-3.0,1.1) (-3.1,-0.4)};
 \frameaxes{-4.0}{1.3}{0.3}
 \frameaxes{-3.0}{2}{0.3}
 \frameaxes{-3.4}{0.2}{0.3}
@@ -331,28 +330,28 @@ The sketch below illustrates the grouping of particles. The sketches on the left
 % Right-side isolated frames and arrows
 % Purple arrow + frame
 %\draw[purple, ->, dotted, thick] (-2.5,1.8) .. controls (0.5,2.2) .. (1.1,1.6);
-\draw[thick, color=purple] (1.5,1.2) circle (0.52);
+\draw[thick, color=kit-purple] (1.5,1.2) circle (0.52);
 \draw[-{Latex[length=1.2mm]}] (1.5,1.2) -- ++(0,0.2);
 \draw[-{Latex[length=1.2mm]}] (1.5,1.2) -- ++(0.2,0);
 
 
 % Cyan arrow + frame
 %\draw[cyan, ->, dotted, thick] (-0.1,0.1) .. controls (1,-0.5) .. (2.6,-0.1);
-\draw[thick, color=cyan] (3.5,0.5) circle (1.04);
+\draw[thick, color=kit-cyan] (3.5,0.5) circle (1.04);
 \draw[-{Latex[length=1.2mm]}] (3.5,0.5) -- ++(0,0.2);
 \draw[-{Latex[length=1.2mm]}] (3.5,0.5) -- ++(0.2,0);
 
 % Orange arrow + frame
 %\draw[orange, ->, dotted, thick] (-2.4,-2.3) .. controls (0,-3) .. (1.5,-2.1);
-\draw[thick, color=orange] (1.8,-1.8) circle (0.35);
+\draw[thick, color=kit-orange] (1.8,-1.8) circle (0.35);
 \draw[-{Latex[length=1.2mm]}] (1.8,-1.8) -- ++(0,0.2);
 \draw[-{Latex[length=1.2mm]}] (1.8,-1.8) -- ++(0.2,0);
 
 \draw[black, thick, dashed] (5,-3) -- (5,2.5);
 
-\filldraw[color=cyan, fill, very thick](8.5,0.5) circle (0.1);
-\filldraw[color=purple, fill, very thick](6.5,1.25) circle (0.1);
-\filldraw[color=orange, fill, very thick](6.8,-1.8) circle (0.1);
+\filldraw[color=kit-cyan, fill, very thick](8.5,0.5) circle (0.1);
+\filldraw[color=kit-purple, fill, very thick](6.5,1.25) circle (0.1);
+\filldraw[color=kit-orange, fill, very thick](6.8,-1.8) circle (0.1);
 \draw[-{Latex[length=1.2mm]}] (6.8,-1.8) -- ++(0,0.2);
 \draw[-{Latex[length=1.2mm]}] (6.8,-1.8) -- ++(0.2,0);
 \draw[-{Latex[length=1.2mm]}] (6.5,1.25) -- ++(0,0.2);
@@ -405,11 +404,11 @@ In one dimension the the interpolation is only supported by two cell centers whi
     \draw (1, -0.1) -- (1 , 0.1);
     \draw (2, -0.1) -- (2 , 0.1);
     \draw (3, -0.1) -- (3 , 0.1);
-    \draw[purple] (0,0) -- (1,0) -- (2,1) -- (3,0) -- (4,0);
-    \draw[blue] (0,0) -- (1,1) -- (2,0) -- (4,0);
-    \draw[cyan, dotted] (0,1) -- (1,0) -- (4,0);
-    \draw[green, dotted] (0,0) -- (3,0) -- (4,1);
-    \draw[magenta] (0,0) -- (2,0) -- (3,1) -- (4,0);
+    \draw[kit-purple] (0,0) -- (1,0) -- (2,1) -- (3,0) -- (4,0);
+    \draw[kit-blue] (0,0) -- (1,1) -- (2,0) -- (4,0);
+    \draw[kit-cyan, dotted] (0,1) -- (1,0) -- (4,0);
+    \draw[kit-green, dotted] (0,0) -- (3,0) -- (4,1);
+    \draw[kit-yellow] (0,0) -- (2,0) -- (3,1) -- (4,0);
     \node[anchor = north] at (1,-0.25) {$x_{i-1}$};
     \node[anchor = north] at (2,-0.25) {$x_{i}$};
     \node[anchor = north] at (3,-0.25) {$x_{i+1}$};
@@ -460,16 +459,16 @@ In one dimension the the interpolation is only supported by two cell centers whi
         (a/2,a,0) coordinate (H)
     (a/2,a/2,0) coordinate (O)      
     (a/2,a/2,h)  coordinate (S);
-\shade[shading=axis, bottom color=purple!60, top color=black!80, opacity =0.5] (S) -- (A) -- (B) -- cycle;
-\shade[shading=axis, bottom color=purple!60, top color=black!80, opacity =0.5] (S) -- (A) -- (D) -- cycle;
-\shade[shading=axis, bottom color=purple!60, top color=black!80, opacity =0.5] (S) -- (C) -- (D) -- cycle;
-\shade[shading=axis, bottom color=purple!60, top color=black!80, opacity =0.5] (S) -- (C) -- (B) -- cycle;
-\shade[shading=axis, right color=purple!60, left color=purple!60, opacity=0.5]
+\shade[shading=axis, bottom color=kit-purple!60, top color=black!80, opacity =0.5] (S) -- (A) -- (B) -- cycle;
+\shade[shading=axis, bottom color=kit-purple!60, top color=black!80, opacity =0.5] (S) -- (A) -- (D) -- cycle;
+\shade[shading=axis, bottom color=kit-purple!60, top color=black!80, opacity =0.5] (S) -- (C) -- (D) -- cycle;
+\shade[shading=axis, bottom color=kit-purple!60, top color=black!80, opacity =0.5] (S) -- (C) -- (B) -- cycle;
+\shade[shading=axis, right color=kit-purple!60, left color=kit-purple!60, opacity=0.5]
   (Y) -- (Z) -- (A) -- (B) -- cycle;
-\shade[shading=axis, bottom color=purple!60, top color=purple!60, shading angle=90, opacity=0.5] 
+\shade[shading=axis, bottom color=kit-purple!60, top color=kit-purple!60, shading angle=90, opacity=0.5] 
   (Y) -- (X) -- (C) -- (B) -- cycle;
-\shade[shading=axis, top color=purple!60, bottom color=purple!60, opacity =0.5] (X) -- (W) -- (D) -- (C) -- cycle;
-\shade[shading=axis, top color=purple!60, bottom color=purple!60, opacity =0.5] (W) -- (Z) -- (A) -- (D) -- cycle;
+\shade[shading=axis, top color=kit-purple!60, bottom color=kit-purple!60, opacity =0.5] (X) -- (W) -- (D) -- (C) -- cycle;
+\shade[shading=axis, top color=kit-purple!60, bottom color=kit-purple!60, opacity =0.5] (W) -- (Z) -- (A) -- (D) -- cycle;
 %\draw (S) -- (D) -- (C) -- (B) -- cycle (S) -- (C);
 \draw[purple,thick] (S) -- (D);
 \draw[purple,thick] (S) -- (C);
@@ -486,9 +485,9 @@ In one dimension the the interpolation is only supported by two cell centers whi
 \draw[purple,thick] (G) -- (R);
 \draw[purple,thick] (H) -- (U);
 %\draw[dashed] (S) -- (A) --(D) (A) -- (B) (S);
-\draw[purple,thick,dashed] (S) -- (E);
-\draw[purple, thick, dashed] (S) -- (F);
-\draw[purple,dashed,thick] (S) -- (A);
+\draw[kit-purple,thick,dashed] (S) -- (E);
+\draw[kit-purple, thick, dashed] (S) -- (F);
+\draw[kit-purple,dashed,thick] (S) -- (A);
 
 
         \path foreach \p/\g/\lbl in {A/-50/x_{i-1,j-1},B/-90/x_{i-1,j+1},C/-90/x_{i+1,j+1},D/-50/x_{i+1,j-1},S/0/1,O/180/x_{i,j},E/-90/x_{i,j-1},F/-90/x_{i-1,j},G/-90/x_{i,j+1},H/-90/x_{i+1,j}}{(\p)node[c]{}+(\g:4mm) node{$\lbl$}};  
@@ -619,14 +618,14 @@ For the one dimensional case we can calculate the spatial derivative of the line
     \draw (1, -0.1) -- (1 , 0.1);
     \draw (2, -0.1) -- (2 , 0.1);
     \draw (3, -0.1) -- (3 , 0.1);
-    \draw[red,ultra thick] (0,0) -- (1,0) -- (1,1) -- (2,1) -- (2,0) -- (4,0);
-    \draw[blue,ultra thick,dashed] (0,0) -- (2,0) -- (2,1) -- (3,1) -- (3,0) -- (4,0);
+    \draw[kit-red,ultra thick] (0,0) -- (1,0) -- (1,1) -- (2,1) -- (2,0) -- (4,0);
+    \draw[kit-blue,ultra thick,dashed] (0,0) -- (2,0) -- (2,1) -- (3,1) -- (3,0) -- (4,0);
     \node[anchor = north] at (1,-0.25) {$x_{i-1}$};
     \node[anchor = north] at (2,-0.25) {$x_{i}$};
     \node[anchor = north] at (3,-0.25) {$x_{i+1}$};
     \draw[dotted] (1.5, 1.25) -- (2.5,1.25) -- (2.5, -0.75) -- (1.5, -0.75) -- cycle;
-    \node[anchor = south,red] at (0.5, 0.5) {$T_{i-1/2}$};
-    \node[anchor = south,blue] at (3.5,0.5) {$T_{i+1/2}$};
+    \node[anchor = south,kit-red] at (0.5, 0.5) {$T_{i-1/2}$};
+    \node[anchor = south,kit-blue] at (3.5,0.5) {$T_{i+1/2}$};
     \node[anchor = south] at (2, 1.25) {cell $\# i$};
 \end{tikzpicture}
     \label{fig:placeholder}
@@ -640,11 +639,11 @@ For the one dimensional case we can calculate the spatial derivative of the line
     \draw (1, -0.1) -- (1 , 0.1);
     \draw (2, -0.1) -- (2 , 0.1);
     \draw (3, -0.1) -- (3 , 0.1);
-    \draw[red, ultra thick] (0,0) -- (1,0) -- (2,1) -- (3,0) -- (4,0);
-    \draw[blue,dashed,ultra thick] (0,0) -- (1,0);
-    \draw[blue,dashed, ultra thick] (1,1) -- (2,1);
-    \draw[blue,dashed, ultra thick](2,-1) -- (3,-1);
-    \draw[blue, dashed, ultra thick] (3,0) -- (4,0);
+    \draw[kit-red, ultra thick] (0,0) -- (1,0) -- (2,1) -- (3,0) -- (4,0);
+    \draw[kit-blue,dashed,ultra thick] (0,0) -- (1,0);
+    \draw[kit-blue,dashed, ultra thick] (1,1) -- (2,1);
+    \draw[kit-blue,dashed, ultra thick](2,-1) -- (3,-1);
+    \draw[kit-blue, dashed, ultra thick] (3,0) -- (4,0);
     \node[anchor = north] at (1,-0.15) {$x_{i-1}$};
     \node[anchor = north] at (2,-0.15) {$x_{i}$};
     \node[anchor = north] at (3,-0.15) {$x_{i+1}$};
@@ -682,19 +681,19 @@ In two dimensions we need to choose the cell faces we want to use for the interp
         \filldraw[black] (a/2,3*a/2) circle (2pt) node[anchor = north]{$x_{i,j+1}$};
         \filldraw[black] (3*a/2,3*a/2) circle (2pt) node[anchor = north]{$x_{i+1,j+1}$};
         \draw (10*a/8,7*a/8) circle (3pt) node[anchor = north west]{$x_p$};
-        \draw[->,ultra thick,purple] (-a/4,a/2) -- node[above] {$u_{i-1/2,j}$}(a/4, a/2);
-        \draw[->,ultra thick,purple] (3*a/4,a/2) --node[above] {$u_{i+1/2,j}$} (5*a/4, a/2);
-        \draw[->,ultra thick,purple] (7*a/4,a/2) -- node[above] {$u_{i+3/2,j}$}(9*a/4, a/2);
-        \draw[->,ultra thick,purple] (a/4,a) -- node[above] {$u_{i,j+1/2}$}(3*a/4, a);
-        \draw[->,ultra thick,purple] (5*a/4,a) -- node[above] {$u_{i,j+3/2}$}(7*a/4, a);
-        \draw[->,ultra thick,purple] (-a/4,3*a/2) -- node[above] {$u_{i-1/2,j+1}$}(a/4, 3*a/2);
-        \draw[->,ultra thick,purple] (3*a/4,3*a/2) -- node[above] {$u_{i+1/2,j+1}$}(5*a/4, 3*a/2);
-        \draw[->,ultra thick,purple] (7*a/4,3*a/2) --node[above] {$u_{i+1/2,j+1}$} (9*a/4, 3*a/2);
-        \draw[->,ultra thick,purple] (a/4,0) -- node[above] {$u_{i,j+1/2}$}(3*a/4, 0);
-        \draw[->,ultra thick,purple] (5*a/4,0) -- node[above] {$u_{i+1,j-1/2}$}(7*a/4, 0);
-        \draw[->,ultra thick,purple] (a/4,2*a) -- node[below] {$u_{i+1,j+1/2}$}(3*a/4, 2*a);
+        \draw[->,ultra thick,kit-purple] (-a/4,a/2) -- node[above] {$u_{i-1/2,j}$}(a/4, a/2);
+        \draw[->,ultra thick,kit-purple] (3*a/4,a/2) --node[above] {$u_{i+1/2,j}$} (5*a/4, a/2);
+        \draw[->,ultra thick,kit-purple] (7*a/4,a/2) -- node[above] {$u_{i+3/2,j}$}(9*a/4, a/2);
+        \draw[->,ultra thick,kit-purple] (a/4,a) -- node[above] {$u_{i,j+1/2}$}(3*a/4, a);
+        \draw[->,ultra thick,kit-purple] (5*a/4,a) -- node[above] {$u_{i,j+3/2}$}(7*a/4, a);
+        \draw[->,ultra thick,kit-purple] (-a/4,3*a/2) -- node[above] {$u_{i-1/2,j+1}$}(a/4, 3*a/2);
+        \draw[->,ultra thick,kit-purple] (3*a/4,3*a/2) -- node[above] {$u_{i+1/2,j+1}$}(5*a/4, 3*a/2);
+        \draw[->,ultra thick,kit-purple] (7*a/4,3*a/2) --node[above] {$u_{i+1/2,j+1}$} (9*a/4, 3*a/2);
+        \draw[->,ultra thick,kit-purple] (a/4,0) -- node[above] {$u_{i,j+1/2}$}(3*a/4, 0);
+        \draw[->,ultra thick,kit-purple] (5*a/4,0) -- node[above] {$u_{i+1,j-1/2}$}(7*a/4, 0);
+        \draw[->,ultra thick,kit-purple] (a/4,2*a) -- node[below] {$u_{i+1,j+1/2}$}(3*a/4, 2*a);
         %\draw[arrow] (pro1) -- node[right] {After convergence} (pro2);
-        \draw[->,ultra thick,purple] (5*a/4,2*a) --node[below] {$u_{i+1,j+3/2}$} (7*a/4, 2*a);
+        \draw[->,ultra thick,kit-purple] (5*a/4,2*a) --node[below] {$u_{i+1,j+3/2}$} (7*a/4, 2*a);
         %\node at (a/2,a/2) {$x_{i,j}$};
     \end{tikzpicture}
      \caption{Velocity at cell faces in $x$-direction used for interpolation.}
@@ -724,22 +723,22 @@ In two dimensions we need to choose the cell faces we want to use for the interp
         \filldraw[black] (3*a/2,3*a/2) circle (2pt) node[anchor = south west]{$x_{i+1,j+1}$};
         \draw (10*a/8,6*a/8) circle (3pt) node[anchor = south east]{$x_p$};
         % \draw[->,ultra thick,purple] (-a/4,a/2) -- node[above] {$u_{i-1/2,j}$}(a/4, a/2);
-        \draw[->,ultra thick,purple] (3*a/4,a/2) --node[above] {$u_{i+1/2,j}$} (5*a/4, a/2);
+        \draw[->,ultra thick,kit-purple] (3*a/4,a/2) --node[above] {$u_{i+1/2,j}$} (5*a/4, a/2);
         % \draw[->,ultra thick,purple] (7*a/4,a/2) -- node[above] {$u_{i+3/2,j}$}(9*a/4, a/2);
         % \draw[->,ultra thick,purple] (a/4,a) -- node[above] {$u_{i,j+1/2}$}(3*a/4, a);
         % \draw[->,ultra thick,purple] (5*a/4,a) -- node[above] {$u_{i,j+3/2}$}(7*a/4, a);
         % \draw[->,ultra thick,purple] (-a/4,3*a/2) -- node[above] {$u_{i-1/2,j+1}$}(a/4, 3*a/2);
-        \draw[->,ultra thick,purple] (3*a/4,3*a/2) -- node[above] {$u_{i+1/2,j+1}$}(5*a/4, 3*a/2);
+        \draw[->,ultra thick,kit-purple] (3*a/4,3*a/2) -- node[above] {$u_{i+1/2,j+1}$}(5*a/4, 3*a/2);
         % \draw[->,ultra thick,purple] (7*a/4,3*a/2) --node[above] {$u_{i+1/2,j+1}$} (9*a/4, 3*a/2);
         % \draw[->,ultra thick,purple] (a/4,0) -- node[above] {$u_{i,j+1/2}$}(3*a/4, 0);
         % \draw[->,ultra thick,purple] (5*a/4,0) -- node[above] {$u_{i+1,j-1/2}$}(7*a/4, 0);
         % \draw[->,ultra thick,purple] (a/4,2*a) -- node[above] {$u_{i+1,j+1/2}$}(3*a/4, 2*a);
         % %\draw[arrow] (pro1) -- node[right] {After convergence} (pro2);
         % \draw[->,ultra thick,purple] (5*a/4,2*a) --node[above] {$u_{i+1,j+3/2}$} (7*a/4, 2*a);
-        \draw[->, ultra thick, purple] ( a/2,3*a/4) -- node[above left] {$v_{i/2,j+1/2}$} (a/2,5*a/4);
-        \draw[->, ultra thick, purple] ( 3*a/2,3*a/4) -- node[above right] {$v_{i+1,j+1/2}$} (3*a/2,5*a/4);
+        \draw[->, ultra thick, kit-purple] ( a/2,3*a/4) -- node[above left] {$v_{i/2,j+1/2}$} (a/2,5*a/4);
+        \draw[->, ultra thick, kit-purple] ( 3*a/2,3*a/4) -- node[above right] {$v_{i+1,j+1/2}$} (3*a/2,5*a/4);
         %\node at (a/2,a/2) {$x_{i,j}$};
-        \draw[ultra thick, dashed, purple] (a/2,a/2) -- (3*a/2,a/2) -- (3*a/2,3*a/2) -- (a/2,3*a/2) -- cycle;
+        \draw[ultra thick, dashed, kit-purple] (a/2,a/2) -- (3*a/2,a/2) -- (3*a/2,3*a/2) -- (a/2,3*a/2) -- cycle;
     \end{tikzpicture}
     \label{fig:intTwoNeigh}
     \caption{Velocity values used in the closest-neighbor interpolation method for interpolating from the Eulerian grid to $\xp$.}
@@ -774,21 +773,21 @@ In two dimensions we need to choose the cell faces we want to use for the interp
         %\draw[->,ultra thick,purple] (a/4,2*a) -- node[above] {$u_{i+1,j+1/2}$}(3*a/4, 2*a);
         %\draw[arrow] (pro1) -- node[right] {After convergence} (pro2);
         %\draw[->,ultra thick,purple] (5*a/4,2*a) --node[above] {$u_{i+1,j+3/2}$} (7*a/4, 2*a);
-        \shade[shading=axis, top color=purple!60, bottom color=purple!60, opacity =0.5] (a,a/2) -- (a,3*a/2) -- (2*a,3*a/2) -- (2*a,a/2) -- cycle;
-        \draw[ultra thick,dashed, purple](a,a/2) -- (a,3*a/2) -- (2*a,3*a/2) -- (2*a,a/2) -- cycle;
-        \shade[shading=axis, top color=blue!40, bottom color=blue!40, opacity =0.5] (a/2,0) -- (3*a/2,0) -- (3*a/2,a) -- (a/2,a) -- cycle;
-        \draw[ultra thick,dashed, blue](a/2,0) -- (3*a/2,0) -- (3*a/2,a) -- (a/2,a) -- cycle;
-        \draw[->,ultra thick,purple] (3*a/4,a/2) --node[above] {$u_{i+1/2,j}$} (5*a/4, a/2);
-        \draw[->,ultra thick,purple] (7*a/4,a/2) -- node[above] {$u_{i+3/2,j}$}(9*a/4, a/2);
+        \shade[shading=axis, top color=kit-purple!60, bottom color=purple!60, opacity =0.5] (a,a/2) -- (a,3*a/2) -- (2*a,3*a/2) -- (2*a,a/2) -- cycle;
+        \draw[ultra thick,dashed, kit-purple](a,a/2) -- (a,3*a/2) -- (2*a,3*a/2) -- (2*a,a/2) -- cycle;
+        \shade[shading=axis, top color=kit-blue!40, bottom color=blue!40, opacity =0.5] (a/2,0) -- (3*a/2,0) -- (3*a/2,a) -- (a/2,a) -- cycle;
+        \draw[ultra thick,dashed, kit-blue](a/2,0) -- (3*a/2,0) -- (3*a/2,a) -- (a/2,a) -- cycle;
+        \draw[->,ultra thick,kit-purple] (3*a/4,a/2) --node[above] {$u_{i+1/2,j}$} (5*a/4, a/2);
+        \draw[->,ultra thick,kit-purple] (7*a/4,a/2) -- node[above] {$u_{i+3/2,j}$}(9*a/4, a/2);
         %\draw[->,ultra thick,purple] (a/4,a) -- node[above] {$u_{i,j+1/2}$}(3*a/4, a);
         %\draw[->,ultra thick,purple] (5*a/4,a) -- node[above] {$u_{i,j+3/2}$}(7*a/4, a);
         %\draw[->,ultra thick,purple] (-a/4,3*a/2) -- node[above] {$u_{i-1/2,j+1}$}(a/4, 3*a/2);
-        \draw[->,ultra thick,purple] (3*a/4,3*a/2) -- node[above] {$u_{i+1/2,j+1}$}(5*a/4, 3*a/2);
-        \draw[->,ultra thick,purple] (7*a/4,3*a/2) --node[above] {$u_{i+3/2,j+1}$} (9*a/4, 3*a/2);
-        \draw[->,ultra thick, blue] (a/2,3*a/4) -- node[below left] {$v_{i,j+1/2}$}(a/2,5*a/4);
-        \draw[->,ultra thick, blue] (3*a/2,-a/4) -- node[below right] {$v_{i+1,j-1/2}$}(3*a/2,a/4);
-        \draw[->,ultra thick, blue] (a/2,-a/4) -- node[above left]{$v_{i,j-1/2}$} (a/2,a/4);
-        \draw[->,ultra thick, blue] (3*a/2,3*a/4) -- node[below right] {$v_{i+1, j+1/2}$} (3*a/2,5*a/4);
+        \draw[->,ultra thick,kit-purple] (3*a/4,3*a/2) -- node[above] {$u_{i+1/2,j+1}$}(5*a/4, 3*a/2);
+        \draw[->,ultra thick,kit-purple] (7*a/4,3*a/2) --node[above] {$u_{i+3/2,j+1}$} (9*a/4, 3*a/2);
+        \draw[->,ultra thick, kit-blue] (a/2,3*a/4) -- node[below left] {$v_{i,j+1/2}$}(a/2,5*a/4);
+        \draw[->,ultra thick, kit-blue] (3*a/2,-a/4) -- node[below right] {$v_{i+1,j-1/2}$}(3*a/2,a/4);
+        \draw[->,ultra thick, kit-blue] (a/2,-a/4) -- node[above left]{$v_{i,j-1/2}$} (a/2,a/4);
+        \draw[->,ultra thick, kit-blue] (3*a/2,3*a/4) -- node[below right] {$v_{i+1, j+1/2}$} (3*a/2,5*a/4);
         \draw (10*a/8,7*a/8) circle (3pt) node[anchor = north west]{$x_p$};
         %\node at (a/2,a/2) {$x_{i,j}$};
     \end{tikzpicture}
@@ -1333,6 +1332,7 @@ Since we only use the Harris and Crighton model in the simulation no further mod
 
 \color{gray}
 \subsection{Discretizations of collision damping term}
+\label{sec:DiscCollDamp}
 First, we discretize the particle density function \pd 
 \begin{equation}
     \pd_d^n (\x_i, \u_i, \m, \tvar^n) = \sum_{p} \Np \delta (\x_i - \x_{i,p}^n) \delta(\u_i - \u_{i,p}^n) \delta (\m - \m_p).
@@ -1354,4 +1354,51 @@ Substituting the discrete $\pd^n$ and $\pd^n_D$ into the analytical solution \eq
 A straight forward implementation of the equation above is not possible as it splits parcels into two. This results in an exponential growth over time. 
 
 This
+
+\subsection{Disctrization of the return-to-isotropy term}
+We can discretize the particle distribution function for each cell by summing over all parcels in that cell at time step $n$
+\begin{equation*}
+    \pd_d^n (\x, \u , \m, \tvar) = \sum_p \Np \delta ( \x - \x_p^n) \delta ( \u - \up^n) \delta (\m - \mp).
+\end{equation*}
+To get an approximation for the advanced time step $n+1$ we use the initial discrete distribution $\pd_0$ and the Gaussian discrete distribution $\pd_G$
+For the initial discrete distribution $\pd_0$ we can use the velocity and positions from the previous time step
+\begin{equation*}
+    \pd_0 = \sum_p \Np \delta ( \x - \x_p^n) \delta ( \u - \up^n) \delta (\m - \mp).
+\end{equation*}
+For the equilibrium distribution we have 
+\begin{equation*}
+    \pd_G = \sum_p \Np \delta (\x - \xp^n) \delta(\m - \mp) G(\up;\overline{\up}, \sigma^2(\m))
+\end{equation*}
+with the cell mean velocity, variance and mean particle mass given by
+\begin{equation*}
+    \overline{\up} = \dfrac{\sum_p \Np \mp \up^n}{\sum_p \Np \mp} \qquad \sigma^2 = \dfrac{\sum_p \Np \mp (\up^n - \overline{\up})^2}{\sum_p \Np \mp} \qquad \overline{\m} = \dfrac{\sum_p \Np \mp}{\sum_p \Np}.
+\end{equation*}
+We can plug this into the solution of the differential equation \eqref{eq:rtiSol} and obtain the provisional particle distribution 
+\begin{equation*}
+    \tilde{\pd} = \sum_p \Np \delta (\xp - \xp^n) \delta (\m - \mp) \left[ \delta (\u - \up^n) \operatorname{exp}\left(\dfrac{-\delta \tvar}{\ss_G} \right) +  G(\up;\overline{\up}, \sigma^2(\m)) \left( 1 - \operatorname{exp}\left( \dfrac{\delta \tvar}{\ss_G} \right) \right)\right].
+\end{equation*}
+The advanced particle distribution is obtained by randomly sampling. The details are explained in the implementation.
+If we concur that no collision has taken place the velocity of the particle remains the same as before. Else we draw from the Gaussian distribution and add that velocity to the current particle velocity.
+\Todo{Referenz einfügen}
+Since we have a finite number of particles the new particle velocities will probably not have the same mean velocity and variance as the initial particle distribution. 
+To conserve the mean particle velocity and variance cell-wise we modify the particle velocity $\tilde{\up}$ that includes collision. The new velocity is 
+\begin{equation}
+\label{eq:rtiUpdate}
+    \up^{n+1} = \overline{\u} + \alpha (\tilde{\up} + \delta \u - \overline{\u})
+\end{equation}
+with the velocity deviation
+\begin{equation*}
+    \delta \u = \overline{\u} - \dfrac{\sum_p\Np \mp \tilde{\up}}{\sum_p \Np \mp}
+\end{equation*}
+and
+\begin{equation*}
+    \alpha^2 = \dfrac{\sum_p \Np \mp}{\sum_p \Np \mp (\tilde{\up}+ \delta \u - \overline{\u})^2} \sigma^2.
+\end{equation*}
+With this definition we conserve the mean velocity and variance in each cell
+\begin{align*}
+\sum_p \Np \mp \up^{n+1} &= \sum_p \overline{\u} + \alpha \left( \sum_p \Np \mp \tilde{\up} - \sum_p \Np \mp \tilde{\up}\right) = \sum_p \Np \mp \overline{\u} \\
+\dfrac{\sum_p \Np \mp \left( \up^{n+1} - \overline{\u} \right)}{\sigma^2} &= \sum_p \Np \Np \dfrac{\sum_p \Np \mp}{\sum_p \Np \mp ( \tilde{\up} + \delta \u - \u)^2} (\tilde{\up} + \delta \u - \u)^2 \\
+&\Rightarrow \sum_p \Np \mp \left( \up^{n+1} - \u \right)^2 = \sigma^2 \sum_p \Np \mp.
+\end{align*}
+velocity and variance.
 \color{black}
