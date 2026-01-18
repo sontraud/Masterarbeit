@@ -1,20 +1,22 @@
 \pagebreak
 \chapter{MP-PIC: Multiphase Particle-in-Cell Method}
 \label{ch:MPPIC}
-
-In this chapter, we will look at how the \MP method works. First we will look at which governing equations are used, especially how the particles are modeled.
- Afterward we will discuss the first numerical implementation based on the paper which first presented the \MP method, \cite{MPPICFirst}.
+In this chapter, we discuss the theoretical foundations of the \MP (Multi‑Phase Particle‑In‑Cell) method. We look at the governing equations and how they are solved and at the modeling approaches, especially at the methods used for the particles.
+Subsequently, the first numerical implementation of the \MP method is discussed, following the formulation originally presented in \cite{MPPICFirst}.
+ 
 % an overview of approaches used for modeling gas-solid multiphase flows. Then we will look at one in detail, the \MP method, the governing equation and how they are solved numerically. 
 % This chapter is mainly based on the paper which first presented the \MP method \cite{MPPICFirst}.
 
 %TODO: von wo aus anfangen? Euler/Euler bzw. Euler/Lagrange Modelle erklären?
 
 \section{Governing equations}
-In the \MP method, the fluid phase is modeled as through a continuum model and the particle phase using a Lagrangian model.
-For the fluid phase mass and momentum equations are solved. For the particles the Liouville equation is solved for the distribution function of particle positions, velocities and sizes.
-The particle properties are then mapped to an Eulerian grid and used to calculate the stress tensor. 
-The stress tensor models particle collision which is used in the advanced particle positions. In this section we will look at the governing equation for both phases and at the interpolation operators which connect them and the numerical solution.
-
+In the \MP method, the fluid phase is described using an Eulerian framework, whereas the particle phase is represented using a Lagrangian approach.
+For the fluid phase mass and momentum equations are solved. 
+The particle phase is governed by the Liouville equation for the distribution function of particle positions, velocities and sizes.
+For the particle behavior we look at the first and second moment of the Liouville equation.
+Obtained particle properties are projected on to an Eulerian grid, where they are used to compute the solid stress tensor.
+The stress tensor models particle-particle interactions and in addition to further Eulerian properties we use them to advance the particle positions.
+In this section we will look at the governing equation for both phases as well as the interpolation operators that couple them and the numerical solution.
 \subsection{Fluid Phase}
 The fluid phase, in our case gas, is modeled through an Eulerian approach for incompressible flows.
 The gas phase is governed by the conservation equations for mass
@@ -24,8 +26,9 @@ The gas phase is governed by the conservation equations for mass
 and momentum
 \begin{equation}
     \label{eq:momEul}
-    \dfrac{\partial (\fvf \rf \uf)}{\partial \tvar} + \nabla \cdot (\fvf \rf \uf \uf) = - \nabla \p -\nabla \cdot \fst - \boldsymbol{F} + \fvf \rf \g.
+    \dfrac{\partial (\fvf \rf \uf)}{\partial \tvar} + \nabla \cdot (\fvf \rf \uf \uf) = - \nabla \p -\nabla \cdot (\fvf \fst)  - \boldsymbol{F} + \fvf \rf \g.
 \end{equation}
+\todo[color = kit-blue!60, inline]{der viscous stress $\nabla \cdot (\fvf \fst)$ ist in anderen Papern \cite{mathMPPIC} nur $\nabla \cdot \fst$. Scheint ein häufigeres Problem zu sein \cite{differentTau}.}
 Here $\uf$ is the fluid velocity and $\fvf$ the fluid volume fraction.
 If not labeled otherwise, the gradient refers to the spatial component.
 In the momentum term
@@ -35,11 +38,12 @@ In the momentum term
 we have $\rf$ as the fluid density, $\p$ as fluid pressure, $\fst$ as the fluid stress tensor and $\g$ as the gravitational acceleration. $\F$ is the interphase momentum transfer, which will be discussed in the following subsection. 
 For both equations we assume that we have no interphase mass transfer.
 In the first versions of the \MP method the fluid stress tensor was omitted by setting it to zero
-\begin{equation*}
+\begin{equation}
+\label{eq:FlStTeZero}
     \fst = 0,
-\end{equation*}
-which is also assumed in this chapter.
-In later \MP descriptions it is given by the Newtonian viscosity law
+\end{equation}
+which is also assumed in this chapter \cite{MPPICFirst}, \cite{MP2d},\cite{MPInterpolation}. %The term is again discussed in the \OF implementation as this term only matches the implementation if the condition above \eqref{eq:FlStTeZero} is fulfilled.
+In later papers the fluid stress tensor is defined by the Newtonian viscosity law
 \begin{equation}
     \label{eq:fst}
     \fst = - \fv \left( \nabla \uf + ( \nabla \uf)^T \right) + \dfrac{2}{3} \fv ( \nabla \cdot \uf),
@@ -52,15 +56,19 @@ We also assume that we have an ideal gas, which we will use later in the implici
 \end{equation}
 
 \subsection{Solid Phase}
-
 The solid phase is treated as both a continuous phase as well as a discrete phase in the \MP method.
 The behavior of the particles is governed by the Liouville equation for the particle probability distribution function.
-Consider the domain $\Omega \subset\R^3$, %partial volume $\Omega_p \subset \R^3$ 
-velocity space $\Pi \subset \R^3$ and time interval $I = [0,\T], \ \T \in \R$. For the solid phase we define a particle distribution function %$\pd: \Omega \times \Pi \times \Op \times I \times \R \times \R \to \R^+, \ \pd(\xp, \up, \Op, t, \rp, \m) $
+We look at the distribution of the velocities among a sufficient number of particles in a domain $\Omega \subset \R^3$, with velocity points in the velocity space $\Pi \subset \R^3$. 
+The number density of particles in a volume $\x \in \Omega$, with a velocity $\u \in \Pi$, mass $\m$ at time $\tvar$ is given by the particle probability distribution function
 \begin{equation}
-    \pd : \Omega \times \Pi \times I \times \R \to \R^+, \qquad (\xp, \up, \tvar, \m) \mapsto \pd (\xp , \up , \tvar, \m)  
+    \pd : \Omega \times \Pi \times I \times \R \to \R^+, \qquad (\x, \u, \tvar, \m) \mapsto \pd (\x , \u , \tvar, \m).  
 \end{equation}
-with $\xp$ the particle position, $\up$ the particle velocity, $\Op$ the particle volume, $\m$ the particle mass and $\rp$ the particle mass density.
+% with $\xp$ the particle position, $\up$ the particle velocity, $\Op$ the particle volume, $\m$ the particle mass and $\rp$ the particle mass density.
+
+% Consider the domain $\Omega \subset\R^3$, %partial volume $\Omega_p \subset \R^3$ 
+% velocity space $\Pi \subset \R^3$ and time interval $I = [0,\T], \ \T \in \R$. For the solid phase we define a particle distribution function %$\pd: \Omega \times \Pi \times \Op \times I \times \R \times \R \to \R^+, \ \pd(\xp, \up, \Op, t, \rp, \m) $
+
+
 %Assuming that the particle Volume and particle density are constant, the particle distribution function quantifies the average number of particles having velocity $\up$ at $\xp$ with particle mass $\m$ at time $\tvar$.
 The particle density function gives the probable average number of particles per unit volume $\Np$ with a velocity in the interval $(\Vp, \Vp + \Delta \Vp)$ and mass in the interval $(\M, \M + \Delta \M)$ when integrating over the velocity and mass
 %\Todo{Ahhhh why is it called distribution and not density}
@@ -69,8 +77,12 @@ The particle density function gives the probable average number of particles per
 \end{equation} 
 For a small volume this can be approximated by
 \begin{equation}
-    \Np \approx \pd (\xp , \Vp , \tvar, \M) \cdot \Delta \boldsymbol{V_p} \cdot \Delta M.
+    \Np \approx \pd (\xp , \Vp , \tvar, \M) \cdot \Delta \Vp \cdot \Delta M.
 \end{equation}
+The definition of the probability particle density function is of a probabilistic nature.
+The probable number of particles in the given volume the number of particles with a velocity in and a mass of $\m$ at time $\tvar$ is not necessarily contained since fluctuations can occur but is the average number of particles when the time $dt$ is smoothed out.
+In the following we will assume that $\pd$ is not negative, finite, continuous and goes to zero as the velocity becomes infinite.
+
 The solids volume fraction is then given by taking particles of all mass and velocities
 \begin{equation}
     \label{eq:svf}
@@ -87,12 +99,16 @@ We assume that the total number of particles near $\xp$ with velocity $\up$ in a
     \dfrac{d}{dt} \MultiIntegral{2} \pd d \up d \xp = 0.
 \end{equation}
 %By applying the Leipniz integral rule and, using that the volume over which we integrate is arbitrary, we transform the equation above into the Liouville equation.
-Using that the this hold for all volumes we can transform the equation above into the Liouville equation
+Using that the this hold for all volumes we can transform the equation above into what the authors refer to as a Liouville equation
+\todo[inline,color=kit-blue!60]{Die Liouville Gleichung ist eigentlich für die Hamiltonische Mechanik definiert und müsste Divergenz frei und Konservativ sein. Ist sie halt hier nicht..., aber who cares?}
 \begin{align}
     \dfrac{\partial \pd}{\partial \tvar} + \dfrac{\partial}{\partial \xp} \left( \pd \dfrac{d \xp}{d \tvar} \right)+ \dfrac{\partial}{\partial \up} \left( \pd \dfrac{d \up}{d \tvar} \right) = 0 \\
     \label{eq:Liouville}
     \Leftrightarrow \dfrac{\partial \pd}{\partial \tvar} + \dfrac{\partial (\pd \up)}{\partial \xp} + \dfrac{\partial (\pd \Ap)}{\partial \up} = 0. % \left( \dfrac{\partial f}{\partial t} \right)_{coll}.
 \end{align}
+%The Liouville equation was originally derived for Hamiltonian mechanics which would require it to be conservative ($\nabla_\u \cdot \Ap)$ and divergence free $\nabla \cdot \up = 0$, which is not fulfilled in our case.
+%The term has used 
+%To avoid confusion, we will keep referring to the equation as the Liouville equation. \Todo{Quelle einfügen}
 Here $\Ap$ is the particle acceleration. The term is defined by Newton's equations of motion. The forces acting on the particle are aerodynamic drag, pressure gradient, interparticle stress and gravity.
 The equations are given by
 \begin{align}
@@ -100,34 +116,33 @@ The equations are given by
     \label{eq:accel}
     \Ap = \dfrac{d \up}{d \tvar} &=\d(\uf - \up) - \dfrac{1}{\rp} \nabla \p - \dfrac{1}{\pvf \rp} \nabla \scs + \g.
 \end{align}
-The \MP method accounts for collisions by the spatial gradient of the solid stress. 
-To model collison behavior more locally collison terms were added to the right hand side of the Liouville equation \eqref{eq:Liouville} 
+Here $\uf$ is the mean flow fluid velocity, $\d(\Op,\up, \xp,\tvar)$ is the drag function, discussed in \ref{sec:MPDrag}, $\scs(\xp, \tvar)$ is the solids contact stress, discussed in \ref{eq:solidStress} and $\p$ is the mean flow fluid thermodynamic pressure.
+We account for the effects of collisions by the spatial gradient of the solid stress. 
+Adding collision terms on the right hand side of the Liouville equation \eqref{eq:Liouville} we can model the behavior of particles after a collision more locally
 \begin{equation}
     \label{eq:LiouCollide}
     \dfrac{\partial \pd}{\partial \tvar} + \dfrac{\partial (\pd \up)}{\partial \xp} + \dfrac{\partial (\pd \Ap)}{\partial \up} = \left( \dfrac{\partial \pd}{\partial 
-    \tvar} \right)_{coll}.
+    \tvar} \right)_{coll},
 \end{equation}
+see \cite{damp}, \cite{isotropy}.
 We will cover these damping terms later in this chapter, see \ref{sec:damping}.
 
-Here \uf is the mean flow fluid velocity, $\d(\Op,\up, \xp,\tvar)$ is the drag function and $\p$ is the mean flow fluid thermodynamic pressure, $\scs(\xp, \tvar)$ is the solids contact stress.
-
-To arrive at the interphase momentum transfer function we look at the moments from the Liouville equation \eqref{eq:Liouville}.
-We multiply the equation by $\m$ and integrate over the mass and velocity. This yields a connection between the field properties and the interaction between the two phases
+To derive the interphase momentum transfer function we take the moments from the Liouville equation \eqref{eq:Liouville}.
+We multiply the equation by $\m$ and integrate over the mass and velocity. This yields a connection between the field properties and the interaction between the two phases called the particle conservation equation
 \begin{align*}
-    \int \int \m \left( \dfrac{\partial \pd}{\partial \tvar} + \nabla \cdot (\pd \up) + \nabla_{\up} \cdot (\pd \Ap)\right) d \up d \m = 0 \\
+    \MultiIntegral{2} \m \left( \dfrac{\partial \pd}{\partial \tvar} + \nabla \cdot (\pd \up) + \nabla_{\up} \cdot (\pd \Ap)\right) d \up d \m = 0 \\
     \Leftrightarrow
-    \dfrac{\partial }{\partial \tvar} \int \int \pd \m d \m d \up + \nabla \cdot \left( \int \int m \pd \up d\up d \m \right) = 0\\
+    \dfrac{\partial }{\partial \tvar} \MultiIntegral{2} \pd \m d \m d \up + \nabla \cdot \left( \MultiIntegral{2} m \pd \up d\up d \m \right) = 0\\
     \stackrel{\eqref{eq:svf}}{\Leftrightarrow} \dfrac{\partial (\pvf \rp )}{\partial t} + \nabla_{\xp} \cdot (\pvf \rp \overline{\up}) = 0    
 \end{align*}
-with the third term being zero by using integration by parts and $\pd \to 0$ for $\lvert \up \rvert \to \infty$. 
-The term for the mean particle velocity is
+with the third term being zero by using integration by parts and $\pd \to 0$ for $\lvert \up \rvert \to \infty$.
+The term for the mean particle velocity is given by
 \begin{equation*}
     \overline{\up} = \dfrac{1}{\rp \pvf}\MultiIntegral{2} \pd \m \up d\m d \up.
 \end{equation*}
 
 %In this case our particle distribution function depends only on particle position, velocity, mass and time. 
 %For a particle distribution function that instead of the mass would depend on the density and volume we would need to integrate over these factors.
-The term is called the particle conservation equation.
 We obtain the second momentum term by multiplying the Liouville equation \eqref{eq:Liouville} by $\m \up$ and again integrating over $\m$ and \up
 \begin{equation}
 \label{eq:mom2Begin}
@@ -137,11 +152,11 @@ We obtain the second momentum term by multiplying the Liouville equation \eqref{
 \end{equation}
 With partial integration and using again that $\pd \to 0$ for $\lvert \up \rvert \to \infty$ we have
 \begin{equation*}
-    \int \int \m \up \nabla_{\up} \cdot (\pd \Ap ) d \up d \m = - \int \int \m \Ap \pd d \up d \m.
+    \MultiIntegral{2} \m \up \nabla_{\up} \cdot (\pd \Ap ) d \up d \m = - \MultiIntegral{2} \m \Ap \pd d \up d \m.
 \end{equation*}
 Using the mean particle velocity to reformulate
 \begin{equation*}
-    \int \int \m \up \dfrac{\partial \pd}{\partial \tvar} d \up d \m = \dfrac{\partial}{\partial \tvar} (\rp \pvf \overline{\up} )
+    \MultiIntegral{2} \m \up \dfrac{\partial \pd}{\partial \tvar} d \up d \m = \dfrac{\partial}{\partial \tvar} (\rp \pvf \overline{\up} )
 \end{equation*}
 and
 \begin{equation*}
@@ -162,11 +177,11 @@ The last term in the equation mimics the kinematic stress from the particle velo
 %\Todo{Second momentum term}
 \begin{equation}
     \label{eq:InterMomTrans}
-    \F = \int \int \pd \m [\d (\uf - \up) - \dfrac{1}{\rp} \nabla \p] d\m d\up.
+    \F = \MultiIntegral{2} \pd \m [\d (\uf - \up) - \dfrac{1}{\rp} \nabla \p] d\m d\up.
 \end{equation}
 We can split the integral up into two terms. The first represents the momentum exchange due to aerodynamic drag.
 For more detailed models we can use particle density and volume instead of mass.
-Often in the gas momentum equation \eqref{eq:momEul} the pressure gradient is multiplied by the gas volume fraction. Taking the second term in the equation above \eqref{eq:InterMomTrans} we receive this term by the following calculation.
+Often in the gas momentum equation \eqref{eq:momEul} the pressure gradient is multiplied by the gas volume fraction. This term arises from the second term in \eqref{eq:InterMomTrans}, as shown by the following calculation.
 We know that for the volume fraction
 \begin{equation}
     \fvf + \pvf = 1 \qquad \nabla p - \fvf \nabla p = \pvf \nabla p
@@ -184,34 +199,124 @@ By setting both terms against one another only $\pvf \nabla p$ remains in the eq
 % The collision operator in general reads
 
 
-In a later paper (\cite{MPInterpolation}) the \MP method was also extended to two-dimensional problems and a scheme for three-dimensional models was introduced. 
-A second term  was introduced later (\cite{damp}, \cite{isotropy})  which represents the scattering from particle collisions and is called return-to-isotropy.
+\subsection{Interphase Drag Model}
+\label{sec:MPDrag}
+%\Todo{Something with Gidaspow}
+Investigation of flow through fixed beds has led to several empirical models to predict the pressure drop, which correlates to the drag force. 
+
+
+Several different models have been suggested for the \MP method. 
+In the paper that first presented the method \cite{MPPICFirst} the interphase drag model was used 
+\begin{align*}
+    D_p = C_D\dfrac{3}{8} \dfrac{\rf}{\rp} \dfrac{\lvert \uf - \up \rvert}{r_p}
+\end{align*}
+with the Drag constant
+\begin{align*}
+    C_d = \dfrac{24}{\operatorname{Re}_p} \left( \fvf^{-2.65}+ \dfrac{\operatorname{Re}_p^{2/3}}{6} \fvf^{-1.78} \right)
+\end{align*}
+\begin{align*}
+\operatorname{Re}_p = \dfrac{2 \rf \lvert \uf - \up \rvert r_p}{\fv}
+\end{align*}
+and the particle radius $r_p$.
+For high porosity rates, above $\phi \geq 0.8$, the model was extended by Wen-Yu \cite{WenYu}
+\begin{align*}
+    C_d =
+    \begin{cases}
+        \dfrac{24}{\operatorname{Re}} \fvf^{-2.65} (1+0.15 \operatorname{Re}_p^{0.687}) \quad & \operatorname{Re}_p < 1000 \\
+        0.44 \fvf^{-2.65} & \operatorname{Re}_p \geq 1000.
+    \end{cases}
+\end{align*}
+\todo[color=kit-blue!60]{In dem 3d paper steht 0.5 statt 0.15. Die zitierte Quelle sagt 0.15 was auch eher zu dem 1d paper passt.}
+The models are summarized in \cite{ErgunWenYu}. The drag terms used in the \OF implementation extend the previous model. They are discussed in \Todo{Referenz Set Up}.
+% the particle Reynolds number
+
+
+\subsection{Particle Normal Stress Model}
+\label{sec:particleNormalStress}
+In the \MP method the collision between particles are approximated by an isotropic interparticle stress. 
+Harris and Crighton proposed a model that only depends on the particle volume fraction and the particle volume fraction at close pack $\pvfcp$
+\begin{equation}
+    \label{eq:solidStress}
+    \ss = P_s \dfrac{\pvf}{\pvfcp - \pvf},
+\end{equation}
+see \cite{HarrisCrighton}.
+Particles approaching a close packing or in a closely packed cell are accelerated as to prevent over-packing.
+The term was later extended \cite{MPInterpolation} to include an exponent $\beta$
+\begin{equation*}
+    \ss = \dfrac{P_s \pvf^\beta}{\max [( \pvfcp - \pvf), \varepsilon ( 1- \pvf)]}
+\end{equation*}
+and a small constant $\varepsilon$ to remove the singularity at close pack.
+Based on experimental data it is recommended to keep the exponent in the range $2 \leq \beta \leq 5$ \cite{betaRange}.
+% To observe how the Harris and Crighton model works we can look at particle behavior in three different scenarios near close pack, due to the restriction for $\beta$.
+% In the first case the particle is rapidly approaching a packed bed. The particle normal stress would increase and the particle would be decelerated. In the 
+In the paper proposing the original method, the Harris-Crighton model is applied to every particle. 
+This can lead to nonphysical results.
+\todo{non-physical oder unphysical?}
+For example we can consider a particle that is moving away from a packed region, e.g. a packed bed. Due to the change in solid stress the particle would be accelerated further away from the packed bed which can be physically unrealistic.
+To mitigate this issue, the particle normal stress is only applied to some particles, based on the mean velocity of the surrounding particles, as proposed by \cite{MPInterpolation}.
+A modified version of this method is implemented in \OF and explained in section \ref{sec:MPLoop}.
+
+Looking again at the Harris-Crighton model we note that the particle normal stress does not take into account the particle’s velocity and size.
+A more complex model that incorporates these was proposed by Lun \cite{Lun}.
+Here the particle normal stress is defined as
+\begin{equation*}
+    \ss = (\pvf \overline{\rp} + \pvf^2 \overline{\rp} (1 + \gamma) g_0) \Theta
+\end{equation*}
+with the restitution coefficient $\gamma$ and the average particle density $\overline{\rp}$ and the granular temperature $\Theta$. The radial distribution function $g_0$ is given by
+\begin{equation*}
+    g_0 = \dfrac{3}{5} \left( 1- \left( \dfrac{\pvf}{\pvfcp} \right)^{1/3} \right)^{-1}.
+\end{equation*}
+\todo{Lun verwenden wir nie könnte man auch weglassen.}
+
+Following the one dimensional paper the \MP method was extended to two dimensions \cite{MP2d} and later to three dimensions \cite{MPInterpolation}.
+Collision terms were introduced on the right hand side of the Liouville equation. The first one is called collision damping \cite{damp} and dampens the particle velocity by relaxing it toward the mass-averaged velocity, while the second term is called return-to-isotropy \cite{isotropy} which represents the scattering from collisons and relaxes the particle velocities toward a Gaussian distribution.
 These terms improve upon the \MP method by modeling particle collisions locally as opposed to spatial gradients of the particle gradient.
-The terms will be explained in the following.
 \begin{equation}
     \left( \frac{\partial \pd}{\partial \tvar} \right)_{coll} = \underbrace{\dfrac{\pdd - \pd}{\sd}}_{\text{daming term}} + \underbrace{\dfrac{\pdi - \pd}{\si}}_{\text{return-to-isotropy}}.
 \end{equation}
+The terms will be explained in the following.
+\todo{dritten collision term noch erwähnen?}
 
 \subsubsection{Damping term}
 \label{sec:damping}
-The damping term above is the BGK-collision term with \sd \ as the collision damping time and \pdd \ as
+The first term is known as the collision damping term \cite{damp}.
+It is defined similar to a BGK-collision term 
 \begin{equation}
     \label{eq:colDamp}
     \pdd = \left[ \int \pd d \up \right] \delta (\up - \nup).
 \end{equation}
 with the mass-averaged velocity
 \begin{equation}
-    \nup = \dfrac{\MultiIntegral{2}  \pd \m \up d \m d  \up}{\MultiIntegral{2} \pd \m d \m d \up}
+    \nup = \dfrac{\MultiIntegral{2}  \pd \m \up d \m d  \up}{\MultiIntegral{2} \pd \m d \m d \up}.
 \end{equation}
-%\Todo{$\up$ mess fixen}
-%\Todo{BGK Term genau erklären?}
 It was introduced by Bhatnagar, Gross and Krook and is used frequently in lattice Boltzmann methods.
 Therefor the particle velocities are distributed symmetrically around the local mass-averaged particle velocity \nup. This is due to collisions tending to relax the distribution function to the equilibrium \pdd.
 
-In %TODO add ref
-it is shown that the equation \eqref{eq:colDamp} is equal to the one with more dependencies.
+%In %TODO add ref
+%it is shown that the equation \eqref{eq:colDamp} is equal to the one with more dependencies.
 
-We first solve the equation without the collision
+The collision damping time $\sd$
+\begin{equation}
+\label{eq:DampingTimeD}
+\dfrac{1}{\sd} = \dfrac{8 \sqrt{2}}{3 \pi} \dfrac{\pvf}{r_{32}^3} \dfrac{\MultiIntegral{2} f (r+ r_{32})^4 (\up - \overline{\up})^2 d \m d \up}{\MultiIntegral{2} f (r + r_{32})^2 \sqrt{(\up - \overline{\up})^2}d \m d \up} g_0(\pvf) \eta (1-\eta)
+\end{equation}
+can be physically interpreted as the average time between collision.
+Here we have $\eta$ as the material restitution coefficient, $r_{32}$ as the particle Sauter mean radius
+\begin{equation*}
+    r_{32} = \dfrac{\int \pd r^3 d\m d \up}{\int \pd r^2 d\m d\up}.
+\end{equation*}
+and an approximation to the radial distribution function
+\begin{equation*}
+    g_0 ( \pvf ) = \dfrac{\pvfcp}{\pvfcp - \pvf}
+\end{equation*}
+which modifies the probability of collision for particles.
+The probability function is low in a dilute case but high when the particle packing is dense.
+
+%The damping term above is the BGK-collision term with \sd \ as the collision damping time and \pdd \ as
+%\Todo{$\up$ mess fixen}
+%\Todo{BGK Term genau erklären?}
+
+To apply the damping term we first solve it regarding only collision effects
 \begin{equation*}
     \dfrac{\partial \pd}{\partial \tvar} = \dfrac{\pd_D -\pd}{\sd}.
 \end{equation*}
@@ -225,11 +330,12 @@ which we can quickly verify by partially deriving the equation above
     \dfrac{\partial \pd}{\partial \tvar} = - \dfrac{1}{\sd} e^{- \frac{t}{\sd}} \pd_n + \dfrac{1}{\sd} e^{- \frac{t}{\sd}} \pd_D = \dfrac{\pd_D - \pd}{\sd}.
 \end{equation}
 
-The damping time is discussed in the section numerical discretizations.
+The implementation of the collision damping term is discussed in section \ref{sec:DiscCollDamp}.
 
 
 \subsubsection{Return-to-Isotropy}
-The second damping term, called return-to-isotropy, relaxes the velocities to a Gaussian velocity distribution. The equilibrium distribution is a particle distribution function with a Gaussian velocity distribution
+\label{sec:isotropy}
+The second damping term, called return-to-isotropy, relaxes the velocities to a equilibrium velocity distribution. The equilibrium distribution is a particle distribution function with a Gaussian velocity distribution
 \begin{equation*}
     \pd_G(\xp,\up,\m,\tvar) = N(\xp,\m,\tvar) G(\up;\overline{\up}, \sigma^2(\m))
 \end{equation*}
@@ -250,21 +356,12 @@ We assume that both PDFs $\pd$ and $\pd_F$ have the same variance. The variance 
 \begin{equation*}
 \sigma^2(m) = \dfrac{\overline{\m}}{\m} \sigma^2, \qquad \overline{\m} = \dfrac{\rp \pvf}{\int N d \m} \qquad \sigma^2 = \dfrac{\MultiIntegral{2} \pd \m (\up - \overline{\up})^2 d \m d \up}{\MultiIntegral{2} \pd \m d \m d \up}.
 \end{equation*}
-To determine whether a particle collides, we use the return-to-isotropy time, which is similar to a relaxation time
+To determine whether a particle collides, we use the return-to-isotropy relaxation time
 \begin{equation}
 \label{eq:DampingTimeG}
 \dfrac{1}{\ss_G} = \dfrac{8 \sqrt{2}}{5 \pi} \dfrac{\pvf}{r_{32}^3} \dfrac{\MultiIntegral{2} f (r+ r_{32})^4 (\up - \overline{\up})^2 d \m d \up}{\MultiIntegral{2} f (r + r_{32})^2 \sqrt{(\up - \overline{\up})^2}d \m d \up} g_0(\pvf) \eta (2-\eta)
 \end{equation}
-that approximates the time until the next collision. Here we have the particle Sauter mean radius
-\begin{equation*}
-    r_{32} = \dfrac{\int \pd r^3 d\m d \up}{\int \pd r^2 d\m d\up}.
-\end{equation*}
-and an approximation to the radial distribution function
-\begin{equation*}
-    g_0 ( \pvf ) = \dfrac{\pvfcp}{\pvfcp - \pvf}
-\end{equation*}
-which modifies the probability of collision for particles.
-The probability function is low in a dilute case but high when the particle packing is dense.
+that approximates the average time until the next collision. The Sauter mean radius $r_{32}$ and the radial distribution function $g_0$ are defined as above.
 The return-to-isotropy is derived in the Appendix of \cite{isotropy} and is obtained by comparing the particle momentum shear viscosity to the shear viscosity of continuum-fluid models.
 We split the collision of the particles from the rest of the particle properties, thus solving
 \begin{equation}
@@ -279,14 +376,24 @@ The physical representation of this is that for the first term no collision has 
 
 
 
-
 \color{black}
 \section{Numerical implementation and discretizations}
+Now that we have discussed the governing equations and the underlying models we look at how we can solve them numerically.
+In this chapter we focus on the original implementation done for a one-dimensional cartesian coordinate system. 
+Using the old velocities we update the particle positions. 
+The provisional particle is used to calculate a provisional particle fraction. 
+We discretize the mass and momentum conservation as well as the two moments from the Liouville equation. 
+Subsequently, we rearrange the equations until they only depend  on grid properties and solve them iteratively.
+We map these properties to the particles and use them to calculate the new particle positions.
+
+
+For the continuous phase, we discretize the mass and momentum conservation and combine these with the discretized first and second moment from the Liouville equation and use the acceleration equation to update the particle positions. 
+We iterate until we have reached our last time step.
+
 \subsection{Parcel Grouping}
-\Todo{Bisschen Überleitung einfügen}
-To reduce computing time for a large number of particles the \MP method can group particles with similar characteristics. The number of particles in a parcel is given by the statistical weight of the parcel \wp.
-The parcels each contain \wp \ particles with identical particle mass $\m$, velocity $\up$ and position $\xp$. 
-The sketch below illustrates the grouping of particles. The sketches on the left and in the middle are for illustration purposes only. In the \MP method the particles are represented through point masses, infinitesimal small points and the properties with properties assigned to them.
+To reduce the number of particles we need to track we can group particles with similar characteristics. The number of particles in a parcel is given by the statistical weight of the parcel \wp.
+The parcels each contain \wp \ particles with identical particle mass $\mp$, velocity $\up$ and position $\xp$. 
+The sketch below illustrates the grouping of particles. The sketches on the left and in the middle are for illustration purposes only. In the \MP method the particles are represented through point masses, infinitesimal small points with properties assigned to them.
 \FloatBarrier
 \begin{figure}[h!]
 \centering
@@ -408,10 +515,13 @@ In one dimension the the interpolation is only supported by two cell centers whi
     \draw[kit-blue] (0,0) -- (1,1) -- (2,0) -- (4,0);
     \draw[kit-cyan, dotted] (0,1) -- (1,0) -- (4,0);
     \draw[kit-green, dotted] (0,0) -- (3,0) -- (4,1);
-    \draw[kit-yellow] (0,0) -- (2,0) -- (3,1) -- (4,0);
+    \draw[kit-orange] (0,0) -- (2,0) -- (3,1) -- (4,0);
     \node[anchor = north] at (1,-0.25) {$x_{i-1}$};
     \node[anchor = north] at (2,-0.25) {$x_{i}$};
     \node[anchor = north] at (3,-0.25) {$x_{i+1}$};
+    \node[anchor = south] at (1,1) {\textcolor{kit-blue}{$\ip_{i-1}$}};
+    \node[anchor = south] at (2,1) {\textcolor{kit-purple}{$\ip_{i}$}};
+    \node[anchor = south] at (3,1) {\textcolor{kit-orange}{$\ip_{i+1}$}};
     %\draw[dotted] (1.5, 0.25) -- (2.5,0.25) -- (2.5, -0.25) -- (1.5, -0.25) -- cycle;
     %\node[anchor = south] at (2, 0.25) {cell $\# i$};
 \end{tikzpicture}
@@ -555,7 +665,7 @@ In one dimension the the interpolation is only supported by two cell centers whi
 % \end{equation*}
 The interpolation operator satisfies
 \begin{equation*}
-    \sum_{\xi} \ip_\xi^\x (\x_p) =1
+    \sum_{\xi} \ip_\xi^\x (\x_p) =1 \qquad \forall particles, cells
 \end{equation*}
 when summing over all Eulerian cells this holds for $\ip$.
 For the linear case this can be observed in the sketch above.
@@ -601,7 +711,7 @@ The product of two interpolation operators for cells is defined as
 % \begin{equation*}
 %     \nabla \gp_p = \sum_{\xi =1}^{N} \nabla \ip_\xi (\xp) \gp_\xi + \sum_{\xi =1}^{N} \ip_\xi ( \xp) (\nabla \gp)_{\xi}.
 % \end{equation*}
-For the one dimensional case we can calculate the spatial derivative of the linear interpolation operator with the help of the cell-face interpolation function. For an equidistant grid this is
+For the one dimensional case we can calculate the spatial derivative of the linear interpolation operator with the help of the cell-face interpolation function. For an equidistant grid we have a top hat function
 \begin{equation*}
     \ifg_{i+1/2} = \begin{cases}
         1 & \text{if }   \x_i \leq \x_p < \x_{i+1} \\
@@ -657,7 +767,7 @@ For the one dimensional case we can calculate the spatial derivative of the line
 
 In two dimensions we need to choose the cell faces we want to use for the interpolation. In figure \ref{fig:2dintall} we can see the velocities at the cell face centers which we will use in the following. 
 
-\begin{figure}[htbp]
+\begin{figure}[h!]
     \centering
     \begin{subfigure}[t]{0.4\textwidth}
     \begin{tikzpicture}[declare function={a=2.5;}]
@@ -740,8 +850,8 @@ In two dimensions we need to choose the cell faces we want to use for the interp
         %\node at (a/2,a/2) {$x_{i,j}$};
         \draw[ultra thick, dashed, kit-purple] (a/2,a/2) -- (3*a/2,a/2) -- (3*a/2,3*a/2) -- (a/2,3*a/2) -- cycle;
     \end{tikzpicture}
-    \label{fig:intTwoNeigh}
     \caption{Velocity values used in the closest-neighbor interpolation method for interpolating from the Eulerian grid to $\xp$.}
+    \label{fig:intTwoNeigh}
     \end{subfigure}
 
     
@@ -792,16 +902,16 @@ In two dimensions we need to choose the cell faces we want to use for the interp
         %\node at (a/2,a/2) {$x_{i,j}$};
     \end{tikzpicture}
     \label{fig:bilinearInt}
-     \caption{Velocity values used in the bilinear interpolation.}
+     \caption{Velocity values used in the bilinear interpolation, adapted from \cite{MP2d}.}
     \end{subfigure}
     \caption{Interpolation with face values.}
 \end{figure}
 Once again we use the top hat functions we defined earlier.
-For the two-neighbor interpolation we use the velocity $u$ in $\x$ direction and the velocity $v$ in $y$ direction. As the name suggests we use the two neighboring velocities, see figure \subref{fig:intTwoNeigh}. We use two top hat functions for the $\x$-face velocity
+For the two-neighbor interpolation we use the velocity $u$ in $\x$ direction and the velocity $v$ in $y$ direction. As the name suggests we use the two neighboring velocities, see figure ~\ref{fig:intTwoNeigh}. We use two top hat functions for the $\x$-face velocity
 \begin{align}
     \ip_{i+1/2,j}^{T} &= \ifg_{i+1/2} \ifg_j \\
-    \u_{g,p} &= \ip_{i+1/2,j}^{T} (\xp) \u_{g_{i+1/2,j}} +  \ip_{i+1/2,j+1}^{TS} (\xp) \u_{g_{i+1/2,j+1}} \\
-    v_{g,p} &= \ip_{i,j+1/2}^{T} (\xp) \u_{g_{i,j+1/2}} +  \ip_{i+1,j+1/2}^{TS} (\xp) \u_{g_{i+1,j+1/2}}.
+    \u_{g,p} &= \ip_{i+1/2,j}^{T} (\xp) \u_{i+1/2,j} +  \ip_{i+1/2,j+1}^{TS} (\xp) \u_{i+1/2,j+1} \\
+    v_{g,p} &= \ip_{i,j+1/2}^{T} (\xp) \u_{i,j+1/2} +  \ip_{i+1,j+1/2}^{TS} (\xp) \u_{i+1,j+1/2}.
 \end{align}
 
 The second option is to use face bilinear interpolation as shown in figure \subref{fig:bilinearInt}. Compared to the closest neighbor interpolation we now double the cell faces used to four per direction. 
@@ -811,11 +921,11 @@ For both the $x$ and the $y$ direction we use the encompassing faces for the int
 \end{equation*}
 and then have the interpolated velocity
 \begin{align*}
-    \u_{g,p} = \ip^S_{i+1/2,j} (\xp) \u_{g_{i+1/2,j}} + \ip_{i+3/2,j}^S (\xp) \u_{g_{i+3/2,j}} + \ip_{i+3/2,j+1}^S (\xp) \u_{g_{i+3/2,j+1}} + \ip^S_{i+1/2,j+1}(\xp)\u_{g_{i+1/2,j+1}}\\
-    v_{g,p} =  \ip^S_{i,j+1/2} (\xp) v_{g_{i,j+1/2}} + \ip^S_{i+1,j+1/2} (\xp) v_{g_{i+1,j+1/2}} + \ip^S_{i+1,j-1/2} (\xp) v_{g_{i+1,j-1/2}}+\ip^S_{i,j-1/2} (\xp) v_{g_{i,j-1/2}}.
+    \u_{g,p} = \ip^S_{i+1/2,j} (\xp) \u_{i+1/2,j} + \ip_{i+3/2,j}^S (\xp) \u_{i+3/2,j} + \ip_{i+3/2,j+1}^S (\xp) \u_{i+3/2,j+1} + \ip^S_{i+1/2,j+1}(\xp)\u_{i+1/2,j+1}\\
+    v_{g,p} =  \ip^S_{i,j+1/2} (\xp) v_{i,j+1/2} + \ip^S_{i+1,j+1/2} (\xp) v_{i+1,j+1/2} + \ip^S_{i+1,j-1/2} (\xp) v_{i+1,j-1/2}+\ip^S_{i,j-1/2} (\xp) v_{i,j-1/2}.
 \end{align*}
 %\color{gray}
-\Todo{Which one is used?}
+%\Todo{Which one is used?}
 
 For the momentum continuity equation, we also need the gradient of the interpolation operator.
 The gird property $\gp$ mapped to the particle location $\xp$ is
@@ -839,11 +949,8 @@ We can apply the orthogonality property from equation \eqref{eq:ipOrtho} and the
 \begin{equation*}
     \nabla \ip_\zeta ( \xp ) \cdot \sum_{\xi=1}^8 \ip_\xi ( \xp ) \nabla \gp_\xi = \ip_\zeta \left[ \dfrac{\partial \ip_{x_\zeta}}{\partial x} \boldsymbol{e}_x + \dfrac{\partial \ip_{y_\zeta}}{\partial y} \boldsymbol{e}_y + \dfrac{\partial \ip_{z_\zeta}}{\partial z} \boldsymbol{e}_z\right].
 \end{equation*}
+We will look more specifically at the interpolation used in \OF later in \ref{sec:OFInterpolation}.
 
-In \texttt{OpenFOAM} cells are divided into tetrahedrons
-\Todo{Tetrahedon}
-
-\color{black}
 
 \subsection{Numerical Solution without damping terms}
 The interpolation operators introduced in the previous section are used in the \MP method to map particle properties between the Eulerian grid and the particle positions.
@@ -857,8 +964,8 @@ In the following we will derive each step and look at the implicit approximation
 
 For the numerical solution we use the parcels mentioned above. As per the assumption made in equation \eqref{eq:partConservation}, the number of particles in a volume is conserved in particle phase space. 
 Therefor the parcels have a constant number of particles.
-For now we assume that a particle's mass is constant.
-Particle positions are then calculated by
+We assume that a particle's mass and volume is constant.
+Advanced particle positions are then calculated by
 \begin{equation}
     \label{eq:MPposition}
     \xp^{n+1} = \xp^{n} + \Delta t \up^{n+1}, \ n \in \mathbb{N} \qquad \xp^{0} = \x_0
@@ -944,7 +1051,7 @@ with $\p_{ref}$ and $\rgref$ at some reference state. For $\pvfi^n$ we use the d
     \pvfi^n = \dfrac{1}{\Delta x} \sum_p \ip_i(\x_p^n) \dfrac{\m_p}{\rp} \Np.
 \end{equation*}
 $\pvf^{n+1}$ is approximated by $\widetilde{\pvf}$ and will be discussed later. 
-\Todo{Wandeffekte?}
+%\Todo{Wandeffekte?}
 
 For mapping properties defined at the faces back to the parcels, we define the provisional parcel position
 \begin{equation}
@@ -997,9 +1104,9 @@ Here we only look at the one dimensional case but this can be extended to two an
 
 Similarly, for the advanced-time gas velocity, we use the interpolation to the faces
 \begin{equation*}
-    \tilde{\ufp} = \sum_i \ifg_{i+\frac{1}{2}} (\xpp) \dfrac{2 (\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1}}{(\fvf \rf)_i^n + (\fvf \rf)_{i+1}^n}.
+    \tilde{\ufp} = \sum_i \ifg_{i+\frac{1}{2}} (\xpp) \dfrac{2 (\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1}}{(\fvf \rf)_i^n + (\fvf \rf)_{i+1}^n}
 \end{equation*}
-This definition is also used in the particle drag function. 
+as well as for the particle drag function. 
 For the density and the fluid phase fraction at the provisional parcel position, we avoid calculation of extra parameters by using known quantities and interpolate to the cell middle
 \begin{align*}
     \rf = \dfrac{\fvf \rf}{\fvf} = \dfrac{\fvf \rf}{1-\pvf} \quad
@@ -1026,57 +1133,10 @@ So far we have given approximations to the grid values, e.g. $\ss$ and $\p$.
 Once the grid values are calculated we can approximate the new particle positions by using the velocity calculated in equation \eqref{eq:MPvelocity} and approximate the new particle positions. 
 We then map the particle properties to their positions.
 \color{ForestGreen}
-First we derive the discretized fluid-phase momentum equation. 
-We recall the particle velocity
-\begin{equation}
-    \label{eq:advVelocity}
-    \up^{n+1} = \dfrac{\up^n + \Delta \tvar \left[\d_p \tilde{u_{G,p}} - \g - \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right]}{1 + \Delta \tvar \d_p}
-\end{equation}
-and use it to replace $\up^{n+1}$ in the momentum exchange term $\F_{i+\frac{1}{2}}$ and summarize the pressure and implicit velocity terms
-\begin{align*}
-    \hspace{-0.5cm} \F_{i+\frac{1}{2}} &= \left( \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \left. \left[ D_p (\tilde{\ugp} - 
-    \up^{n+1} 
-    ) - \dfrac{1}{\rp} \left( \dfrac{\tilde{\p}_{i+1} - \tilde{p}_i}{\Delta x}\right)_p \right] \Np \mp \right) \middle / \right. \Delta \x \\
-    &=  \dfrac{1}{\Delta \x} \left( \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \left[ D_p \left(\tilde{\ugp} - 
-    \dfrac{1}{1 + \Delta \tvar \d_p}    
-    \left( \up^n + \Delta \tvar \left[\d_p \tilde{u_{G,p}} - \g - \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right] \right) \right) \right. \right. \\
-    & \left. \left. - \dfrac{1}{\rp} \left( \dfrac{\tilde{\p}_{i+1} - \tilde{p}_i}{\Delta x}\right)_p \Np \mp \right) \right] \\
-    &=  \dfrac{1}{\Delta \x} \left( \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \left[ D_p \left(-  \dfrac{1}{1 + \Delta \tvar \d_p} \left(   \up^n - \tilde{\u}_{G,p}     + \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p + \Delta \tvar \left[ - \g - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right] \right) \right) \Np \mp \right]\right)
-\end{align*}
-We then use the former equation to substitute $\F_{i+\frac{1}{2}}$ from the discrete momentum equation \eqref{eq:discMom} thus having
-\begin{align*}
-    &\dfrac{(\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1}- (\fvf \rf \uf)_{i+\frac{1}{2}}^{n}}{\Delta \tvar} + \dfrac{(\fvf \rf \up^2)^n_{i+1}-(\fvf \rf \up^2)^n_{i}}{\Delta \xp} + \dfrac{\tilde{\p}_{i+1}-\tilde{p}_i}{\Delta \xp} \\
-    &= \dfrac{1}{\Delta \x} \left( \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \left[ D_p \left(- 
-    \dfrac{1}{1 + \Delta \tvar \d_p} \left(
-    \up^n - \tilde{\u}_{G,p} 
-    + \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p + \Delta \tvar \left[ - \g - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right] \right) \right) \Np \mp \right] \right)\\
-    &-\dfrac{((\fvf \rf)_i^n + (\fvf \rf)_{i+1}^n)\g}{2}.
-\end{align*}
-Looking just at the pressure terms by rearranging the terms and using the interpolation property $\ifg_{i+\frac{1}{2}} (\xpp) \sum_j \ifg_{j+\frac{1}{2}} (\xpp) = \ifg_{i+\frac{1}{2}} (\xpp)$ to
-\begin{align*}
-    \dfrac{\tilde{\p}_{i+1}-\tilde{\p}_i}{\Delta \xp} = \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \dfrac{\Np \mp}{\rp \Delta \x (1 + \Delta \tvar \d_p)} \left( \dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p \\
-\Leftrightarrow \left( \dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)
- \left( 1 - \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \dfrac{\Np \mp}{\rp \Delta \x (1 + \Delta \tvar \d_p)} \right) = 0.
-\end{align*}
-
-
-For the solid stress we again use the interpolation property and receive
-\begin{align*}
-    0 &= - \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \d_p \dfrac{1}{1+ \Delta \tvar \d_p} \Delta \tvar \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_{i}}{\Delta \x} \right)_p \\
-    \Leftrightarrow
-    0 &= - \dfrac{1}{\Delta x \theta_{i+\frac{1}{2}}} \sum_{p} \ifg_{i+\frac{1}{2}} (\xpp) \sum_p \left[ \Np \dfrac{\mp}{\rp} \ifg_{i+\frac{1}{2}} (\xpp) \dfrac{\Delta \tvar \d_p}{1 + \Delta \tvar \d_p}  \right] \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_{i}}{\Delta \x}.
-\end{align*}
-Lastly we look at the terms for the advanced-time gas velocity and using the the interpolation property and the approximation $(\pvf \rf)_i^n + (\pvf \rf)_{i+1}^n = 2 (\pvf \rf)_{i+\frac{1}{2}}^n$
-\begin{align*}
-    0 &= - \dfrac{1}{\Delta \x} \sum_p \ifg_{i+\frac{1}{2}} ( \xpp ) \d_p \tilde{\ufp} \dfrac{1}{1+\Delta \tvar \d_p} \Np \mp  \\
-    \Leftrightarrow 0 &= - \dfrac{1}{\Delta \x} \sum_p \d_p 
-    \sum_i \ifg_{i+\frac{1}{2}} (\xpp) \dfrac{2 (\pvf \rf \uf)_{i+\frac{1}{2}}^{n+1}}{(\pvf \rf)_i^n + (\pvf \rf)_{i+1}^n} \dfrac{1}{1+\Delta \tvar \d_p} \Np \mp \\
-    \Leftrightarrow 0 &= 
-    \dfrac{1}{\Delta \x (\pvf \rf)_{i+\frac{1}{2}}^n} \sum_p \left[ \Np \mp \ifg_{i+\frac{1}{2}} (\xpp) \frac{\d_p}{1+ \Delta \tvar \d_p}\right] (\pvf \rf)_{i+\frac{1}{2}}^n.
-\end{align*}
-
+Using the advanced particle velocities and inserting them into the momentum exchange term $\F_{i+\frac{1}{2}}$ and that into the momentum equation we get the fluid momentum equation
+\todo[color=kit-green!40]{Markierung das etwas im Appendix gelandet ist.}
 \color{black}
-Combining these terms we have fluid momentum equation
+%Combining these terms we have fluid momentum equation
 \begin{equation}
 \begin{aligned}
 \label{eq:momentumEquationFluidDisc}
@@ -1090,6 +1150,7 @@ Combining these terms we have fluid momentum equation
     -\dfrac{((\fvf \rf)_i^n + (\fvf \rf)_{i+1}^n)\g}{2}.
 \end{aligned}
 \end{equation}
+Details of this calculation can be found in the Appendix \ref{sec:appendix:fluidPhaseMomentum}.
 We summarize terms that only depend on known information and have
 \begin{align*}
     \dfrac{(\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1}- (\fvf \rf \uf)_{i+\frac{1}{2}}^{n}}{\Delta \tvar} + \dfrac{(\fvf \rf \up^2)^n_{i+1}-\fvf \rf \up^2)^n_{i}}{\Delta \xp}
@@ -1171,79 +1232,82 @@ which only depends on grid quantities.
 % 42 eq:momentumGasDisc
 We now have all everything to assemble the \MP-method. The gas and solid continuity and momentum equations. 
 These are used to calculate $\pvf \ \delta \us$, $\fvf \rf $, $\fvf \rf \uf$ and $\pvf$.
-To solve the equations more efficiently we reformulated equations \eqref{eq:gasContDisc} and \eqref{eq:fluidContDisc} to be independent of $\pvf \ \delta \us$ and $\fvf \rf \uf$. 
+To solve the equations more efficiently we can reformulated equations \eqref{eq:gasContDisc} and \eqref{eq:fluidContDisc} to be independent of $\pvf \ \delta \us$ and $\fvf \rf \uf$. 
 \color{ForestGreen}
-First for equation \eqref{eq:gasContDisc} we take all terms of \eqref{eq:momentumEquationFluidDisc} which depend on $(\fvf \rf)^{n+1}$ and $(\fvf \rf \uf)^{n+1}$ and sum all others in the term $const$
-\begin{align*}
-    \dfrac{(\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1}}{\Delta \tvar} &+ (1 - C_{i+\frac{1}{2}})  \left( \p_{i+1}^n \left( \dfrac{(\fvf \rf)_{i+1}^{n+1}}{(\fvf \rf)_{i+1}^n} + \dfrac{\tilde{\pvf}_{i+1}}{1 - \pvf_{i+1}^n}\right) 
-    - \p_{i}^n \left(\dfrac{(\fvf \rf)_{i}^{n+1}}{(\fvf \rf)_{i}^n} + \dfrac{\tilde{\pvf}_{i}}{1 - \pvf_{i}^n} \right)\right) \\
-    &= - A_{i+\frac{1}{2}} (\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1} + const_{i+\frac{1}{2}} \\
-    \Leftrightarrow
-    \left(\dfrac{1}{\Delta \tvar} + A_{i+\frac{1}{2}} \right) (\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1} &= - (1 - C_{i+\frac{1}{2}}) \left( \p_{i+1}^n \left( \dfrac{(\fvf \rf)_{i+1}^{n+1}}{(\fvf \rf)_{i+1}^n} + \dfrac{\tilde{\pvf}_{i+1}}{1 - \pvf_{i+1}^n}\right) 
-    - \p_{i}^n \left(\dfrac{(\fvf \rf)_{i}^{n+1}}{(\fvf \rf)_{i}^n} + \dfrac{\tilde{\pvf}_{i}}{1 - \pvf_{i}^n} \right)\right)  \\
-    & \ + const_{i+\frac{1}{2}}
-\end{align*}
-and insert it into equation \eqref{eq:gasContDisc}
-\begin{align*}
-     \dfrac{(\fvf \rf)_i^{n+1} - (\fvf \rf)_i^n}{\Delta \tvar}
-    = 
-    & \dfrac{1}{\Delta \x \left(\dfrac{1}{\Delta \tvar} + A_{i+\frac{1}{2}} \right)}\left( - (1 - C_{i+\frac{1}{2}}) \left( \p_{i+1}^n \left( \dfrac{(\fvf \rf)_{i+1}^{n+1}}{(\fvf \rf)_{i+1}^n} + \dfrac{\tilde{\pvf}_{i+1}}{1 - \pvf_{i+1}^n}\right) 
-    \right. \right.
-    \\ & \left. \left.- \p_{i}^n \left(\dfrac{(\fvf \rf)_{i}^{n+1}}{(\fvf \rf)_{i}^n} + \dfrac{\tilde{\pvf}_{i}}{1 - \pvf_{i}^n} \right)\right) + const_{i+\frac{1}{2}} \right)
-    \\
-    & + \dfrac{1}{\Delta \x \left(\dfrac{1}{\Delta \tvar} + A_{i-\frac{1}{2}} \right)}\left( + (1 - C_{i-\frac{1}{2}}) \left( \p_i^n \left( \dfrac{(\fvf \rf)_i^{n+1}}{(\fvf \rf)_i^n} + \dfrac{\tilde{\pvf}_i}{1 - \pvf_i^n}\right) 
-    \right. \right. \\
-   & \left. \left.  - \p_{i-1}^n \left(\dfrac{(\fvf \rf)_{i-1}^{n+1}}{(\fvf \rf)_{i-1}^n} + \dfrac{\tilde{\pvf}_{i-1}}{1- \pvf_{i-1}^n} \right)\right) + const_{i-\frac{1}{2}} \right)
-\end{align*}
-Thus we have an equation without $(\fvf \rf \uf)$ with $\fvf \rf$ and $\pvf$ related to the cell and its neighbours. 
-For the second equation we start with \eqref{eq:fluidContDisc} and replace $(\pvf \delta \uf)$ with the matching term in equation \eqref{eq:momentumGasDisc} and grouping all terms independent of $\pvf \ \delta \us$, $\fvf \rf $, $\fvf \rf \uf$ and $\pvf$ into $const$ we have
-\begin{align*}
-     \dfrac{\tilde{\pvf}_i}{\Delta \tvar} + \dfrac{1}{\Delta \x}  \dfrac{\Delta \tvar}{\rp}
-    \left( A_{i+\frac{1}{2}} (\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1} - C_{i+\frac{1}{2}} \dfrac{1}{\Delta \x}
-    \left( \p_{i+1}^n \left( \dfrac{(\fvf \rf)_{i+1}^{n+1}}{(\fvf \rf)_{i+1}^n} + \dfrac{\tilde{\pvf}_{i+1}}{1 - \pvf_{i+1}^n}\right)
-     - \p_{i}^n \left( \dfrac{(\fvf \rf)_{i}^{n+1}}{(\fvf \rf)_{i}^n} + \dfrac{\tilde{\pvf}_{i}}{1 - \pvf_{i}^n} \right)\right) \right.
-    \\ \left.- E_{i+\frac{1}{2}} \dfrac{1}{\Delta \x}\left(
-    P_s \dfrac{\pvfcp \tilde{\pvfione}}{(\pvfcp - \pvfione^n)^2} - \dfrac{\pvfcp \tilde{\pvfi}}{(\pvfcp - \pvfi^n)^2}
-    \right) - 
-    \left(
-    A_{i+\frac{1}{2}} (\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1} - C_{i+\frac{1}{2}} \dfrac{1}{\Delta \x}
-    \left( \p_{i+1}^n \left( \dfrac{(\fvf \rf)_{i+1}^{n+1}}{(\fvf \rf)_{i+1}^n} + \dfrac{\tilde{\pvf}_{i+1}}{1 - \pvf_{i+1}^n}\right) 
-    \right. \right. \right.
-    \\
-     \left. \left. \left.
-     - \p_{i}^n \left( \dfrac{(\fvf \rf)_{i}^{n+1}}{(\fvf \rf)_{i}^n} + \dfrac{\tilde{\pvf}_{i}}{1 - \pvf_{i}^n} \right)\right) \right.
-      \left.- E_{i+\frac{1}{2}} \dfrac{1}{\Delta \x}\left(
-    P_s \dfrac{\pvfcp \tilde{\pvfione}}{(\pvfcp - \pvfione^n)^2} - \dfrac{\pvfcp \tilde{\pvfi}}{(\pvfcp - \pvfi^n)^2}
-     \right)
-     \right)
-     \right) + const = 0.
-\end{align*}
-For $A (\fvf \rf \uf)$ we use equation \eqref{eq:momentumEquationFluidDisc} 
-\begin{align*}
-    A_{i+\frac{1}{2}} (\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1} - A_{i-\frac{1}{2}} (\fvf \rf \uf)_{i-\frac{1}{2}}^{n+1} = 
-    -D_{i+\frac{1}{2}} 
-    \left( P_s \dfrac{\pvfcp \tilde{\pvfione}}{(\pvfcp - \pvfione^n)^2} - \dfrac{\pvfcp \tilde{\pvfi}}{(\pvfcp - \pvfi^n)^2} \right)  \\
-    +D_{i+\frac{1}{2}} \left( P_s \dfrac{\pvfcp \tilde{\pvfi}}{(\pvfcp - \pvfi^n)^2} - \dfrac{\pvfcp \tilde{\pvfioneminus}}{(\pvfcp - \pvfioneminus^n)^2} \right) 
-    -  (1 - C_{i+\frac{1}{2}}) \left( \p_{i+1}^n \left( \dfrac{(\fvf \rf)_{i+1}^{n+1}}{(\fvf \rf)_{i+1}^n} + \dfrac{\tilde{\pvf}_{i+1}}{1 - \pvf_{i+1}^n}\right) 
-    \right.
-    \\
-    \left.
-    - \p_{i}^n \left(\dfrac{(\fvf \rf)_{i}^{n+1}}{(\fvf \rf)_{i}^n} + \dfrac{\tilde{\pvf}_{i}}{1 - \pvf_{i}^n} \right)\right) 
-    + (1 - C_{i-\frac{1}{2}}) \left( \p_{i}^n \left( \dfrac{(\fvf \rf)_{i}^{n+1}}{(\fvf \rf)_{i}^n} + \dfrac{\tilde{\pvf}_{i}}{1 - \pvf_{i}^n}\right) 
-    - \p_{i-1}^n \left(\dfrac{(\fvf \rf)_{i-1}^{n+1}}{(\fvf \rf)_{i-1}^n} + \dfrac{\tilde{\pvf}_{i-1}}{1 - \pvf_{i-1}^n} \right)\right) \\ + \dfrac{(\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1} - (\fvf \rf \uf)_{i-\frac{1}{2}}^{n+1}}{\Delta \tvar}
-    + const
-\end{align*}
-and using \eqref{eq:gasContDisc} for
-\begin{align*}
-    (\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1} - (\fvf \rf \uf)_{i-\frac{1}{2}}^{n+1} = - \dfrac{\Delta \tvar}{\Delta \x} ((\fvf \rf)_i^{n+1} - (\fvf \rf)_{i}^n)
-\end{align*}
-putting all three equations together we have another equation independent of $(\pvf \ \delta \up)$ and $(\fvf \rf \uf)$.
+\todo[color=kit-green!40]{Sehr hässlich... und führt niergends gescheit hin}
+The calculation is extensive and does not yield a nice result. We therefor leave it out of this master thesis.
+% First for equation \eqref{eq:gasContDisc} we take all terms of \eqref{eq:momentumEquationFluidDisc} which depend on $(\fvf \rf)^{n+1}$ and $(\fvf \rf \uf)^{n+1}$ and sum all others in the term $const$
+% \begin{align*}
+%     \dfrac{(\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1}}{\Delta \tvar} &+ (1 - C_{i+\frac{1}{2}})  \left( \p_{i+1}^n \left( \dfrac{(\fvf \rf)_{i+1}^{n+1}}{(\fvf \rf)_{i+1}^n} + \dfrac{\tilde{\pvf}_{i+1}}{1 - \pvf_{i+1}^n}\right) 
+%     - \p_{i}^n \left(\dfrac{(\fvf \rf)_{i}^{n+1}}{(\fvf \rf)_{i}^n} + \dfrac{\tilde{\pvf}_{i}}{1 - \pvf_{i}^n} \right)\right) \\
+%     &= - A_{i+\frac{1}{2}} (\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1} + const_{i+\frac{1}{2}} \\
+%     \Leftrightarrow
+%     \left(\dfrac{1}{\Delta \tvar} + A_{i+\frac{1}{2}} \right) (\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1} &= - (1 - C_{i+\frac{1}{2}}) \left( \p_{i+1}^n \left( \dfrac{(\fvf \rf)_{i+1}^{n+1}}{(\fvf \rf)_{i+1}^n} + \dfrac{\tilde{\pvf}_{i+1}}{1 - \pvf_{i+1}^n}\right) 
+%     - \p_{i}^n \left(\dfrac{(\fvf \rf)_{i}^{n+1}}{(\fvf \rf)_{i}^n} + \dfrac{\tilde{\pvf}_{i}}{1 - \pvf_{i}^n} \right)\right)  \\
+%     & \ + const_{i+\frac{1}{2}}
+% \end{align*}
+% and insert it into equation \eqref{eq:gasContDisc}
+% \begin{align*}
+%      \dfrac{(\fvf \rf)_i^{n+1} - (\fvf \rf)_i^n}{\Delta \tvar}
+%     = 
+%     & \dfrac{1}{\Delta \x \left(\dfrac{1}{\Delta \tvar} + A_{i+\frac{1}{2}} \right)}\left( - (1 - C_{i+\frac{1}{2}}) \left( \p_{i+1}^n \left( \dfrac{(\fvf \rf)_{i+1}^{n+1}}{(\fvf \rf)_{i+1}^n} + \dfrac{\tilde{\pvf}_{i+1}}{1 - \pvf_{i+1}^n}\right) 
+%     \right. \right.
+%     \\ & \left. \left.- \p_{i}^n \left(\dfrac{(\fvf \rf)_{i}^{n+1}}{(\fvf \rf)_{i}^n} + \dfrac{\tilde{\pvf}_{i}}{1 - \pvf_{i}^n} \right)\right) + const_{i+\frac{1}{2}} \right)
+%     \\
+%     & + \dfrac{1}{\Delta \x \left(\dfrac{1}{\Delta \tvar} + A_{i-\frac{1}{2}} \right)}\left( + (1 - C_{i-\frac{1}{2}}) \left( \p_i^n \left( \dfrac{(\fvf \rf)_i^{n+1}}{(\fvf \rf)_i^n} + \dfrac{\tilde{\pvf}_i}{1 - \pvf_i^n}\right) 
+%     \right. \right. \\
+%    & \left. \left.  - \p_{i-1}^n \left(\dfrac{(\fvf \rf)_{i-1}^{n+1}}{(\fvf \rf)_{i-1}^n} + \dfrac{\tilde{\pvf}_{i-1}}{1- \pvf_{i-1}^n} \right)\right) + const_{i-\frac{1}{2}} \right)
+% \end{align*}
+% Thus we have an equation without $(\fvf \rf \uf)$ with $\fvf \rf$ and $\pvf$ related to the cell and its neighbours. 
+% For the second equation we start with \eqref{eq:fluidContDisc} and replace $(\pvf \delta \uf)$ with the matching term in equation \eqref{eq:momentumGasDisc} and grouping all terms independent of $\pvf \ \delta \us$, $\fvf \rf $, $\fvf \rf \uf$ and $\pvf$ into $const$ we have
+% \begin{align*}
+%      \dfrac{\tilde{\pvf}_i}{\Delta \tvar} + \dfrac{1}{\Delta \x}  \dfrac{\Delta \tvar}{\rp}
+%     \left( A_{i+\frac{1}{2}} (\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1} - C_{i+\frac{1}{2}} \dfrac{1}{\Delta \x}
+%     \left( \p_{i+1}^n \left( \dfrac{(\fvf \rf)_{i+1}^{n+1}}{(\fvf \rf)_{i+1}^n} + \dfrac{\tilde{\pvf}_{i+1}}{1 - \pvf_{i+1}^n}\right)
+%      - \p_{i}^n \left( \dfrac{(\fvf \rf)_{i}^{n+1}}{(\fvf \rf)_{i}^n} + \dfrac{\tilde{\pvf}_{i}}{1 - \pvf_{i}^n} \right)\right) \right.
+%     \\ \left.- E_{i+\frac{1}{2}} \dfrac{1}{\Delta \x}\left(
+%     P_s \dfrac{\pvfcp \tilde{\pvfione}}{(\pvfcp - \pvfione^n)^2} - \dfrac{\pvfcp \tilde{\pvfi}}{(\pvfcp - \pvfi^n)^2}
+%     \right) - 
+%     \left(
+%     A_{i+\frac{1}{2}} (\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1} - C_{i+\frac{1}{2}} \dfrac{1}{\Delta \x}
+%     \left( \p_{i+1}^n \left( \dfrac{(\fvf \rf)_{i+1}^{n+1}}{(\fvf \rf)_{i+1}^n} + \dfrac{\tilde{\pvf}_{i+1}}{1 - \pvf_{i+1}^n}\right) 
+%     \right. \right. \right.
+%     \\
+%      \left. \left. \left.
+%      - \p_{i}^n \left( \dfrac{(\fvf \rf)_{i}^{n+1}}{(\fvf \rf)_{i}^n} + \dfrac{\tilde{\pvf}_{i}}{1 - \pvf_{i}^n} \right)\right) \right.
+%       \left.- E_{i+\frac{1}{2}} \dfrac{1}{\Delta \x}\left(
+%     P_s \dfrac{\pvfcp \tilde{\pvfione}}{(\pvfcp - \pvfione^n)^2} - \dfrac{\pvfcp \tilde{\pvfi}}{(\pvfcp - \pvfi^n)^2}
+%      \right)
+%      \right)
+%      \right) + const = 0.
+% \end{align*}
+% For $A (\fvf \rf \uf)$ we use equation \eqref{eq:momentumEquationFluidDisc} 
+% \begin{align*}
+%     A_{i+\frac{1}{2}} (\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1} - A_{i-\frac{1}{2}} (\fvf \rf \uf)_{i-\frac{1}{2}}^{n+1} = 
+%     -D_{i+\frac{1}{2}} 
+%     \left( P_s \dfrac{\pvfcp \tilde{\pvfione}}{(\pvfcp - \pvfione^n)^2} - \dfrac{\pvfcp \tilde{\pvfi}}{(\pvfcp - \pvfi^n)^2} \right)  \\
+%     +D_{i+\frac{1}{2}} \left( P_s \dfrac{\pvfcp \tilde{\pvfi}}{(\pvfcp - \pvfi^n)^2} - \dfrac{\pvfcp \tilde{\pvfioneminus}}{(\pvfcp - \pvfioneminus^n)^2} \right) 
+%     -  (1 - C_{i+\frac{1}{2}}) \left( \p_{i+1}^n \left( \dfrac{(\fvf \rf)_{i+1}^{n+1}}{(\fvf \rf)_{i+1}^n} + \dfrac{\tilde{\pvf}_{i+1}}{1 - \pvf_{i+1}^n}\right) 
+%     \right.
+%     \\
+%     \left.
+%     - \p_{i}^n \left(\dfrac{(\fvf \rf)_{i}^{n+1}}{(\fvf \rf)_{i}^n} + \dfrac{\tilde{\pvf}_{i}}{1 - \pvf_{i}^n} \right)\right) 
+%     + (1 - C_{i-\frac{1}{2}}) \left( \p_{i}^n \left( \dfrac{(\fvf \rf)_{i}^{n+1}}{(\fvf \rf)_{i}^n} + \dfrac{\tilde{\pvf}_{i}}{1 - \pvf_{i}^n}\right) 
+%     - \p_{i-1}^n \left(\dfrac{(\fvf \rf)_{i-1}^{n+1}}{(\fvf \rf)_{i-1}^n} + \dfrac{\tilde{\pvf}_{i-1}}{1 - \pvf_{i-1}^n} \right)\right) \\ + \dfrac{(\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1} - (\fvf \rf \uf)_{i-\frac{1}{2}}^{n+1}}{\Delta \tvar}
+%     + const
+% \end{align*}
+% and using \eqref{eq:gasContDisc} for
+% \begin{align*}
+%     (\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1} - (\fvf \rf \uf)_{i-\frac{1}{2}}^{n+1} = - \dfrac{\Delta \tvar}{\Delta \x} ((\fvf \rf)_i^{n+1} - (\fvf \rf)_{i}^n)
+% \end{align*}
+% putting all three equations together we have another equation independent of $(\pvf \ \delta \up)$ and $(\fvf \rf \uf)$.
 \color{black}
 These two equations are used in tridiagonal solvers for $(\fvf \rf)$ and $\pvf$ where one variable is fixed and this current approximation used to calculate the other variable alternating until convergence.
 Afterwards $(\pvf \ \delta \up)$ and $(\fvf \rf \uf)$ are solved via the \eqref{eq:momentumEquationFluidDisc} and \eqref{eq:fluidContDisc}.
-After this step we have all grid properties and can calculate the advanced particle position \eqref{eq:MPposition} via \eqref{eq:advVelocity} and then map the properties of the particle to it. 
+After this step we have all grid properties and can calculate the advanced particle position \eqref{eq:MPposition}.% via \eqref{eq:advVelocity}.% and then map the properties of the particle to it. 
+A summary of this method can be found in the flow chart \ref{fig:FCMPOneDim}.
 
-\begin{figure}
+\begin{figure}[h!]
 \centering
     \begin{tikzpicture}[node distance =2cm]
     \tikzset{stretch/.initial=1}
@@ -1273,97 +1337,93 @@ After this step we have all grid properties and can calculate the advanced parti
   ($ ({stop.west}|-{start.west}) + (-2,0) $) -- % vertical, x fixed from stop.west
   (start.west);
     \end{tikzpicture}
-    \label{fig:placeholder}
-    \caption{Flow chart of how the \MP method works.}
+    \caption{Flow chart of how the one-dimensional \MP method.}
+    \label{fig:FCMPOneDim}
 \end{figure}
-\Todo{Include damping terms in diagram}
+%\Todo{Include damping terms in diagram}
 %\Todo{Nochmal alle wichtigen Gleichungen aufführen?}
 
+So far, we have discussed the numerical solution of the MPPIC method in one dimension. Since then, the method has been extended to incorporate more advanced particle normal stress models as well as collision terms.
+The implementation of the particle normal stress model is addressed in the next chapter. In the present chapter, however, we focus on the numerical discretization of the collision terms.
+In the remaining part of this chapter we will look at the numerical discretization of the collision terms.
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\color{gray}
-\subsection{Interphase Drag Model}
-%\Todo{Something with Gidaspow}
-
-\subsection{Particle Normal Stress Model}
-\label{sec:particleNormalStress}
-\Todo{Abschnitt weiter vor}
-To model collisions between particles in the Eulerian phase the collisions need to be estimated. 
-In contrast to the velocity term above, the normal stress tensor is highly nonlinear especially near close packing.
-To approximate the particle normal stress the local solid volume fraction is included in the stress model. 
-
-\begin{equation}
-    \label{eq:solidStress}
-    \ss = P_s \dfrac{\pvf}{\pvfcp - \pvf}
-\end{equation}
-This is done by the interparticle stress, where only the diagonal elements of the stress tensor are used.
-
-The equation is regularized to prevent the singularity at close packing by introducing the parameter $\alpha$ in the order of $10^{-7}$:
-\begin{equation}
-    \tau_s = \dfrac{P_s \theta_s^\beta}{\max [\theta_{cp} - \theta_s, \alpha (1 - \theta_s)]}
-\end{equation}
-This approach does not take into account the particles velocity or size.
-More complex models for the particle normal stress have been introduced for example the.
-Since we only use the Harris and Crighton model in the simulation no further models will be discussed here.
-
-
-
+%\color{gray}
 %numerical method implicit concerning pressure, velocity and volume fraction
 %model to 
-
-\color{gray}
+%\color{gray}
 \subsection{Discretizations of collision damping term}
 \label{sec:DiscCollDamp}
-First, we discretize the particle density function \pd 
+From the previous section \ref{sec:damping}  we know that the damping particle density can be expressed as
+\begin{equation*}
+    \pd = e^{-\frac{\tvar}{\sd}} \pd^n + \left(1-e^{- \frac{t}{\sd}} \right) \pd_{D},
+\end{equation*}
+see \eqref{eq:BGKanalytical}.
+
+The numerical implementation is done according to \cite{damp}.
+First, we discretize the particle density function 
 \begin{equation}
     \pd_d^n (\x_i, \u_i, \m, \tvar^n) = \sum_{p} \Np \delta (\x_i - \x_{i,p}^n) \delta(\u_i - \u_{i,p}^n) \delta (\m - \m_p).
 \end{equation}
 Here we have a Dirac delta-function which is zero everywhere except at zero. This transforms the distribution into a point mass function. This represents the number of particles at a certain position with a certain velocity and mass. 
 The superscript $n$ denotes the discrete time step $\tvar^n$.
-The next time step is then calculated by
-\begin{equation}
-    \tvar^{n+1} = \tvar^n + \Delta t.
-\end{equation}
-First we discretize $\pd_D$ by applying \eqref{eq:colDamp} to $\pd_d^n$
+% The next time step is then calculated by
+% \begin{equation}
+%     \tvar^{n+1} = \tvar^n + \Delta t.
+% \end{equation}
+We start discretizing $\pd_D$ by applying \eqref{eq:colDamp} to $\pd_d^n$
 \begin{align}
-    \pd_D^n = \left[ \int \pd_d^n d \u_i\right] \delta (\u_i - \overline{\u_i}) &= \sum_p \wp \delta (\x_{i} - \x_{i,p}^n) \delta (\m - \m_i) \int \delta (\u_i - \u_{i,p}^n) d \u_i \delta (\u_i - \overline{\u_i}) \\ &= \sum_p \wp \delta (\x_i - \x_{i,p}^n) \delta (\m - \m_i) \delta (\u_i - \overline{\u_i})
+    \pd_d^n = \left[ \int \pd_d^n d \u_i\right] \delta (\u_i - \overline{\u_i}) &= \sum_p \wp \delta (\x_{i} - \x_{i,p}^n) \delta (\m - \m_i) \int \delta (\u_i - \u_{i,p}^n) d \u_i \delta (\u_i - \overline{\u_i}) \\ &= \sum_p \wp \delta (\x_i - \x_{i,p}^n) \delta (\m - \m_i) \delta (\u_i - \overline{\u_i})
 \end{align}
 Substituting the discrete $\pd^n$ and $\pd^n_D$ into the analytical solution \eqref{eq:BGKanalytical} we receive the following approximation at time step $t^{n+1}$\begin{equation}
-    \Tilde{\pd} = \sum_{p} \wp \delta (\x_i - \x_{p,i}^n) \delta (\m - \m_p ) \left[ e^{- \frac{\Delta t}{\sd}} \delta \u_i - \u_{p,i}^n ) + (1- e^{- \Delta t}{\sd}) \delta (\u_i - \overline{u}_i) \right].
+    \Tilde{\pd} = \sum_{p} \wp \delta (\x_i - \x_{p,i}^n) \delta (\m - \m_p ) \left[ e^{- \frac{\Delta t}{\sd}} (\delta \u_i - \u_{p,i}^n ) + (1- e^{- \Delta t}{\sd}) \delta (\u_i - \overline{u}_i) \right].
 \end{equation}
 
-A straight forward implementation of the equation above is not possible as it splits parcels into two. This results in an exponential growth over time. 
+A straightforward implementation of this would lead to an exponential increase in parcels as it would require splitting the parcel into two. One with the initial velocity $\up$ of size $\Np \operatorname{exp}(-\Delta\tvar/ \ss_D)$ and one with the mass-averaged velocity with size $\Np (1-\operatorname{exp}(-\Delta \tvar / \ss_D)$.
+To conserve particle numbers we use an approximate solution
+\begin{align}
+\label{eq:isoAdvance}
+    \pd^{n+1} =\sum_p \Np \delta (\x_i - \x_{p,i}^n) \delta (\m - \mp) \delta(\u_i - \u_{p,i}^{n+1}), \qquad \u_{p,i}^{n+1}= (1-\Psi) \overline{\nu}_i
+\end{align}
+with $\Psi(\p)$ chosen so $\pd^{n+1}$ and $\tilde{\pd}$ have the same variance
+\begin{equation}
+\label{eq:constDamp}
+    \Psi = e^{\frac{-\Delta \tvar}{2 \ss_D}}.
+\end{equation}
+To approximate $\Psi$ we look at the expansion of the exponential function
+\begin{equation*}
+    e^{-x} = \sum_{n=0}^{\infty} \dfrac{(-x)^n}{n!}.
+\end{equation*}
+Comparing it with the Taylor expansion of
+\begin{equation*}
+    \dfrac{1}{1+x} = \sum_{n=0}^{\infty} (-x)^n
+\end{equation*}
+we can see that the first two terms coincide.
+Approximating \eqref{eq:constDamp} with $e^{-x} \approx 1/(1+x)$ and using it to update the particle velocity according to \eqref{eq:isoAdvance} we get the new particle velocities
+\begin{equation*}
+    \u_{p,i}^{n+1} = \dfrac{\u_{p,i}^{n} + (\Delta \tvar/ (2 \ss_d)) \overline{\nu}_i}{1+ (\Delta \tvar / (2 \ss_D))}.
+\end{equation*}
 
-This
+%\todo{Hier ist sehr viel abgekürzt, da wir den eh nicht verwenden.}
+
 
 \subsection{Disctrization of the return-to-isotropy term}
+
+The second damping term is treated similarly to the damping term.
+We look at the numerical implementation according to \cite{isotropy}.
+We use equation \eqref{eq:rtiSol} from the previous section \ref{sec:isotropy}
+\begin{equation*}
+\pd= \pd_0 e^{\frac{-\tvar}{\ss_G}} + \pd_G \left[ 1 - e^{- \frac{\tvar}{\ss_G}} \right].
+\end{equation*}
 We can discretize the particle distribution function for each cell by summing over all parcels in that cell at time step $n$
 \begin{equation*}
     \pd_d^n (\x, \u , \m, \tvar) = \sum_p \Np \delta ( \x - \x_p^n) \delta ( \u - \up^n) \delta (\m - \mp).
 \end{equation*}
 To get an approximation for the advanced time step $n+1$ we use the initial discrete distribution $\pd_0$ and the Gaussian discrete distribution $\pd_G$
-For the initial discrete distribution $\pd_0$ we can use the velocity and positions from the previous time step
+For the initial discrete distribution $\pd_0$ we use the velocity and positions from the previous time step
 \begin{equation*}
-    \pd_0 = \sum_p \Np \delta ( \x - \x_p^n) \delta ( \u - \up^n) \delta (\m - \mp).
+    \pd_0 = \sum_p \Np \delta ( \x - \x_p^0) \delta ( \u - \up^0) \delta (\m - \mp).
 \end{equation*}
 For the equilibrium distribution we have 
 \begin{equation*}
@@ -1377,11 +1437,10 @@ We can plug this into the solution of the differential equation \eqref{eq:rtiSol
 \begin{equation*}
     \tilde{\pd} = \sum_p \Np \delta (\xp - \xp^n) \delta (\m - \mp) \left[ \delta (\u - \up^n) \operatorname{exp}\left(\dfrac{-\delta \tvar}{\ss_G} \right) +  G(\up;\overline{\up}, \sigma^2(\m)) \left( 1 - \operatorname{exp}\left( \dfrac{\delta \tvar}{\ss_G} \right) \right)\right].
 \end{equation*}
-The advanced particle distribution is obtained by randomly sampling. The details are explained in the implementation.
-If we concur that no collision has taken place the velocity of the particle remains the same as before. Else we draw from the Gaussian distribution and add that velocity to the current particle velocity.
-\Todo{Referenz einfügen}
+The advanced particle distribution is obtained by randomly sampling. The details are explained in the implementation in section \ref{sec:MPLoop}.
+If we concur that no collision has taken place the velocity of the particle remains the same as before. Else we draw from the Gaussian distribution and add the velocity to the current particle velocity.
 Since we have a finite number of particles the new particle velocities will probably not have the same mean velocity and variance as the initial particle distribution. 
-To conserve the mean particle velocity and variance cell-wise we modify the particle velocity $\tilde{\up}$ that includes collision. The new velocity is 
+To conserve the mean particle velocity and variance cell-wise we modify the particle velocity $\tilde{\up}$ for particles effected by collision. The new velocity is 
 \begin{equation}
 \label{eq:rtiUpdate}
     \up^{n+1} = \overline{\u} + \alpha (\tilde{\up} + \delta \u - \overline{\u})
@@ -1396,9 +1455,9 @@ and
 \end{equation*}
 With this definition we conserve the mean velocity and variance in each cell
 \begin{align*}
-\sum_p \Np \mp \up^{n+1} &= \sum_p \overline{\u} + \alpha \left( \sum_p \Np \mp \tilde{\up} - \sum_p \Np \mp \tilde{\up}\right) = \sum_p \Np \mp \overline{\u} \\
-\dfrac{\sum_p \Np \mp \left( \up^{n+1} - \overline{\u} \right)}{\sigma^2} &= \sum_p \Np \Np \dfrac{\sum_p \Np \mp}{\sum_p \Np \mp ( \tilde{\up} + \delta \u - \u)^2} (\tilde{\up} + \delta \u - \u)^2 \\
-&\Rightarrow \sum_p \Np \mp \left( \up^{n+1} - \u \right)^2 = \sigma^2 \sum_p \Np \mp.
+\sum_p \Np \mp \up^{n+1} &= \sum_p \Np \mp\overline{\u} + \alpha \left( \sum_p \Np \mp \tilde{\up} - \sum_p \Np \mp \tilde{\up}\right) = \sum_p \Np \mp \overline{\u} \\
+\dfrac{\sum_p \Np \mp \left( \up^{n+1} - \overline{\u} \right)}{\sigma^2} &= \sum_p \Np \mp \dfrac{\sum_p \Np \mp}{\sum_p \Np \mp ( \tilde{\up} + \delta \u - \overline{\u})^2} (\tilde{\up} + \delta \u - \overline{\u})^2 \\
+&\Rightarrow \sum_p \Np \mp \left( \up^{n+1} - \overline{\u} \right)^2 = \sigma^2 \sum_p \Np \mp.
 \end{align*}
 velocity and variance.
 \color{black}

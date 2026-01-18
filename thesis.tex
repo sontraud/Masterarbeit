@@ -73,6 +73,7 @@
 \addbibresource{thesis.bib}
 
 %\usepackage{blindtext}
+\usepackage{mathtools}
 \usepackage{amsmath}
 \usepackage{mathcommand}
 \usepackage{placeins}
@@ -103,9 +104,9 @@
 \usepackage{tikzlings-addons}
 \usepackage{tikzlings-elephants}
 \usetikzlibrary {arrows.meta,fit,backgrounds} 
-\usepackage[dvipsnames]{xcolor}
+\usepackage[dvipsnames,table]{xcolor}
 \newcommand{\Todo}[1]{\begin{wrapfigure}{r}{3cm}   \begin{tikzpicture}
-    \koala[signpost={\tiny \parbox{1cm}{#1}},
+    \elephant[signpost={\tiny \parbox{1cm}{#1}},
     signcolour= brown!50!black,
     signback=green!40!black]
     \end{tikzpicture}\end{wrapfigure}}
@@ -300,22 +301,22 @@
 \newcommand{\tvar}{\ensuremath{t}} %time
 \newcommand{\m}{\ensuremath{m}} %mass
 \newcommand{\p}{\ensuremath{p}} %pressure
-\newcommand{\fst}{\ensuremath{\tau_f}} %fluid stress tensor
+\newcommand{\fst}{\ensuremath{\tau_c}} %fluid stress tensor
 \newcommand{\g}{\ensuremath{g}} %gravitational acceleration
-\newcommand{\rf}{\ensuremath{\rho_f}} %fluid density
+\newcommand{\rf}{\ensuremath{\rho_c}} %fluid density
 \newcommand{\rp}{\ensuremath{\rho_p}} %particle density
 \newcommand{\F}{\ensuremath{F}} %interphase Momentum transfer
 \newcommand{\Fcv}{\ensuremath{V_c}} %fluid cell volume
 \newcommand{\Op}{\ensuremath{\Omega_p}} %particle Volume
-\newcommand{\xp}{\ensuremath{\boldsymbol{x}_p}} %particle position
-\newcommand{\xpp}{\ensuremath{\tilde{\boldsymbol{x}}_p}}
+\newcommand{\xp}{\ensuremath{\x_p}} %particle position
+\newcommand{\xpp}{\ensuremath{\tilde{\x}_p}}
 \newcommand{\fvf}{\ensuremath{\alpha}} %fluid volume fraction
 \newcommand{\pd}{\ensuremath{\phi}} %particle distribution function
-\newcommand{\fv}{\ensuremath{\mu_f}} %fluid viscosity
-\renewcommand{\wp}{\ensuremath{W_p}} %weight particle
+\newcommand{\fv}{\ensuremath{\mu_c}} %fluid viscosity
+\renewcommand{\wp}{\Np} %weight particle
 \newcommand{\T}{\ensuremath{T}} %End Time
 \newcommand{\Np}{\ensuremath{N_p}} %probable average number of particles per unit volume
-\newcommand{\Vp}{\ensuremath{\boldsymbol{V_p}}} %Value particle velocity
+\newcommand{\Vp}{\ensuremath{V_p}} %Value particle velocity
 \newcommand{\M}{\ensuremath{M}} %value Mass
 \newcommand{\Ap}{\ensuremath{A_p}} %Acceleration particle
 \renewcommand{\d}{\ensuremath{D}} %Drag function
@@ -328,7 +329,7 @@
 \renewcommand{\ss}{\ensuremath{\tau}} %solid stress
 \newcommand{\sd}{\ensuremath{\tau_D}} %collision damping stress
 \newcommand{\si}{\ensuremath{\tau_G}} %collision return-to-isotropy stress
-\newcommand{\nup}{\ensuremath{\overline{\boldsymbol{u}_p}}} %mean particle velocity
+\newcommand{\nup}{\ensuremath{\overline{\u_p}}} %mean particle velocity
 \newcommand{\x}{\ensuremath{x}} %position
 \renewcommand{\u}{\ensuremath{u}} %%velocity
 \newcommand{\ip}{\ensuremath{S}} %interpolation Operator
@@ -340,8 +341,8 @@
 \newcommand{\ifg}{\ensuremath{T}}
 \newcommand{\rgref}{\ensuremath{\rho_{g,ref}}}
 \newcommand{\pvfi}{\ensuremath{\pvf_i}}
-\newcommand{\pvfione}{\ensuremath{\theta_{f,i+1}}}
-\newcommand{\pvfioneminus}{\ensuremath{\theta_{f,i-1}}}
+\newcommand{\pvfione}{\ensuremath{\theta_{c,i+1}}}
+\newcommand{\pvfioneminus}{\ensuremath{\theta_{c,i-1}}}
 \newcommand{\pvfcp}{\ensuremath{\pvf_{cp}}} %particle volume fraction close packing
 \renewcommand{\mp}{\ensuremath{\m_p}} %particle mass
 \newcommand{\ugp}{\ensuremath{\u_{G,p}}} %advanced time gas velocity
@@ -387,17 +388,19 @@ mathfontname=mathsf]{mhchem}
 
 \lstset{language=C++,
                 basicstyle=\ttfamily,
-                keywordstyle=\color{blue}\ttfamily,
-                stringstyle=\color{red}\ttfamily,
-                commentstyle=\color{ForestGreen}\ttfamily,
-                morecomment=[l][\color{magenta}]{\#},
-                numbers=left,
-                stepnumber=1
+                keywordstyle=\color{kit-blue}\ttfamily,
+                stringstyle=\color{kit-red}\ttfamily,
+                commentstyle=\color{kit-green}\ttfamily,
+                morecomment=[l][\color{kit-magenta}]{\#},
+                %numbers=left,
+                %stepnumber=1
 }
 
 
 \usepackage{todonotes}
 \usepackage{dirtree}
+\usepackage{slashbox}
+
 %\usepackage{lipsum} % For dummy text
 %\pagestyle{empty}
 % Set up background layer
@@ -494,15 +497,15 @@ mathfontname=mathsf]{mhchem}
 
 \mainmatter
 %\input{}
-\input{sections/introduction.tex}
+%\input{sections/introduction.tex}
 \input{sections/background/fluidizedReactor}
 \input{sections/MP-PIC/theory}
 %\input{sections/MP-PIC/noTheory}
 \input{sections/OpenFOAM/OpenFOAM.tex}
-\input{sections/Setup/setup}
-\input{sections/result}
-\input{sections/convergence}
-\input{sections/conclusion}
+%\input{sections/Setup/setup}
+%\input{sections/result/result}
+%\input{sections/convergence}
+%\input{sections/conclusion}
 
 %\input{sections/sources/sources.tex}
 %% --------------------
@@ -510,8 +513,9 @@ mathfontname=mathsf]{mhchem}
 %% --------------------
 
 %% Add entry to the table of contents for the bibliography
-%\printbibliography[heading=bibintoc]
 
+\printbibliography[heading=bibintoc]
+\todo{werden noch aufge\-räumt, aber nicht jetzt..., habt ihr da standards Formatierung?}
 %% ----------------
 %% |   Appendix   |
 %% ----------------

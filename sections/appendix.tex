@@ -19,8 +19,57 @@
 %% -------------------
 %% | Example content |
 %% -------------------
-\section{}
-\label{sec:appendix:FirstSection}
+\section{Fluid-Phase Momentum equation}
+\label{sec:appendix:fluidPhaseMomentum}
+First we derive the discretized fluid-phase momentum equation. 
+We recall the particle velocity
+\begin{equation}
+    \label{eq:advVelocity}
+    \up^{n+1} = \dfrac{\up^n + \Delta \tvar \left[\d_p \tilde{u_{G,p}} - \g - \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right]}{1 + \Delta \tvar \d_p}
+\end{equation}
+and use it to replace $\up^{n+1}$ in the momentum exchange term $\F_{i+\frac{1}{2}}$ and summarize the pressure and implicit velocity terms
+\begin{align*}
+    \hspace{-0.5cm} \F_{i+\frac{1}{2}} &= \left( \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \left. \left[ D_p (\tilde{\ugp} - 
+    \up^{n+1} 
+    ) - \dfrac{1}{\rp} \left( \dfrac{\tilde{\p}_{i+1} - \tilde{p}_i}{\Delta x}\right)_p \right] \Np \mp \right) \middle / \right. \Delta \x \\
+    &=  \dfrac{1}{\Delta \x} \left( \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \left[ D_p \left(\tilde{\ugp} - 
+    \dfrac{1}{1 + \Delta \tvar \d_p}    
+    \left( \up^n + \Delta \tvar \left[\d_p \tilde{u_{G,p}} - \g - \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right] \right) \right) \right. \right. \\
+    & \left. \left. - \dfrac{1}{\rp} \left( \dfrac{\tilde{\p}_{i+1} - \tilde{p}_i}{\Delta x}\right)_p \Np \mp \right) \right] \\
+    &=  \dfrac{1}{\Delta \x} \left( \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \left[ D_p \left(-  \dfrac{1}{1 + \Delta \tvar \d_p} \left(   \up^n - \tilde{\u}_{G,p}     + \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p + \Delta \tvar \left[ - \g - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right] \right) \right) \Np \mp \right]\right)
+\end{align*}
+We then use the former equation to substitute $\F_{i+\frac{1}{2}}$ from the discrete momentum equation \eqref{eq:discMom} thus having
+\begin{align*}
+    &\dfrac{(\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1}- (\fvf \rf \uf)_{i+\frac{1}{2}}^{n}}{\Delta \tvar} + \dfrac{(\fvf \rf \up^2)^n_{i+1}-(\fvf \rf \up^2)^n_{i}}{\Delta \xp} + \dfrac{\tilde{\p}_{i+1}-\tilde{p}_i}{\Delta \xp} \\
+    &= \dfrac{1}{\Delta \x} \left( \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \left[ D_p \left(- 
+    \dfrac{1}{1 + \Delta \tvar \d_p} \left(
+    \up^n - \tilde{\u}_{G,p} 
+    + \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p + \Delta \tvar \left[ - \g - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right] \right) \right) \Np \mp \right] \right)\\
+    &-\dfrac{((\fvf \rf)_i^n + (\fvf \rf)_{i+1}^n)\g}{2}.
+\end{align*}
+Looking just at the pressure terms by rearranging the terms and using the interpolation property $\ifg_{i+\frac{1}{2}} (\xpp) \sum_j \ifg_{j+\frac{1}{2}} (\xpp) = \ifg_{i+\frac{1}{2}} (\xpp)$ to
+\begin{align*}
+    \dfrac{\tilde{\p}_{i+1}-\tilde{\p}_i}{\Delta \xp} = \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \dfrac{\Np \mp}{\rp \Delta \x (1 + \Delta \tvar \d_p)} \left( \dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p \\
+\Leftrightarrow \left( \dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)
+ \left( 1 - \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \dfrac{\Np \mp}{\rp \Delta \x (1 + \Delta \tvar \d_p)} \right) = 0.
+\end{align*}
+
+
+For the solid stress we again use the interpolation property and receive
+\begin{align*}
+    0 &= - \sum_p \ifg_{i+\frac{1}{2}} (\xpp) \d_p \dfrac{1}{1+ \Delta \tvar \d_p} \Delta \tvar \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_{i}}{\Delta \x} \right)_p \\
+    \Leftrightarrow
+    0 &= - \dfrac{1}{\Delta x \theta_{i+\frac{1}{2}}} \sum_{p} \ifg_{i+\frac{1}{2}} (\xpp) \sum_p \left[ \Np \dfrac{\mp}{\rp} \ifg_{i+\frac{1}{2}} (\xpp) \dfrac{\Delta \tvar \d_p}{1 + \Delta \tvar \d_p}  \right] \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_{i}}{\Delta \x}.
+\end{align*}
+Lastly we look at the terms for the advanced-time gas velocity and using the the interpolation property and the approximation $(\pvf \rf)_i^n + (\pvf \rf)_{i+1}^n = 2 (\pvf \rf)_{i+\frac{1}{2}}^n$
+\begin{align*}
+    0 &= - \dfrac{1}{\Delta \x} \sum_p \ifg_{i+\frac{1}{2}} ( \xpp ) \d_p \tilde{\ufp} \dfrac{1}{1+\Delta \tvar \d_p} \Np \mp  \\
+    \Leftrightarrow 0 &= - \dfrac{1}{\Delta \x} \sum_p \d_p 
+    \sum_i \ifg_{i+\frac{1}{2}} (\xpp) \dfrac{2 (\pvf \rf \uf)_{i+\frac{1}{2}}^{n+1}}{(\pvf \rf)_i^n + (\pvf \rf)_{i+1}^n} \dfrac{1}{1+\Delta \tvar \d_p} \Np \mp \\
+    \Leftrightarrow 0 &= 
+    \dfrac{1}{\Delta \x (\pvf \rf)_{i+\frac{1}{2}}^n} \sum_p \left[ \Np \mp \ifg_{i+\frac{1}{2}} (\xpp) \frac{\d_p}{1+ \Delta \tvar \d_p}\right] (\pvf \rf)_{i+\frac{1}{2}}^n.
+\end{align*}
+
 
 
 % \dots

@@ -1,0 +1,524 @@
+\newpage
+\chapter{Simulation Results}
+\section{Parameter Testing}
+
+\subsection{Constant $\beta$}
+In the reference Goldschmidt case, we have a quadratic dependency, therefore $\beta = 2$, in both the explicit and the implicit case.
+To explain the effect of $\beta$ on our simulation, we can rewrite the particle volume fraction as
+\begin{align}
+    \pvf = \alpha \pvfcp \qquad \alpha \in [0,1),
+\end{align}
+and insert it into a simplified version of the particle solid stress
+\begin{align}
+    \scs = \dfrac{P_s \pvf^\beta}{\pvfcp - \pvf} = \dfrac{\alpha^\beta}{(1-\alpha)} \pvfcp^{\beta -1}.
+\end{align}
+We can see from the first term that the solid particle stress diverges for the volume fraction approaching close pack. 
+For smaller $\beta$, the leading factor rises faster, thus $\scs$ is higher for lower volume fractions. In the plot for $\beta = 1$, we can observe this behavior in both the implicit \ref{fig:betaImp1} and the explicit \ref{fig:betaExp1} case, where the particles' position exceeds the plotted area.
+With an increasing, $\beta$ the mean area in which particles are located shrinks.
+Plotting the bed height for different values of $\beta$ reveals an exponential decay, see fig \ref{fig:meanBedBeta}
+%\subsubsection{Explicit Case}
+\FloatBarrier
+\begin{figure}[h!]
+\captionsetup[subfigure]{
+  font={footnotesize},
+  %justification=raggedright,
+  singlelinecheck=false,
+  position=below,
+  %aboveskip=2.5cm, %belowskip=2.5cm,
+  skip=-0.7cm
+  %margin={0cm,-1cm}
+}
+    \centering
+    \begin{subfigure}[b]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/BetaExp/2d_apacked_1_0.00005_0.07.png}
+    \caption{}
+    \label{fig:betaExp1}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/BetaExp/2d_apacked_1.5_0.00005_0.07.png}
+    \caption{}
+    \label{fig:betaExp2}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/BetaExp/2d_apacked_2.5_0.00005_0.07.png}
+    \caption{}
+    \label{fig:betaExp3}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/BetaExp/2d_apacked_10.0_0.00005_0.07.png}
+    \caption{}
+    \label{fig:betaExp4}
+    \end{subfigure}
+    %\caption{Mean particle volume fraction for $0.5s - 5s$ for different values of $\beta$. The packing model here is chosen as explicit.}
+    \label{fig:placeholder}
+%\end{figure}
+%\FloatBarrier
+%\subsubsection{Implicit Case}
+%\FloatBarrier
+%\begin{figure}
+    \begin{subfigure}[b]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/BetaImp/2d_apacked_1_0.00005_0.07.png}
+    \caption{}
+    \label{fig:betaImp1}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/BetaImp/2d_apacked_1.5_0.00005_0.07.png}
+    \caption{}
+    \label{fig:betaImp2}
+    \end{subfigure}
+    \end{figure}
+    \begin{figure}[h!]\ContinuedFloat
+    \centering
+    \begin{subfigure}[b]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/BetaImp/2d_apacked_2.5_0.00005_0.07.png}
+    \caption{}
+    \label{fig:betaImp3}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/BetaImp/2d_apacked_10.0_0.00005_0.07.png}
+    \caption{}
+    \label{fig:betaImp4}
+    \end{subfigure}
+    \caption{Mean particle volume fraction at $0.5s - 5s$ for different values of $\beta$. With packing model explicit (\ref{fig:betaExp1}) - (\ref{fig:betaExp4}) and implicit (\ref{fig:betaImp1}) - (\ref{fig:betaImp4}).}
+    \label{fig:placeholder}
+\end{figure}
+\FloatBarrier
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.55\linewidth]{sections/result/BetaExp/alphaExp.png}
+    \caption{Mean bed height for different values of $\beta$. Bed heights exceeding $50mm$ are plotted as $50mm$.}
+    \label{fig:meanBedBeta}
+\end{figure}
+
+\subsection{Solid pressure constant}
+The solid pressure constant increases the solid particle stress linearly, which results in a linear increase in bed height, see figure \ref{fig:meanBedPS}.
+A higher solid particle stress leads to a higher bed, as observed in the following figure \ref{fig:pSolid}. The implicit case again leads to a higher bed height and a more pronounced hour-glass shape.
+%\vspace{-1cm}
+
+\FloatBarrier
+\begin{figure}[h!]
+\captionsetup[subfigure]{
+  font={footnotesize},
+  %justification=raggedright,
+  singlelinecheck=false,
+  position=below,
+  %aboveskip=2.5cm, %belowskip=2.5cm,
+  skip=-0.9cm
+  %margin={0cm,-1cm}
+}
+    \centering
+    \vspace{-0.2cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    %\caption{} 
+    \includegraphics[width=0.9\linewidth]{sections/result/PSolidExp/2d_apacked_2.5_0.00005_0.07.png}
+    \caption{}
+    \label{fig:psolidExp1}
+    \end{subfigure}
+    \vspace{-0.2cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/PSolidExp/2d_apacked_7.5_0.00005_0.07.png}
+    \caption{}
+    \label{fig:psolidExp2}
+    \end{subfigure}
+    \vspace{-0.15cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/PSolidExp/2d_apacked_10.0_0.00005_0.07.png}
+    \caption{}
+    \label{fig:psolidExp3}
+    \end{subfigure}
+    \vspace{-0.15cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/PSolidExp/2d_apacked_15.0_0.00005_0.07.png}
+    \caption{}
+    \label{fig:psolidExp4}
+    \end{subfigure}
+    \vspace{-0.15cm}
+    %\label{fig:placeholder}
+%\end{figure}
+%\FloatBarrier
+%\FloatBarrier
+%\begin{figure}
+    %\centering
+    \end{figure}
+    \begin{figure}[h!]\ContinuedFloat
+    \centering
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/PSolidImp/2d_apacked_1.0_0.00005_0.07.png}
+    \caption{}
+    \label{fig:psolidImp1}
+    \end{subfigure}
+    \vspace{-0.15cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/PSolidImp/2d_apacked_4.5_0.00005_0.07.png}
+    \caption{}
+    \label{fig:psolidImp2}
+    \end{subfigure}
+    \vspace{-0.15cm}
+    \end{figure}
+    \begin{figure}\ContinuedFloat
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/PSolidImp/2d_apacked_5.5_0.00005_0.07.png}
+    \caption{}
+    \label{fig:psolidImp3}
+    \end{subfigure}
+    \vspace{-0.15cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/PSolidImp/2d_apacked_9.0_0.00005_0.07.png}
+    \caption{}
+    \label{fig:psolidImp4}
+    \end{subfigure}
+    \caption{Mean particle volume fraction for $0.5s - 5s$ for different values of $P_s$. With packing model explicit (\ref{fig:psolidExp1}) - (\ref{fig:psolidExp4}) and implicit (\ref{fig:psolidImp1}) - (\ref{fig:psolidImp4}).}
+    \label{fig:pSolid}
+\end{figure}
+\FloatBarrier
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.55\linewidth]{sections/result/PSolidExp/alphaExp.png}
+    \caption{Mean bed height for different values of $\beta$.}
+    \label{fig:meanBedPS}
+\end{figure}
+
+
+
+
+\subsection{Volume fraction close packed}
+Close to the close pack volume fraction, the solid particle stress increases rapidly. For a lower close pack volume fraction, the particles are accelerated for a lower volume fraction leading to a higher bed height, see \ref{fig:meanBedPacked}.
+From experiments \cite{closePack}, we know that random sphere packing generally has a particle volume fraction of $0.63$, and the Kepler conjecture states that sphere packing cannot exceed $ \sim 0.74$. 
+We can increase the close pack volume fraction of the particles further than what is theoretically possible, because the MP-PIC method does not check if the packing of spheres in a cell exceeds this limit, as particles are not modeled as spheres but as point masses. For $\pvfcp = 0.85$ both the implicit and explicit case are stable, see figure \ref{fig:apackedExp4}, \ref{fig:apackedImp4}. In the implicit case, the simulation becomes unstable for a close pack volume fraction $\pvfcp = 0.95$.
+%\vspace{-1cm}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.55\linewidth]{sections/result/alphaPackedExp/alphaExp.png}
+    \caption{Mean bed height for different values of $\pvfcp$.}
+    \label{fig:meanBedPacked}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[h!]
+\captionsetup[subfigure]{
+  font={footnotesize},
+  %justification=raggedright,
+  singlelinecheck=false,
+  position=below,
+  %aboveskip=2.5cm, %belowskip=2.5cm,
+  skip=-0.9cm
+  %margin={0cm,-1cm}
+}
+    \centering
+    \vspace{-0.2cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    %\caption{} 
+    \includegraphics[width=0.9\linewidth]{sections/result/alphaPackedExp/2d_apacked_0.45_0.00005_0.07.png}
+    \caption{}
+    \label{fig:apackedExp1}
+    \end{subfigure}
+    \vspace{-0.2cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/alphaPackedExp/2d_apacked_0.65_0.00005_0.07.png}
+    \caption{}
+    \label{fig:apackedExp2}
+    \end{subfigure}
+    \vspace{-0.15cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/alphaPackedExp/2d_apacked_0.75_0.00005_0.07.png}
+    \caption{}
+    \label{fig:apackedExp3}
+    \end{subfigure}
+    \vspace{-0.15cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/alphaPackedExp/2d_apacked_0.85_0.00005_0.07.png}
+    \caption{}
+    \label{fig:apackedExp4}
+    \end{subfigure}
+    \vspace{-0.15cm}
+    %\label{fig:placeholder}
+%\end{figure}
+%\FloatBarrier
+%\FloatBarrier
+%\begin{figure}
+    %\centering
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/alphaPackedImp/2d_apacked_0.45_0.00005_0.07.png}
+    \caption{}
+    \label{fig:apackedImp1}
+    \end{subfigure}
+    \vspace{-0.15cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/alphaPackedImp/2d_apacked_0.65_0.00005_0.07.png}
+    \caption{}
+    \label{fig:apackedImp2}
+    \end{subfigure}
+    % \end{figure}
+    % \begin{figure}\ContinuedFloat
+    \vspace{-0.15cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/alphaPackedImp/2d_apacked_0.75_0.00005_0.07.png}
+    \caption{}
+    \label{fig:apackedImp3}
+    \end{subfigure}
+    \vspace{-0.15cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/alphaPackedImp/2d_apacked_0.85_0.00005_0.07.png}
+    \caption{}
+    \label{fig:apackedImp4}
+    \end{subfigure}
+    \caption{Mean particle volume fraction for $0.5s - 5s$ for different values of $\pvfcp$. With packing model explicit (\ref{fig:apackedExp1}) - (\ref{fig:apackedExp4}) and implicit (\ref{fig:apackedImp1}) - (\ref{fig:apackedImp4}).}
+    \label{fig:aPacked}
+\end{figure}
+\FloatBarrier
+
+
+
+\section{Damping Terms}
+\subsection{Results collision damping}
+\label{sec:DampResults}
+
+We now include the collision damping term in the simulations. The term is not included in the standard \texttt{Goldschmidt} case.
+We tested the collision damping term in a total of $84$ cases:
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{ c | c | c}
+         parameters & \texttt{OpenFOAM} & values \\
+         \hline
+         Damping type & \texttt{type} & \texttt{equilibrium}, \texttt{nonEquilibrium} \\
+         Volume fraction, close packed $\pvfcp$ & \texttt{alphaPacked} & $0.5$, $0.6$, ,$0.65$, $0.7$, $0.8$, $0.9$ \\
+         Restitution & \texttt{e} & $0.5$, $0.6$, $0.7$, $0.8$, $0.9$, $0.95$, $0.99$\\
+    \end{tabular}
+    %\caption{Parameters in the Goldschmidt tutorial with their \texttt{OpenFOAM} expression for the explicit and implicit packing model.}
+    \label{tab:placeholder}
+\end{table}
+
+Simulations are run with an adjustable time step limited by a Courant number of $0.6$. Simulations are terminated if the calculation time of single time step takes longer than ten minutes or the time step falls below a threshold of $10^{-20}s$.
+The final simulation times are listed in the two tables below for the non-equilibrium and the equilibrium term.
+
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|l|*{7}{c|}}\hline
+\backslashbox{$\pvfcp$}{\texttt{e}}
+& 0.5 & 0.6 & 0.7 & 0.8 & 0.9 & 0.95 & 0.99 \\ \hline
+0.5&
+0.040972 &
+0.008742&
+0.018896&
+0.008541&
+0.007831&
+0.008786&
+0.007331 \\ \hline
+0.65 &
+0.22957&
+0.336456&
+0.497744&
+0.350028&
+0.660727&
+1.05699&
+1.01343
+\\ \hline
+0.6 &
+0.529419&
+0.795894&
+0.728319&
+1.459815&
+0.584578&
+0.851135&
+0.611465\\ \hline
+0.7  &
+0.640304&
+1.103907&
+0.789877&
+1.03854&
+0.586462&
+0.423384&
+0.909999\\ \hline
+0.8 &
+0.866482 &
+0.466389&
+1.544282&
+0.928576&
+2.834396&
+2.450749&
+0.550631 \\ \hline
+0.9  &
+0.483467&
+0.589252&
+2.029631&
+2.889477&
+3.018472&
+1.529281&
+\cellcolor{ForestGreen!33}4.999988
+\\ \hline
+\end{tabular}    
+    \caption{Runtime for the damping term type \texttt{equilibrium} rounded. Entries marked in green reached a simulation time of $5$ seconds.}
+    \label{tab:placeholder}
+\end{table}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|l|*{7}{c|}}\hline
+\backslashbox{$\pvfcp$}{\texttt{e}}
+& 0.5 & 0.6 & 0.7 & 0.8 & 0.9 & 0.95 & 0.99 \\ \hline
+0.5&
+0.010063&
+0.014112&
+0.012930&
+0.013440&
+0.009998&
+0.005540&
+0.009905
+\\ \hline
+0.6 &
+0.345276&
+0.36796&
+0.586591&
+0.655485&
+0.670003&
+0.575027&
+0.091037
+\\ \hline
+0.65 &
+0.801246&
+1.09722&
+0.578553&
+1.014649&
+0.585877&
+0.804848&
+0.537676
+\\ \hline
+0.7 &
+0.885873 &
+1.490554 &
+0.647732 &
+0.611606&
+0.573212&
+1.102617&
+1.363100 
+\\ \hline
+0.8 &
+2.245529&
+2.700315&
+2.526333&
+1.0928&
+1.813442&
+1.812381&
+0.746165
+\\ \hline
+0.9  &
+0.777422 &
+\cellcolor{ForestGreen!33}5.000106 &
+2.247512&
+2.109448&
+1.328963&
+3.339160&
+2.888154
+\\ \hline
+\end{tabular}    
+    \caption{Runtime for the damping term type \texttt{nonEquilibrium}. Entries marked in green reached a simulation time of $5$ seconds.}
+    \label{tab:placeholder}
+\end{table}
+
+Out of the $84$ cases two terms reached a simulation time of five seconds. The term is therefore not considered in further applications.
+
+\subsection{Results return-to-isotropy}
+We vary the restitution and the close pack particle volume fraction.
+For a fixed close pack volume fraction $\pvfcp = 0.65$, we test different material restitution values. The results, seen in figure \ref{fig:Isotropy} differ only slightly.
+
+\begin{figure}[h!]
+\captionsetup[subfigure]{
+  font={footnotesize},
+  %justification=raggedright,
+  singlelinecheck=false,
+  position=below,
+  %aboveskip=2.5cm, %belowskip=2.5cm,
+  skip=-0.9cm
+  %margin={0cm,-1cm}
+}
+    \centering
+    \vspace{-0.2cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    %\caption{} 
+    \includegraphics[width=0.9\linewidth]{sections/result/IsotropyExp/2d_apacked_0.5_0.65_0.00005_0.07.png}
+    \caption{}
+    \label{fig:IsotropyExp1}
+    \end{subfigure}
+    \vspace{-0.2cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/IsotropyExp/2d_apacked_0.7_0.65_0.00005_0.07.png}
+    \caption{}
+    \label{fig:IsotropyExp2}
+    \end{subfigure}
+    \vspace{-0.15cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/IsotropyExp/2d_apacked_0.9_0.65_0.00005_0.07.png}
+    \caption{}
+    \label{fig:IsotropyExp3}
+    \end{subfigure}
+    \vspace{-0.15cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/IsotropyExp/2d_apacked_0.95_0.65_0.00005_0.07.png}
+    \caption{}
+    \label{fig:IsotropyExp4}
+    \end{subfigure}
+    \vspace{-0.15cm}
+    %\label{fig:placeholder}
+%\end{figure}
+%\FloatBarrier
+%\FloatBarrier
+%\begin{figure}
+    %\centering
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/IsotropyImp/2d_apacked_0.5_0.65_0.00005_0.07.png}
+    \caption{}
+    \label{fig:IsotropyImp1}
+    \end{subfigure}
+    \vspace{-0.15cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/IsotropyImp/2d_apacked_0.7_0.65_0.00005_0.07.png}
+    \caption{}
+    \label{fig:IsotropyImp2}
+    \end{subfigure}
+    \end{figure}
+    \begin{figure}[h!]\ContinuedFloat
+    \centering
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/IsotropyImp/2d_apacked_0.9_0.65_0.00005_0.07.png}
+    \caption{}
+    \label{fig:IsotropyImp3}
+    \end{subfigure}
+    \vspace{-0.15cm}
+    \begin{subfigure}[t]{0.49 \linewidth}
+    \includegraphics[width=0.9\linewidth]{sections/result/IsotropyImp/2d_apacked_0.95_0.65_0.00005_0.07.png}
+    \caption{}
+    \label{fig:IsotropyImp4}
+    \end{subfigure}
+    \caption{Mean particle volume fraction for $0.5s - 5s$ for different values of $e_p$. With packing model explicit (\ref{fig:IsotropyExp1}) - (\ref{fig:IsotropyExp4}) and implicit (\ref{fig:IsotropyImp1}) - (\ref{fig:IsotropyImp4}).}
+    \label{fig:Isotropy}
+\end{figure}
+ \FloatBarrier
+
+
+% \subsection{Drag Model}
+% The frictional pressure drop was empirically correlated to the cube Reynolds number
+% \begin{equation*}
+%     F_D = (A \pvf + B \operatorname{Re}_p) \dfrac{\pvf \mu_f}{\fvf^2 d_p^2} \qquad \operatorname{Re}_p = \dfrac{\rf \lvert \u_{rel} \rvert d_p}{\mu_f}
+% \end{equation*}
+% Several different coefficient values have been proposed for $A$ and $B$. %\Todo{Ein paar schreiben}
+% Two models available in \OF are the Plessis-Masliyah drag model \cite{Plessis}
+% \begin{equation*}
+%     A = \dfrac{26.8 \fvf^2}{\pvf^{2/3}(1-\pvf^{1/3})(1-\fvf^{2/3}} \qquad B = \dfrac{\fvf^2}{(1-\pvf^{2/3})^2}
+% \end{equation*}
+% and the Ergun-Wen-Yu model \cite{ErgunWenYu}
+% \begin{equation*}
+%     F_D = \begin{cases}
+%         \dfrac{3 (1-\fvf) \mu_f \fvf \operatorname{Re}_p}{d_p^2} C_D \fvf^{-2.65} & \text{if } \fvf \geq 0.8 \\
+%         \left(150 \dfrac{1-\fvf}{\fvf} + 1.75 \operatorname{Re}_p \right) \dfrac{(1-\fvf) \mu_f}{d_p^2} & \text{if } \fvf < 0.8
+%     \end{cases} \qquad C_D = \begin{cases}
+%         24 \left(1+0.15 \operatorname{Re}_p^{0.687}\right) & \text{if } \operatorname{Re}_p < 1000 \\
+%         0.44 & \text{if } \operatorname{Re}_p \geq 1000
+%     \end{cases}
+% \end{equation*}
+% which uses the Ergun expression for fluid volume fractions below $0.8$ .
+
+
+\section{Comparison with Experiments}
+\section{Convergence Study}

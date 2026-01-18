@@ -1,10 +1,11 @@
 \newpage
 \chapter{Background}
 
-
-
+\color{gray}
+\todo{Überleitung wenn Einleitung da ist}
 \section{Iron Reduction}
-Iron is used in a reduction-oxidation cycle. Reducing iron oxide can be done via hydrogen for which several industrial-scale technologies exist such as the steam-iron redox process. 
+In this master thesis we look at iron as a
+carbon-free energy carrier in a reduction-oxidation cycle. Reducing iron oxide can be done via hydrogen for which several industrial-scale technologies exist such as the steam-iron redox process \cite{coalToIron}. 
 For this cycle iron oxide is reduced
 \begin{align*}
     \ce{Fe2O3 + 3H2 -> 2Fe + 3H2O}
@@ -14,10 +15,14 @@ As the efficiency of the iron storage cycle depends on the efficiency of both th
 The goal of this master thesis is a numerical simulation of a simplified reduction in a fluidized bed reactor.
 
 
+Classification of the particle: Fall in category C, difficult to fluidize lots of forces in between the particles.
+\todo{Noch nicht fertig}
 
+\color{black}
 \section{Fluidized Bed Reactor}
-A fluidized bed reactor suspends solid particles in an upward-flowing fluid, typically a gas, so that the particles behave like a fluid.
-
+Recent experiments have shown the possibility of reducing iron oxide via a fluidized bed reactor \cite{Malte}.
+Particles are either inserted into the reactor via a chute or placed inside the reactor on top of a porous plate. The accumulated particles are called a bed of particles. 
+The particles are suspended by an upward-flowing fluid, in our case gas, causing the particles to behave like a fluid. The behavior and properties are described in \cite{zustand_eng}.
 In figure \ref{fig:fluidize_states} the different fluidization regimes in a fluidized bed reactor are illustrated.
 On the left, the gas inflow rate is low. The gas percolates through the empty spaces in-between the particles. The particles form a fixed bed and particles are still stationary.
 As the flow rate increases, the bed begins to expand.
@@ -43,110 +48,112 @@ Even further is the pneumatic transport of solids in which the solids are carrie
     \includegraphics[width=0.24\linewidth,height=8cm,width = 3.5cm, keepaspectratio=false]{sections/background/BubblingFluidization.png}
     \hfill
     \includegraphics[width=0.24\linewidth,height=8cm,width = 3cm, keepaspectratio=false,trim={0 0.1cm 0 0},clip]{sections/background/TrubulentFluidization.png}
-    \caption{Caption}
+    \caption{Fluidization state in a fluidized bed reactor for different inflow velocities, from left low velocity to right high velocity. From \cite{zustand_eng}.}
     \label{fig:fluidize_states}
 \end{figure}
-
+\todo{Jeweils noch die Figure nummer aus dem Buch angeben?}
 
 To determine the fluidization behavior several different particles properties and their influence have been studied in the past.
 The first is the velocity minimum fluidization velocity $\umf$.
 At the minimum fluidization velocity the drag force exhibited by the upward moving gas is at equilibrium with the weight of the particles.
-The drag force can be expressed as the pressure drop across the bed times the cross section of the reactor
-\begin{equation*}
-    F_D = \Delta \p A_r.
-\end{equation*}
-For the weight of the particles we use the volume fraction, the volume of the bed and the specific weight of solids $\gamma = \rho \g$
-\begin{equation*}
-    F_{m_{mf}} = A_r L_{mf} \pvf_{mf} ((\rp - \rf) \g).
-\end{equation*}
-%smaller particles -> higher pressure drop (trade off)
-Equating both forces, we can calculate a ratio of pressure drop to the bed height at minimum fluidization height
-\begin{equation}
-\label{eq:prDrop}
-    \dfrac{\Delta \p}{L_{mf}} = \pvf \Delta \rho \g.
-\end{equation}
-Assuming that the pressure of the particles dominates the pressure difference, $\rp \gg \rf$ we can estimate the pressure drop at minimum fluidization velocity by
-\begin{equation*}
-    \Delta \p \approx \pvf L_{mf} \rp g = \dfrac{\m \g}{A_r}.
-\end{equation*}
-Therefor, above minimum fluidization velocity the pressure drop stays constant. 
-For uniformly sized particles during velocities inducing a fixed bed, the pressure drop is nearly proportional.
-During the transition from a fixed bed to a fluidized be the maximal pressure is reached due to adhesive forces. Similarly to a liquid the pressure drop then remains constant during the fluidized bed phase.
+% The drag force $F_D$ can be expressed as the pressure drop $\Delta \p$ across the bed times the cross section of the reactor $A_r$
+% \begin{equation*}
+%     F_D = \Delta \p A_r.
+% \end{equation*}
+% For the weight of the particles we use the volume fraction, the volume of the bed and the specific weight of solids $\gamma = \rho \g$
+% \begin{equation*}
+%     F_{m_{mf}} = A_r L_{mf} \pvf_{mf} ((\rp - \rf) \g).
+% \end{equation*}
+% %smaller particles -> higher pressure drop (trade off)
+% Equating both forces, we can calculate a ratio of pressure drop to the bed height at minimum fluidization height
+% \begin{equation}
+% \label{eq:prDrop}
+%     \dfrac{\Delta \p}{L_{mf}} = \pvf \Delta \rho \g.
+% \end{equation}
+% Assuming that the pressure of the particles dominates the pressure difference, $\rp \gg \rf$ we can estimate the pressure drop at minimum fluidization velocity by
+% \begin{equation*}
+%     \Delta \p \approx \pvf L_{mf} \rp g = \dfrac{\m \g}{A_r}.
+% \end{equation*}
 
-\begin{figure}
+Above the minimum fluidization velocity the pressure drop stays constant. 
+For uniformly sized particles during velocities inducing a fixed bed, the pressure drop is nearly proportional.
+During the transition from a fixed bed to a fluidized be the maximal pressure is reached due to adhesive forces. Similarly to a liquid the pressure drop then remains constant during the fluidized bed phase \cite{zustand_eng}.
+
+\begin{figure}[h!]
     \centering
     \includegraphics[width=0.8\linewidth]{pressure_drop_vel.png}
-    \caption{From \cite{pressureDrop}}
+    \caption{Pressure drop for different inlet gas velocity. From \cite{pressureDrop}}
     \label{fig:placeholder}
 \end{figure}
 %https://link.springer.com/article/10.1007/s13399-020-01189-9 explains going up or down
-
-Investigation of flow through fixed beds has led to several empirical models to predict the pressure drop. 
-The frictional pressure drop was empirically correlated to the cube Reynolds number
-\begin{equation*}
-    F_D = (A \pvf + B \operatorname{Re}_p) \dfrac{\pvf \mu_f}{\fvf^2 d_p^2} \qquad \operatorname{Re}_p = \dfrac{\rf \lvert \u_{rel} \rvert d_p}{\mu_f}
-\end{equation*}
-Several different coefficient values have been proposed for $A$ and $B$. %\Todo{Ein paar schreiben}
-Two models used in \OF are the Plessis-Masliyah drag model \cite{Plessis}
-\begin{equation*}
-    A = \dfrac{26.8 \fvf^2}{\pvf^{2/3}(1-\pvf^{1/3})(1-\fvf^{2/3}} \qquad B = \dfrac{\fvf^2}{(1-\pvf^{2/3})^2}
-\end{equation*}
-and the Ergun-Wen-Yu model \cite{ErgunWenYu}
-\begin{equation*}
-    F_D = \begin{cases}
-        \dfrac{3 (1-\fvf) \mu_f \fvf \operatorname{Re}_p}{d_p^2} C_D \fvf^{-2.65} & \text{if } \fvf \geq 0.8 \\
-        \left(150 \dfrac{1-\fvf}{\fvf} + 1.75 \operatorname{Re}_p \right) \dfrac{(1-\fvf) \mu_f}{d_p^2} & \text{if } \fvf < 0.8
-    \end{cases} \qquad C_D = \begin{cases}
-        24 \left(1+0.15 \operatorname{Re}_p^{0.687}\right) & \text{if } \operatorname{Re}_p < 1000 \\
-        0.44 & \text{if } \operatorname{Re}_p \geq 1000
-    \end{cases}
-\end{equation*}
-which uses the Ergun expression for fluid volume fractions below $0.8$.
-
 
 %uO superficial gas velocity *measured on an empty vessel basis) through a bed of solids
 
 % The pressure drop increases linearly with a inlet velocity below the minimum fluidization velocity. 
 % \Todo{Ergun equation}
 
-
-To predict the state of our bed in the reactor we can use a flow regime map for gas-solids fluidization \cite{flowRegime}.
+To predict the operating state of our bed in the reactor we can use a flow regime map for gas-solids fluidization \cite{flowRegime}.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.5\linewidth]{sections/background/zustand_englisch.png}
-    \caption{From: \cite{zustand_eng}}
+    \caption{Fluidization regime diagram for the dimensionless particle parameter and inlet velocity. From: \cite{zustand_eng}}
     \label{fig:fluidizeDiagram}
 \end{figure}
-The diagram \ref{fig:fluidizeDiagram} shows the correlation between the dimensionless particle diameter 
+The diagram in figure \ref{fig:fluidizeDiagram} relates the dimensionless particle diameter 
 \begin{equation*}
- d_p^* = d_p \sqrt[3]{\dfrac{\rf \g \Delta \rho}{\eta_g^2}}.
+ d_p^* = d_p \sqrt[3]{\dfrac{\rf \g \Delta \rho}{\eta_c^2}}.
 \end{equation*}
-and the dimensionless velocities
+and the dimensionless gas velocities
 \begin{equation*}
-u^* = \uf \sqrt[3]{\dfrac{\rf^2}{\eta_g \Delta\rho \g}}    
+u^* = \uf \sqrt[3]{\dfrac{\rf^2}{\eta_c \Delta\rho \g}}    
 \end{equation*}
-for different bed behaviors.
-Two empirically calculated velocities are shown. The first is the minimal fluidization velocity discussed earlier.
-It is based on the empirical correlation by Ergun for the pressure drop
-\begin{equation*}
-    \dfrac{\Delta \p}{L} = 150 \dfrac{\nu (1-\fvf_{mf})^2}{\fvf_{mf}^3 d_{32}^2} \umf + 1.75 \dfrac{(1-\fvf_{mf}) \rf}{\fvf_{mf}^3 d_{32}} \umf^2
-\end{equation*}
-which we then combine with equation \eqref{eq:prDrop}
-\begin{equation*}
-    \dfrac{1.75}{\fvf_{mf}^3 \phi_s} \operatorname{Re}^2_{p,mf} + \dfrac{150 (1-\fvf_{mf})}{\fvf_{mf}^3 \phi_s^2} \operatorname{Re}_{p,mf} = \operatorname{Ar} \qquad \operatorname{Ar} = \dfrac{d_p^3 \rf (\rp - \rf) \g}{\mu ^2}.
-\end{equation*}
-which we rewrite as
-\begin{equation*}
-    \operatorname{Ar} = K_1 \operatorname{Re}_{p,mf} + K_2 \operatorname{Re}^2_{p,mf}.
-\end{equation*}
+and classifies different fluidization regimes. Here $\rf$ is the gas density, $g$ is the gravitational force, $\Delta \rho$ is the difference between the solid and gas density and $\eta_c$ is the kinematic gas viscosity.
 
-Another velocity shown in the regime diagram, that greatly impacts the behavior of particles is the terminal free-fall velocity. This represents a equilibrium of the gravitational force, 
-Keeping the velocity above $\umf$ and below $\u_t$ reduces carry over of particles from a fluidized bed.
-To calculate $\u_t$ we use the diameter of the smallest particles 
-\begin{equation*}
-    \u_t = \left[ \dfrac{4 d_{p,s} (\rp - \rf)\g}{3 \rf C_D}\right]^{1/2}.
-\end{equation*}
+In addition to the minimum fluidization velocity the diagram also shows the terminal free fall velocity. 
+This represents an equilibrium between gravitational and drag forces acting on a particle.
+Keeping the velocity between the minimum fluidization and terminal free fall velocity is recommended to reduce carry over of particles from a fluidized bed.
 
+% Two empirically calculated velocities are shown. The first is the minimal fluidization velocity discussed earlier.
+% It is based on the empirical correlation by Ergun \cite{Ergun} for the pressure drop
+% \begin{equation*}
+%     \dfrac{\Delta \p}{L} = 150 \dfrac{\nu (1-\fvf_{mf})^2}{\fvf_{mf}^3 d_{32}^2} \umf + 1.75 \dfrac{(1-\fvf_{mf}) \rf}{\fvf_{mf}^3 d_{32}} \umf^2
+% \end{equation*}
+% where we choose $150$ and $1.75$ as constants.
+% Here the first term represents the viscous energy loss and the second term the inertial loss \cite{ErgExp}.
+% We combine these with equation \eqref{eq:prDrop} for the dimensionless form
+% \begin{equation*}
+%     \dfrac{1.75}{\fvf_{mf}^3 \phi_s} \operatorname{Re}^2_{p,mf} + \dfrac{150 (1-\fvf_{mf})}{\fvf_{mf}^3 \phi_s^2} \operatorname{Re}_{p,mf} = \operatorname{Ar} \qquad \operatorname{Ar} = \dfrac{d_p^3 \rf (\rp - \rf) \g}{\mu ^2} \quad \operatorname{Re}_{p,mf} = \dfrac{\rf d_p \umf}{\mu}.
+% \end{equation*}
+% which we simplify to
+% \begin{equation*}
+%     \operatorname{Ar} = K_1 \operatorname{Re}_{p,mf} + K_2 \operatorname{Re}^2_{p,mf}.
+% \end{equation*}
+% Here $\operatorname{Ar}$ is the Archimedes number, also sometimes known as Galileo number, e.g. \cite{predictWenYu}, which describes the motion based on the density difference and $\operatorname{Re}_{p,mf}$ is the particle Reynolds number.
+% A simplification of the term for fine particles was proposed by Wen and Yu \cite{WenYu} 
+% \begin{equation*}
+%     \dfrac{(1-\fvf_{mf})}{d_{32}^2 \fvf_{mf}^3} \approx 11 \quad \dfrac{1}{d_{32} \fvf_{mf}^3} \approx 14 \qquad \operatorname{Re}_{mf} = \sqrt{(33.7)^2 + 0.0408 \operatorname{Ar}} - 33.7
+% \end{equation*}
+% which is reasonable at room temperature.
+% Although the author claim that the approximation covers a diameter range of $[0.002,1.97]$ and a minimum fluidization velocity of $[0.136,1.0]$.
+% Solving for the $d_{32}$ and $\fvf_{mf}$ we can see that the equation only hold for $\fvf_{mf} = 0.47, 0.93$ and $\d_{32} = 0.67, 0.09$.
+
+
+% Apart from the minimum fluidization velocity we can also calculate the terminal free-fall velocity. This represents a equilibrium of the gravitational force, 
+% Keeping the velocity above $\umf$ and below $\u_t$ reduces carry over of particles from a fluidized bed.
+% To calculate $\u_t$ we use the diameter of the smallest particles 
+% \begin{equation*}
+%     \u_t = \left[ \dfrac{4 d_{p,s} (\rp - \rf)\g}{3 \rf C_D}\right]^{1/2}
+% \end{equation*}
+% and the experimentally determined drag coefficient given by \cite{Haider} and \cite{TURTON1987127} we get the terminal velocity
+% \begin{align*}
+%     \u_t^* = 
+%     \begin{cases}
+%         \left( \dfrac{18}{d_p^*)^2} + \dfrac{2.335 - 1.744 \phi}{(d_p^*)^{0.5}} \right)^{-1}, & 0.5 < \phi < 1 \\
+%         \left( \dfrac{18}{(d_p^*)^2} + \dfrac{0.591}{(d_p^*)^{0.5}} \right)^{-1}, & \phi = 1.
+%     \end{cases}
+% \end{align*}
+
+% \todo{Relevanz irgendwie nicht ganz gegeben...}
 
 
 
@@ -227,14 +234,13 @@ To calculate $\u_t$ we use the diameter of the smallest particles
 
 
 \section{Numerical Simulation}
-To simulate a fluidized bed reactor we can look at how multiphase systems are generally modeled in CFD. 
+Before we simulate a fluidized bed reactor we first look at how multiphase systems are generally modeled in CFD \cite{cfdComp}.
 We can classify CFD simulations by how the solid phase is modeled, whether we model it as a continuum or a discrete phase, while the gas phase is always modeled as a continuum. 
 The models differ in how particle-particle interactions are handled.
-Using a solver with a discrete particle phase, such as the \DP method in \OF we can model each particle-particle interaction, therefor each collision and the resulting behavior of the particles. With an increasing number of particles, the simulation time grows quadratically with the number of particles, which is often not feasible for industrial scale applications.
-Here the trend of the experiment is often more important than the exact behavior.
-For these cases one could consider modeling the particle as a continuum would result in an Euler-Euler approach where particle-particle interactions needed for closure relations.
-In general this leads to a computationally less expensive method that does not account for particle-particle interactions \cite{mathMPPIC}, especially in dense systems.
-To mitigate the disadvantages from the previously mentioned methods we will use a hybrid approach which models particle interactions through the particle normal stress and damping terms without resolving them, called the \MP method.
+Using a solver with a discrete particle phase, such as the \DP method in \OF we can model each particle-particle interaction, therefor each collision and the resulting behavior of the particles. With an increasing number of particles, the simulation time grows quadratically with the number of particles, which is often not feasible for industrial scale applications, where the trend of the experiment is often more important than the exact behavior.
+For these cases one could consider modeling the particle as a continuum using an Euler-Euler approach where particle-particle interactions are needed for closure relations.
+In general this leads to a computationally less expensive method that does not account for particle-particle interactions, leading to inaccurate results, especially in dense systems \cite{mathMPPIC}.
+To mitigate the disadvantages from the previously mentioned methods we will use a hybrid approach which models particle as a discrete phase but models interactions through the particle normal stress and damping terms without resolving them, called the \MP method.
 \FloatBarrier
 \begin{figure}[h!]
 \centering
@@ -268,15 +274,14 @@ To mitigate the disadvantages from the previously mentioned methods we will use 
   ([yshift=-60pt]leftroot.west)  
   node[midway, below] {more accurate};
 \end{tikzpicture}
-\caption{ Source: \url{https://www.mdpi.com/2227-7390/12/23/3700}}
+\caption{ Adapted from: \url{https://www.mdpi.com/2227-7390/12/23/3700}}
 \end{figure}
 \FloatBarrier
 \color{black}
 
 In this method the particles are modeled as both a discrete and a continuous phase with interpolation operators being used to transfer properties between the two.
-The main advantage of this method is, that particle-particle interactions are calculated from parameters that only depend on the Eulerian grid.
-How the \MP method works in detail will be discussed in detail in the next chapter. Afterward, we will look at the \texttt{OpenFOAM} implementation in chapter \ref{ch:OpenFOAM}.
-
+The main advantage of this method is, that particle-particle interactions are calculated from parameters that only depend on the Eulerian grid and are not fully resolved.
+We will discuss in detail how the \MP method works by first looking at the paper that presented the method in chapter \ref{ch:MPPIC} and then at the \OF implementation discussed in chapter \ref{ch:OpenFOAM}.
 %twoPhaseEuler: https://www.tfd.chalmers.se/~hani/kurser/OS_CFD_2014/Alessandro%20Manni/ReportAM.pdf
 
 
