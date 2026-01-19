@@ -418,7 +418,7 @@ The outline of how the code is executed is shown in the following flow chart \re
 In this section we are going to exclude the collision damping model described in \ref{sec:DiscCollDamp} because as stated in \cite{chimera} including this model in \OF currently causes errors.
 Because the results discussed in also do not show promising results we do not discuss the implementation here.
 
-\Todo{Referenz \\ 2x}
+\Todo{Referenz}
 
 
 In the previous section we defined the advanced time velocity in equation \eqref{eq:errVel} as
@@ -522,8 +522,8 @@ In case the particle reaches a wall boundary the particle is moved up to the wal
 %\Todo{Fraction erklären}
 To avoid confusion we still call the time step $\Delta \tvar$ although it should be $\operatorname{f} \Delta \tvar$.
 
-Next the collision damping model is applied.
-This is currently not properly implemented in \OF and will therefor not be discussed further here \cite{chimera}.
+%Next the collision damping model is applied.
+%This is currently not properly implemented in \OF and will therefor not be discussed further here \cite{chimera}.
 
 %\Todo{stimmt zweiter Term?}
 To model particle-particle interactions the particle normal stress is applied in the packing model.
@@ -1481,7 +1481,7 @@ The default, used in the \MP method is to use $\alpha = 1$.
 %Here 
 %\MP is coupled
 \subsubsection{postEvolve}
-The \lstinline|postEvolve| function is the counterpart of the \lstinline|preEvolve| function. Previously cashed function are released. This includes the Eulerina fields. Cloud properties as such as the particle positions are written out as needed and the iteration advanced. In line boundary and wall interactions are finalized.
+The \lstinline|postEvolve| function is the counterpart of the \lstinline|preEvolve| function. Previously cashed function are released. This includes the Eulerian fields. Cloud properties as such as the particle positions are written out as needed and the iteration advanced. In line boundary and wall interactions are finalized.
 \ifcode
 \begin{lstlisting}[firstline=266, caption=KinematicCloud.C]
 template<class CloudType>
@@ -1672,7 +1672,7 @@ For the interpolation the cells are divided into eight tetrahedrons using the ce
 \end{subfigure}
 \caption{Tetrahedral decomposition.}
 \end{figure}
-\todo[color=kit-blue!60]{In dem Bild säh ein zweiter und dritter Tetraeder schon noch schön aus}
+\todo[color=kit-blue!60]{Vielleicht kommen noch mehr Tetraeders in den Würfel}
 %\Todo{Bild einfügen}
 
 
@@ -1761,14 +1761,15 @@ We can use the following transformation to switch between our barycentric coordi
 \end{equation*}
 where we used \eqref{eq:baryNorm} in the last step.
 Therefor transforming between our global coordinates and our local barycentric coordinates can be done by inverting a $3 \times 3$ matrix.
-\todo[color= kit-blue!60]{Inter\-polation bei bewegen durch mehrere Zellen erläutern?}
+
 
 The barycentric coordinates are used as weights to interpolate Eulerian filed properties to the parcels
 \begin{equation}
     \phi_p = \sum_{n=\{\abar,\bbar, \cbar, \dbar\}} \phi_{p,n} n.
-\end{equation}
+\end{equation}\todo[color= kit-blue!60]{Inter\-polation bei bewegen durch mehrere Zellen genau erläutern?}
 Analogy particle properties are interpolated to vertices.
-If particles move through serveral tetrahedron during the \lstinline|motion| they are moved to the face. The particle is then tracked in the next tetrahedron.
+If particles move through several tetrahedra during the \lstinline|motion| they are moved to the face and the id is given to the following tetrahedron. The particle is then tracked in the next tetrahedron.
+
 
 
 
@@ -1787,11 +1788,26 @@ The calculated velocity of the kinematic cloud is used in the momentum source te
 
 
 The momentum transfer is included in \lstinline|cloudSU|. This includes three terms
-\begin{equation*}
-    S_u = \dfrac{\u_{trans}}{V \Delta \tvar} - \dfrac{\u_{coeff}}{V \Delta \tvar} \up^{n+1} + \dfrac{\u_{coeff}}{V \Delta \tvar} \up^{n}.
-\end{equation*}
-%\todo{Wie zitiere ich ein Bild aus einem Forum? (\href{https://www.cfd-online.com/Forums/openfoam-post-processing/137291-questions-about-lagrangian-postprocessing.html}{Link}) Will ich das überhaupt?} 
-The first term is the momentum transfer while the other two include drag, gravity and pressure gradient forces once implicitly and once explicitly.
+\todo{Wie zitiere ich (ein Bild) aus einem Forum? (\href{https://www.cfd-online.com/Forums/openfoam-post-processing/137291-questions-about-lagrangian-postprocessing.html}{Link})} 
+\begin{equation}
+    \label{eq:cloudSU}
+    S_u = \underbrace{\dfrac{\u_{trans}}{V \Delta \tvar}}_{\leadsto \texttt{CloudVolSUSu}} - \underbrace{\left(\dfrac{\u_{coeff}}{V \Delta \tvar} \up \right)_{implicit}}_{\leadsto \texttt{CloudSU}} + \underbrace{\left(\dfrac{\u_{coeff}}{V \Delta \tvar} \up \right)_{explicit}}_{\leadsto \texttt{CloudVolSUSu}}
+\end{equation}
+the first being the momentum transfer including the drag and the pressure gradient force which we saw earlier in equation \eqref{eq:InterMomTrans}.
+The second two terms are added for numerical stability. They cancel out due to the drag term being fully explicit.
+\begin{lstlisting}
+    fvVectorMatrix cloudSU(kinematicCloud.SU(Uc));
+    [...]
+    cloudVolSUSu.primitiveFieldRef() = -cloudSU.source()/mesh.V();
+    [...]
+    cloudSU.source() = Zero;
+\end{lstlisting}
+\todo{Neues Listing? Wie anzeigen das Code da dazwischen}
+In the first line \lstinline|cloudSU| contains all terms mentioned above in equation \eqref{eq:cloudSU}.
+\lstinline|cloudVolSUSu| scales the particle forces, therefor the first and third term, to the Eulerian field.
+Lastly we set the source terms in \lstinline|cloudSU| to zero, thereby only using the second term.
+
+%\todo{two way coupling}
 
 
 %SU explicit part, Sp implicit part second part to get per volume
@@ -1879,7 +1895,7 @@ The systems are defined in \lstinline|UcEqn| and \lstinline|pEqn|.
 For the momentum exchange term between the particles and the fluid the solid force is split up into the explicit and implicit part.
 Both are added in \lstinline|UcEqn| with the explicit part being added initially and the implicit part later.
 %The implicit part \lstinline|cloudSU| is added in \lstinline|UcEqn| and the explicit part  in \lstinline|pEqn|. 
-\todo{Hier bin ich mir (aktuell noch) sehr unsicher.}
+% \todo{Hier bin ich mir (aktuell noch) sehr unsicher.}
 
 
 We start with the momentum equation which is build in \lstinline|UcEqn|.
@@ -1893,22 +1909,23 @@ We start with the momentum equation which is build in \lstinline|UcEqn|.
     (1.0/rhoc)*cloudSU
 );
 }
-
 \end{lstlisting}
+\todo{divDevRhoReff gibt mir schon den fluid stress oder? Code weiter nach unten}
 and amended with the missing forces.
-The momentum equation is defined as 
+The momentum equation we solve for the velocity $\uf$ here is
 \begin{align*}
-    \dfrac{\partial}{\partial \tvar} (\fvf  \uf ) &+ \nabla \cdot (\fvf \uf \uf) - \uf \left( \dfrac{\partial \fvf}{\partial \tvar} + \nabla \cdot (\fvf \uf) \right) - \nabla \cdot (\fvf \ss) = 
-    -g +  \nabla \dfrac{\p}{\rf} 
-    - \dfrac{f_d}{\rf}
+    \underbrace{\dfrac{\partial}{\partial \tvar} (\fvf  \uf )}_{\texttt{fvm::ddt(alphac, Uc)}} &+ \underbrace{\nabla \cdot (\fvf \uf \uf)}_{\texttt{fvm::div(alphaPhic, Uc)}} - \underbrace{\uf \left( \dfrac{\partial \fvf}{\partial \tvar} + \nabla \cdot (\fvf \uf) \right)}_{\substack{\texttt{fvm::Sp(fvc::ddt(alphac)} \\ + \texttt{fvc::div(alphaPhic), Uc)}}} - \underbrace{\nabla \cdot (\fvf \ss_c)}_{\substack{\texttt{continuousPhaseTurbulence} \\ \texttt{->divDevRhoReff(Uc)}}} \\ 
+    & = 
+    - \underbrace{g}_{\substack{\texttt{rAUcf*(g \& mesh.Sf())} \\ \text{in} \texttt{phicForces}}} +  \underbrace{\nabla \dfrac{\p}{\rf}}_{\texttt{fvc::snGrad(p)*mesh.magSf()}}
+    - \underbrace{\dfrac{S_u}{\rf}}_{\text{in } \texttt{cloudSU} \text{ and } \texttt{cloudVolSUSu}}
     \end{align*}
-\todo[inline, color= kit-blue!60]{Je nachdem welchen Ansatz man wählt müsste hier $\fvf\nabla \cdot \tau_c$ oder $\nabla \cdot (\fvf \tau_c)$ stehen, Orginal Paper wählt $\tau_c = 0$ da macht das keinen Unterschied aber hier schon...}
+\todo[inline, color= kit-blue!60]{Mir ist nicht klar welchen Ansatz wir hier für den fluid stress tensor wählen? $\nabla \cdot (\fvf \ss_c)$ oder $\fvf \nabla \cdot \ss_c$}
 with the third term, being added for numerical stability.
 In the continuous formulation, this term corresponds to the continuity equation and therefore vanishes. However, when the equations are discretized the term may become non-zero due to discretization errors.
 Here we divided by the fluid density $\rf$. 
-The equation is assembled in three steps with the first one shown above \ref{code:Uc1} assembling. The equation is relaxed to ensure diagonal-dominance needed for convergence. This is discretized as
+The equation is assembled in three steps with the first one shown above in listing \ref{code:Uc1} assembling. The equation is relaxed to ensure diagonal-dominance needed for convergence. This is discretized as
 \begin{align*}
-    A_P \ufc + \sum_N A_N \ufn - S_p = - \dfrac{f_p}{\rf} 
+    A_P \ufc + \sum_N A_N \ufn - S_p = - \dfrac{S_{transfer}}{\rf} 
 \end{align*}
 Here the subscript $P$ refers to the center of said cell while the subscript $N$ refers to the neighboring cells.
 The last term $f_p$ is the momentum exchange term between the phases.
@@ -1928,16 +1945,17 @@ solve
     );
 \end{lstlisting}
 
-Here \lstinline|phicForces| contains the explicit volume momentum source term and the gravity force. 
-They are explicitly discretized and added to the right hand side of our equation.
-Solving our discretized equation for an arbitrary cell we have
+Here \lstinline|phicForces| contains the source terms of \lstinline|cloudSU| and the gravity force. We add the previous to the existing source term.
+They are explicitly discretized and added to the right-hand side of our equation.
+For an arbitrary cell the equation above translates to
 \begin{equation*}
-    \u_{c,P} =  \dfrac{H(u)}{a_p} - \fvf \dfrac{\nabla \p}{a_p} - \dfrac{g}{a_p} -  \dfrac{f_p}{\rf a_p}  -\dfrac{1}{a_p} S_p  \eqqcolon \dfrac{\tilde{H}(u)}{a_p} - \dfrac{\nabla \p}{a_p}
+    \u_{c,P} =  \dfrac{H(u)}{a_p} - \dfrac{\nabla \p}{a_p} - \dfrac{g}{a_p} -  \dfrac{S_u}{\rf a_p}  -\dfrac{1}{a_p} S_p  \eqqcolon \dfrac{\tilde{H}(u)}{a_p} - \dfrac{\nabla \p}{a_p}.
 \end{equation*}
+% Using the pressure of the last time step we solve 
 
 
 
-From here on we therefor solve for the kinematic pressure. 
+% From here on we therefor solve for the kinematic pressure. 
 %\todo{Neue Variable wäre schon sinnvoll $P_{kin}$}
 %The formulation of the fluid stress term does not match the definition of the original paper, outlined in the previous chapter. This is due to different approaches which are sometimes mixed up for the momentum equations. This is detailed in \cite{differentTau}. 
 %For the \MP method the fluid stress term does not play a significant role and we therefor stick to the \OF usage. 
@@ -1951,15 +1969,15 @@ To solve this we at first use the old pressure term and calculate a preliminary 
 
 
 %Here we have three equations for four variables, three for the velocity and the pressure. 
-The poisson pressure equation is solved
+The velocity calculated with the old pressure is
 %For the cell faces the equation 
 \begin{equation*}
     \ufc =  \dfrac{\tilde{H}(u)}{a_p} -\dfrac{\nabla \p}{a_p} .
 \end{equation*}
-is solved.
-We combine this with the continuity equation
+is.
+Plugging this into the continuity equation we have a Poisson pressure equation which we solve for the kinematic pressure
 \begin{equation*}
-    \nabla \cdot \dfrac{\fvf }{a_p} = \dfrac{\partial \fvf}{\partial \tvar} + \nabla \cdot \left(\fvf \dfrac{\tilde{H}(u)}{a_p}\right)
+    \nabla \cdot \dfrac{\fvf }{a_p} = \dfrac{\partial \fvf}{\partial \tvar} + \nabla \cdot \left(\fvf \dfrac{\tilde{H}(u)}{a_p}\right).
 \end{equation*}
 % \begin{equation*}
 %     \sum_f S \cdot \fvf \left( \dfrac{\nabla \p}{a_p}\right)_f = \dfrac{\partial \fvf}{\partial \tvar} + \sum_f S \cdot\fvf \left(\dfrac{\tilde{H}(u)}{a_p}\right),
@@ -1983,14 +2001,14 @@ We combine this with the continuity equation
 %     \u_f &= \left( \u_P + \dfrac{(\nabla \p)_P}{a_P}\right)_f - \left( \dfrac{\nabla \p}{a_p} \right)_f
 % \end{align*}
 % for the cell centers and the the faces.
-We keep iterating over the poisson pressure equation and the velocity update equation updating the pressure and the velocity.
+We keep iterating over the Poisson pressure equation and the velocity update equation, updating the pressure and the velocity.
 
 This concludes the current time step of the \MP method. At the beginning of the next time step, the simulation time is compared to the user-defined end time. If the stop criterion is met, the iteration is terminated. Otherwise, we start again by updating the viscosity with Eulerian field variables.
 
 
 \todo[inline]{Dinge die mir hier aktuell noch unklar sind: 
-initial guess p alter Zeitwert?, wieso verwenden wir ständig flux und nicht velocity at face, Non orthogonal sind wir nicht aber brauchen den Teil für die Iteration?, Aufteilung des }
-\todo[inline]{Was wurde hier noch nicht behandelt was man aber behandelen könnte: Wie funktioniert die Gruppierung von Particles zu Parcels?, Wie funktioniert Wandreflektion? Impliziter solid stress term?, Drag Modelle aber das kommt beim Setup (nächstes Kaptiel)}
+initial guess p alter Zeitwert?, wieso verwenden wir ständig flux und nicht velocity at face, Non orthogonal sind wir nicht aber brauchen den Teil für die Iteration?, Aufteilung des Momentum source terms}
+\todo[inline]{Was wurde hier noch nicht behandelt was man aber behandelen könnte: Wie funktioniert die Gruppierung von Particles zu Parcels?, Wie funktioniert Wandreflektion? Impliziter solid stress term? Interpolation von Geschwindigkeiten (aka Interpolation ableiten)}
 
 
 % In \lstinline|UcEqn| we start with the momentum equation omitting the pressure term and looking only at the coupled forces
