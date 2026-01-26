@@ -245,7 +245,7 @@ We will look at each step in more detail in the following.
 The \lstinline|preEvolve| prepares for the movement of the particles by caching important properties.
 First, the mesh validity is checked.
 Next Eulerian fields are cached for efficient memory usage and properties from the Eulerian mesh are later used to update particle positions.
-The damping and packing models are prepared and properties needed to run them later are cashed.
+The damping and packing models are prepared. The properties required for the models are cashed.
 \ifcode
 \begin{lstlisting}[firstline = 782, caption=in KinematicCloud.C]
     template<cklass CloudType>
@@ -407,7 +407,7 @@ The outline of how the code is executed is shown in the following flow chart \re
         %\draw[thick,->] (stop.west) .. controls +(-2.5,1.5) and +(-2.5,0)..  (start.west);
         \draw[thick,->,rounded corners]
   (tau.east) -- node[anchor=south]{yes}
-  ($ ({tau.east}|-{tau.east}) + (6,0) $) -- node[anchor=east] {$\tvar_{lag,n+1} = \tvar_{lag,n} + (\tvar_{n+1}-\tvar_n) \tvar_{frac}$}
+  ($ ({tau.east}|-{tau.east}) + (6,0) $) -- node[anchor=east] {Advance step fraction}
   ($ ({tau.east}|-{start.east}) + (6,0) $) -- 
   (start.east);
     \end{tikzpicture}
@@ -437,7 +437,7 @@ with coefficients $A$ and $B$ chosen as
 \end{equation*}
 and the Ergun-Wen-Yu model \cite{ErgunWenYu}
 \begin{equation*}
-    F_D = \begin{cases}
+    \d_p = \begin{cases}
         \dfrac{3 (1-\fvf) \mu_f \fvf \operatorname{Re}_p}{d_p^2} C_D \fvf^{-2.65} & \text{if } \fvf \geq 0.8 \\
         \left(150 \dfrac{1-\fvf}{\fvf} + 1.75 \operatorname{Re}_p \right) \dfrac{(1-\fvf) \mu_f}{d_p^2} & \text{if } \fvf < 0.8
     \end{cases} \qquad C_D = \begin{cases}
@@ -459,7 +459,7 @@ with the previously unregarded buoyancy force included in the first term.
 
 
 In the \OF implementation the drag term is neglected in the denominator of the solid stress velocity due to it being either dominated or insignificant. Instead a small factor is included
-\todo{Überlege noch ob das Sinn ergibt. Bin gerade nicht ganz sicher...}
+%\todo{Überlege noch ob das Sinn ergibt. Bin gerade nicht ganz sicher...}
 \begin{equation*}
     \u_{p,\scs} = - \dfrac{\Delta \tvar \nabla \scs}{\rp (\pvf + \operatorname{SMALL})}
 \end{equation*}
@@ -481,7 +481,7 @@ The time step that is chosen here is based on the time step fraction.
 Here \lstinline|carrierDt| is the time step given by the continuous phase. 
 The new time step fraction is calculated in three steps.
 First we calculate the remainder of the step fraction of the continuous phase \lstinline|f| to ensure we do not go beyond the next continuous phase time step.
-\begin{lstlisting}[caption = parcels/Templates/KinematicParcel/KinematicParcel.C]
+\begin{lstlisting}[caption = parcels/Templates/KinematicParcel/KinematicParcel.C, label = {code:stepFraction}]
     scalar f = 1 - p.stepFraction();
     f = min(f, maxCo);
     f = min(f, maxCo*l/max(SMALL*l, mag(s)));
@@ -663,9 +663,10 @@ In the other three cases accelerating the particle would lead to unphysical beha
 
 
 Afterward the identified particles are moved according to a limited velocity, which is calculated via the \lstinline|minMod| scheme
-\begin{equation*}
+\begin{equation}
+\label{eq:correctLimiting}
     \u_{p,\scs} = \operatorname{minMod} \left[ \u_{p,\scs}, - (1+e_p) \u_r \dfrac{\lvert \up \rvert}{\max (\lvert \u_r \rvert, \operatorname{SMALL})}  \right]
-\end{equation*}
+\end{equation}
 with the material restitution $e_p$.
 %minmod Philip Roe, Characteristic-based schemes for the Euler equations, 1986. Equation 54 and 56
 %Afterward the particles are moved accordingly by $\Delta \tvar \u_{p,\scs}$.
@@ -1571,11 +1572,11 @@ This concludes the evolving of the cloud. The new particle positions are now use
 \end{lstlisting}
 \fi
 From the new particle positions we can update the particle volume fraction and subsequently the fluid volume fraction
-\begin{equation*}
+\begin{equation}
+\label{eq:maxAlpha}
     \fvf = \max (1-\pvf,\fvf_{min})
-\end{equation*}
+\end{equation}
 with $\fvf_{min}$ as a user defined input. This is used to prevent overpacking in cells that could lead to numerical instabilities.
-Boundary conditions are corrected.
 \lstinline|fvc::interpolate(alphac)| interpolates the fluid volume fraction previously calculated to the Eulerian mesh.
 In \lstinline|system/fvSchemes| the interpolation scheme is defined as linear. 
 The interpolation used by \OF is the barycentric interpolation.
@@ -1788,7 +1789,7 @@ The calculated velocity of the kinematic cloud is used in the momentum source te
 
 
 The momentum transfer is included in \lstinline|cloudSU|. This includes three terms
-\todo{Wie zitiere ich (ein Bild) aus einem Forum? (\href{https://www.cfd-online.com/Forums/openfoam-post-processing/137291-questions-about-lagrangian-postprocessing.html}{Link})} 
+%\todo{Wie zitiere ich (ein Bild) aus einem Forum? (\href{https://www.cfd-online.com/Forums/openfoam-post-processing/137291-questions-about-lagrangian-postprocessing.html}{Link})} 
 \begin{equation}
     \label{eq:cloudSU}
     S_u = \underbrace{\dfrac{\u_{trans}}{V \Delta \tvar}}_{\leadsto \texttt{CloudVolSUSu}} - \underbrace{\left(\dfrac{\u_{coeff}}{V \Delta \tvar} \up \right)_{implicit}}_{\leadsto \texttt{CloudSU}} + \underbrace{\left(\dfrac{\u_{coeff}}{V \Delta \tvar} \up \right)_{explicit}}_{\leadsto \texttt{CloudVolSUSu}}
@@ -1816,7 +1817,7 @@ Lastly we set the source terms in \lstinline|cloudSU| to zero, thereby only usin
 \subsection{Continous Phase, \texttt{PIMPLE} loop}
 For the continuous phase, we use the \lstinline|PIMPLE| algorithm for coupling the momentum conservation equation and the poisson pressure equation.
 The name as well as the algorithm is a combination of the \lstinline|PISO| (Pressure Implicit with Splitting of Operator) algorithm with the \lstinline|SIMPLE| (Semi-Implicit Method for Pressure-Linked Equations) algorithm.
-All three are explained in the Notes on Computational Fluid Dynamics \cite{cdfNotes}.
+All three are explained in "Notes on Computational Fluid Dynamics" \cite{cdfNotes}.
 
 
 \begin{figure}[h!]
@@ -1910,19 +1911,19 @@ We start with the momentum equation which is build in \lstinline|UcEqn|.
 );
 }
 \end{lstlisting}
-\todo{divDevRhoReff gibt mir schon den fluid stress oder? Code weiter nach unten}
+%\todo{divDevRhoReff gibt mir schon den fluid stress oder? Code weiter nach unten}
 and amended with the missing forces.
 The momentum equation we solve for the velocity $\uf$ here is
 \begin{align*}
     \underbrace{\dfrac{\partial}{\partial \tvar} (\fvf  \uf )}_{\texttt{fvm::ddt(alphac, Uc)}} &+ \underbrace{\nabla \cdot (\fvf \uf \uf)}_{\texttt{fvm::div(alphaPhic, Uc)}} - \underbrace{\uf \left( \dfrac{\partial \fvf}{\partial \tvar} + \nabla \cdot (\fvf \uf) \right)}_{\substack{\texttt{fvm::Sp(fvc::ddt(alphac)} \\ + \texttt{fvc::div(alphaPhic), Uc)}}} - \underbrace{\nabla \cdot (\fvf \ss_c)}_{\substack{\texttt{continuousPhaseTurbulence} \\ \texttt{->divDevRhoReff(Uc)}}} \\ 
     & = 
-    - \underbrace{g}_{\substack{\texttt{rAUcf*(g \& mesh.Sf())} \\ \text{in} \texttt{phicForces}}} +  \underbrace{\nabla \dfrac{\p}{\rf}}_{\texttt{fvc::snGrad(p)*mesh.magSf()}}
+    - \underbrace{g}_{\substack{\texttt{rAUcf*(g \& mesh.Sf())} \\ \text{in } \texttt{phicForces}}} +  \underbrace{\nabla \dfrac{\p}{\rf}}_{\texttt{fvc::snGrad(p)*mesh.magSf()}}
     - \underbrace{\dfrac{S_u}{\rf}}_{\text{in } \texttt{cloudSU} \text{ and } \texttt{cloudVolSUSu}}
     \end{align*}
-\todo[inline, color= kit-blue!60]{Mir ist nicht klar welchen Ansatz wir hier für den fluid stress tensor wählen? $\nabla \cdot (\fvf \ss_c)$ oder $\fvf \nabla \cdot \ss_c$}
+%\todo[inline, color= kit-blue!60]{Mir ist nicht klar welchen Ansatz wir hier für den fluid stress tensor wählen? $\nabla \cdot (\fvf \ss_c)$ oder $\fvf \nabla \cdot \ss_c$}
 with the third term, being added for numerical stability.
-In the continuous formulation, this term corresponds to the continuity equation and therefore vanishes. However, when the equations are discretized the term may become non-zero due to discretization errors.
-Here we divided by the fluid density $\rf$. 
+In the continuous formulation, this term corresponds to the continuity equation and therefore vanishes. However, when the equations are discretized, the term may become non-zero due to discretizations errors.
+The momentum term is divided by the fluid density $\rf$. 
 The equation is assembled in three steps with the first one shown above in listing \ref{code:Uc1} assembling. The equation is relaxed to ensure diagonal-dominance needed for convergence. This is discretized as
 \begin{align*}
     A_P \ufc + \sum_N A_N \ufn - S_p = - \dfrac{S_{transfer}}{\rf} 
@@ -2003,7 +2004,7 @@ Plugging this into the continuity equation we have a Poisson pressure equation w
 % for the cell centers and the the faces.
 We keep iterating over the Poisson pressure equation and the velocity update equation, updating the pressure and the velocity.
 
-This concludes the current time step of the \MP method. At the beginning of the next time step, the simulation time is compared to the user-defined end time. If the stop criterion is met, the iteration is terminated. Otherwise, we start again by updating the viscosity with Eulerian field variables.
+This concludes the current time step of the \MP method. At the beginning of the next time step, the simulation time is compared to the user-defined end time. If the stop criterion is met, the iteration is terminated. Otherwise, we start again by updating the viscosity with the just calculated Eulerian field variables.
 
 
 \todo[inline]{Dinge die mir hier aktuell noch unklar sind: 

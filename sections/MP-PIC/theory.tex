@@ -2,7 +2,7 @@
 \chapter{MP-PIC: Multiphase Particle-in-Cell Method}
 \label{ch:MPPIC}
 In this chapter, we discuss the theoretical foundations of the \MP (Multi‑Phase Particle‑In‑Cell) method. We look at the governing equations and how they are solved and at the modeling approaches, especially at the methods used for the particles.
-Subsequently, the first numerical implementation of the \MP method is discussed, following the formulation originally presented in \cite{MPPICFirst}.
+Subsequently, the first numerical implementation of the \MP method is discussed, following the formulation originally presented by O'Rourke and Snider in \cite{MPPICFirst}.
  
 % an overview of approaches used for modeling gas-solid multiphase flows. Then we will look at one in detail, the \MP method, the governing equation and how they are solved numerically. 
 % This chapter is mainly based on the paper which first presented the \MP method \cite{MPPICFirst}.
@@ -28,7 +28,7 @@ and momentum
     \label{eq:momEul}
     \dfrac{\partial (\fvf \rf \uf)}{\partial \tvar} + \nabla \cdot (\fvf \rf \uf \uf) = - \nabla \p -\nabla \cdot (\fvf \fst)  - \boldsymbol{F} + \fvf \rf \g.
 \end{equation}
-\todo[color = kit-blue!60, inline]{der viscous stress $\nabla \cdot (\fvf \fst)$ ist in anderen Papern \cite{mathMPPIC} nur $\nabla \cdot \fst$. Scheint ein häufigeres Problem zu sein \cite{differentTau}.}
+%\todo[color = kit-blue!60, inline]{der viscous stress $\nabla \cdot (\fvf \fst)$ ist in anderen Papern \cite{mathMPPIC} nur $\nabla \cdot \fst$. Scheint ein häufigeres Problem zu sein \cite{differentTau}.}
 Here $\uf$ is the fluid velocity and $\fvf$ the fluid volume fraction.
 If not labeled otherwise, the gradient refers to the spatial component.
 In the momentum term
@@ -100,7 +100,7 @@ We assume that the total number of particles near $\xp$ with velocity $\up$ in a
 \end{equation}
 %By applying the Leipniz integral rule and, using that the volume over which we integrate is arbitrary, we transform the equation above into the Liouville equation.
 Using that the this hold for all volumes we can transform the equation above into what the authors refer to as a Liouville equation
-\todo[inline,color=kit-blue!60]{Die Liouville Gleichung ist eigentlich für die Hamiltonische Mechanik definiert und müsste Divergenz frei und Konservativ sein. Ist sie halt hier nicht..., aber who cares?}
+%\todo[inline,color=kit-blue!60]{Die Liouville Gleichung ist eigentlich für die Hamiltonische Mechanik definiert und müsste Divergenz frei und Konservativ sein. Ist sie halt hier nicht..., aber who cares?}
 \begin{align}
     \dfrac{\partial \pd}{\partial \tvar} + \dfrac{\partial}{\partial \xp} \left( \pd \dfrac{d \xp}{d \tvar} \right)+ \dfrac{\partial}{\partial \up} \left( \pd \dfrac{d \up}{d \tvar} \right) = 0 \\
     \label{eq:Liouville}
@@ -226,7 +226,7 @@ For high porosity rates, above $\phi \geq 0.8$, the model was extended by Wen-Yu
         0.44 \fvf^{-2.65} & \operatorname{Re}_p \geq 1000.
     \end{cases}
 \end{align*}
-\todo[color=kit-blue!60]{In dem 3d paper steht 0.5 statt 0.15. Die zitierte Quelle sagt 0.15 was auch eher zu dem 1d paper passt.}
+%\todo[color=kit-blue!60]{In dem 3d paper steht 0.5 statt 0.15. Die zitierte Quelle sagt 0.15 was auch eher zu dem 1d paper passt.}
 The models are summarized in \cite{ErgunWenYu}. The drag terms used in the \OF implementation extend the previous model. They are discussed in \Todo{Referenz Set Up}.
 % the particle Reynolds number
 
@@ -274,8 +274,9 @@ These terms improve upon the \MP method by modeling particle collisions locally 
 \begin{equation}
     \left( \frac{\partial \pd}{\partial \tvar} \right)_{coll} = \underbrace{\dfrac{\pdd - \pd}{\sd}}_{\text{daming term}} + \underbrace{\dfrac{\pdi - \pd}{\si}}_{\text{return-to-isotropy}}.
 \end{equation}
-The terms will be explained in the following.
-\todo{dritten collision term noch erwähnen?}
+A third damping term has been presented by O'Rourke and Snider called blended acceleration \cite{thirdDamp}. The damping term is not implemented in \OF and will not be discussed further here.
+The collision damping term and the return-to-isotropy damping term will be explained in the following. 
+%\todo{dritten collision term noch erwähnen?}
 
 \subsubsection{Damping term}
 \label{sec:damping}

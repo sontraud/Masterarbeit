@@ -81,6 +81,16 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{cleveref}
+\usepackage{csquotes}
+
+\newenvironment{footcitedquote}[1][]
+  {% \begin{footcitedquote}[.]
+   \let\mkcitation\footnote% Citations will be footnotes
+   \def\optarg{#1}% Capture optional argument
+   % Set up start of displayquote environment
+   \edef\envstart{\noexpand\begin{displayquote}\if$\optarg$\else[\noexpand\optarg]\fi}%
+   \envstart}
+  {\end{displayquote}}% \end{footcitedquote}
 
 \usepackage{smartdiagram}
 \usesmartdiagramlibrary{additions}
@@ -502,8 +512,8 @@ mathfontname=mathsf]{mhchem}
 \input{sections/MP-PIC/theory}
 %\input{sections/MP-PIC/noTheory}
 \input{sections/OpenFOAM/OpenFOAM.tex}
-%\input{sections/Setup/setup}
-%\input{sections/result/result}
+\input{sections/Setup/setup}
+\input{sections/result/result}
 %\input{sections/convergence}
 %\input{sections/conclusion}
 
