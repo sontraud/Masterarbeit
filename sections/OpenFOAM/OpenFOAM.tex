@@ -556,6 +556,8 @@ In the other three cases accelerating the particle would lead to unphysical beha
 \draw[fill=kit-green!12] (8.75,4.75) -- (13.75,-0.25) -- (13.75,4.75);
 \draw[fill=kit-green!12] (13.75,-0.25) -- (13.75,-5.25) -- (8.75,-5.25) -- (8.75,-0.25);
 \draw[fill=kit-green!12] (18.75,-5.25) -- (13.75,-0.25) -- (13.75,-5.25);
+\draw[->, very thick] (16,8.5) --  node[anchor=north] {$\nabla \cdot \ss$}(11.5,8.5);
+\draw[->, very thick] (12.5,9) -- node[anchor=south] {Acceleration (if applied)} (15, 9);
 \draw (8.75,7.25) to[short] (8.75,-5.25);
 \draw (13.75,7.25) to[short] (13.75,-5.25);
 \draw (18.75,7.25) to[short] (18.75,-5.25);
@@ -1803,7 +1805,7 @@ The second two terms are added for numerical stability. They cancel out due to t
     [...]
     cloudSU.source() = Zero;
 \end{lstlisting}
-\todo{Neues Listing? Wie anzeigen das Code da dazwischen}
+%\todo{Neues Listing? Wie anzeigen das Code da dazwischen}
 In the first line \lstinline|cloudSU| contains all terms mentioned above in equation \eqref{eq:cloudSU}.
 \lstinline|cloudVolSUSu| scales the particle forces, therefor the first and third term, to the Eulerian field.
 Lastly we set the source terms in \lstinline|cloudSU| to zero, thereby only using the second term.
@@ -1915,10 +1917,11 @@ We start with the momentum equation which is build in \lstinline|UcEqn|.
 and amended with the missing forces.
 The momentum equation we solve for the velocity $\uf$ here is
 \begin{align*}
-    \underbrace{\dfrac{\partial}{\partial \tvar} (\fvf  \uf )}_{\texttt{fvm::ddt(alphac, Uc)}} &+ \underbrace{\nabla \cdot (\fvf \uf \uf)}_{\texttt{fvm::div(alphaPhic, Uc)}} - \underbrace{\uf \left( \dfrac{\partial \fvf}{\partial \tvar} + \nabla \cdot (\fvf \uf) \right)}_{\substack{\texttt{fvm::Sp(fvc::ddt(alphac)} \\ + \texttt{fvc::div(alphaPhic), Uc)}}} - \underbrace{\nabla \cdot (\fvf \ss_c)}_{\substack{\texttt{continuousPhaseTurbulence} \\ \texttt{->divDevRhoReff(Uc)}}} \\ 
-    & = 
+    \color{kit-royalblue}
+    \underbrace{\dfrac{\partial}{\partial \tvar} (\fvf  \uf )}_{\texttt{fvm::ddt(alphac, Uc)}} & \color{kit-purple}+ \underbrace{\nabla \cdot (\fvf \uf \uf)}_{\texttt{fvm::div(alphaPhic, Uc)}} - \underbrace{\uf \left( \dfrac{\partial \fvf}{\partial \tvar} + \nabla \cdot (\fvf \uf) \right)}_{\substack{\texttt{fvm::Sp(fvc::ddt(alphac)} \\ + \texttt{fvc::div(alphaPhic), Uc)}}} - \underbrace{\nabla \cdot (\fvf \ss_c)}_{\substack{\texttt{continuousPhaseTurbulence} \\ \texttt{->divDevRhoReff(Uc)}}} \\ 
+    & = \color{kit-green}
     - \underbrace{g}_{\substack{\texttt{rAUcf*(g \& mesh.Sf())} \\ \text{in } \texttt{phicForces}}} +  \underbrace{\nabla \dfrac{\p}{\rf}}_{\texttt{fvc::snGrad(p)*mesh.magSf()}}
-    - \underbrace{\dfrac{S_u}{\rf}}_{\text{in } \texttt{cloudSU} \text{ and } \texttt{cloudVolSUSu}}
+    \color{kit-royalblue}-  \underbrace{\dfrac{S_u}{\rf}}_{\text{in } \texttt{cloudSU} \text{ and } \texttt{cloudVolSUSu}}
     \end{align*}
 %\todo[inline, color= kit-blue!60]{Mir ist nicht klar welchen Ansatz wir hier für den fluid stress tensor wählen? $\nabla \cdot (\fvf \ss_c)$ oder $\fvf \nabla \cdot \ss_c$}
 with the third term, being added for numerical stability.

@@ -169,6 +169,7 @@
 \colorlet{kit-royalblue5}{kit-royalblue!5!white}
 
 % Powerpoint-"Eisblau"
+\definecolor{kit-iceblue}{RGB}{30, 53, 69}
 \definecolor{kit-iceblue100}{RGB}{30, 53, 69}
 \definecolor{kit-iceblue70}{RGB}{68, 94, 111}
 \definecolor{kit-iceblue50}{RGB}{168, 185, 196}
@@ -392,6 +393,7 @@
 textfontname=sffamily,
 mathfontname=mathsf]{mhchem}
 \usepackage[final]{listings}
+\usepackage{mdframed} %nice frames
 
 \let\Bbbk\relax
 \usepackage{amssymb}
@@ -402,6 +404,7 @@ mathfontname=mathsf]{mhchem}
                 stringstyle=\color{kit-red}\ttfamily,
                 commentstyle=\color{kit-green}\ttfamily,
                 morecomment=[l][\color{kit-magenta}]{\#},
+                backgroundcolor = \color{lightgray!50}
                 %numbers=left,
                 %stepnumber=1
 }
@@ -463,6 +466,9 @@ mathfontname=mathsf]{mhchem}
 
 \newif\ifkeepcode
 \keepcodetrue
+
+\newif\ifschonwars
+\schonwarsfalse
 \begin{document}
 
 %% Set PDF metadata
@@ -508,10 +514,10 @@ mathfontname=mathsf]{mhchem}
 \mainmatter
 %\input{}
 %\input{sections/introduction.tex}
-\input{sections/background/fluidizedReactor}
-\input{sections/MP-PIC/theory}
+%\input{sections/background/fluidizedReactor}
+%\input{sections/MP-PIC/theory}
 %\input{sections/MP-PIC/noTheory}
-\input{sections/OpenFOAM/OpenFOAM.tex}
+%\input{sections/OpenFOAM/OpenFOAM.tex}
 \input{sections/Setup/setup}
 \input{sections/result/result}
 %\input{sections/convergence}
