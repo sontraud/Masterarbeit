@@ -269,7 +269,7 @@ cloudFunctions
 
 
 
-\subsection{Simplified fluidized bed reactor}
+\section{Simplified fluidized bed reactor}
 For comparison the fluidized bed reactor is simplified to a tube with a mesh at the bottom on top of which are glass beats with a diameter of $40 \mu m$ to $70 \mu m$.
 The diameter of the glass beats is chosen to be similar to that of the iron particles in \cite{Malte}.
 The size distribution of the glass beats is unknown. For the simulation we use uniformly distributed particle diameters.
@@ -298,6 +298,15 @@ The size distribution of the glass beats is unknown. For the simulation we use u
     \label{fig:placeholder}
 \end{figure}
 
+The particles in the experiment have a bed height of $1\operatorname{cm}$.
+For the simulation we calculate the number of particles for the same bed height based on the close pack volume fraction of $\pvfcp = 0.65$
+\begin{equation*}
+    0.65  x y h_{bed} = \dfrac{4}{3} \pi \left( \dfrac{d}{2} \right)^3 N_p
+    \Leftrightarrow 
+    N_p = \dfrac{3}{4 \pi} \left( \dfrac{2}{d} \right)^3 0.65  x y h_{bed}.
+\end{equation*}
+Because the \MP method models particles as point masses we do not face issues with sphere packing.
+
 
 
 
@@ -314,16 +323,7 @@ The size distribution of the glass beats is unknown. For the simulation we use u
 % \end{figure}
 
 
-\subsection{Boundary conations}
-Inlet is an interstialVelocityInlet which scales the inlet velocity with the volume fraction of air:
-\begin{equation*}
-    \u_{inlet} = \dfrac{\u}{\fvf}
-\end{equation*}
-The pressure of the inlet is set to \lstinline|fixedFluxPressure|.
-The front and the back are connected through \lstinline|symmetry|.
-
-
-\subsection{Grid}
+\section{Grid}
 The highest mean bed height from the data is about $2.4 \operatorname{cm}$. 
 To include inflections from the particle we roughly double the height for the simulation using $5 \operatorname{cm}$ as the height of our mesh.
 The width of our simulation mesh is adapted to the simplified fluidized bed with $1 \operatorname{cm}$.
@@ -391,9 +391,8 @@ and the relative $L2$-error
 For the $L1$-error depicted in figure \ref{fig:l1error}. 
 during the initial fall of the particle the error for a cell length of $0.33 \operatorname{mm}$ grows rapidly.
 Afterward the mean absolute error levels out as the absolute error grows linearly.
-On the other hand the error for a cell length of $0.5 \operatorname{mm}$ only grows moderately at first. After the first initial fall the error starts to grow more rapidly.
-
-The absolute $L1$ error for the cell length of $0.5 \operatorname{mm}$ grows moderately at first.
+On the other hand the error for a cell length of $0.5 \operatorname{mm}$ only grows moderately at first. After the first initial fall the error starts to grow more rapidly. 
+The error is the lowest for a cell length of $0.25 \operatorname{mm}$ the mean error stays close to constant at $0.005$.
 
 \begin{figure}[h!]
     \centering
@@ -403,21 +402,33 @@ The absolute $L1$ error for the cell length of $0.5 \operatorname{mm}$ grows mod
     \label{fig:l1error}
 \end{figure}
 
+For the relative error we divide by the reference bed height according to equation \eqref{eq:l1relerror}. 
+The result in figure \ref{fig:l1relerror} shows a similar behavior to the $L1$ absolute error.
+Again we can see that at cell length $0.33 \operatorname{mm}$ the error grows rapidly at first and the remains nearly constant.
+For a cell length of $0.5 \operatorname{mm}$ the relative error grows linearly for the first three seconds.
+After about $1.5s$ the relative error and the mean relative error of the cell length $0.5 \operatorname{mm}$ exceeds that of the cell length $0.33 \operatorname{mm}$.
+Once again the relative error of a cell length of $0.25 \operatorname{mm}$ is smaller than the previous two.
 
-The relative $L1$-error is depicted in figure \ref{fig:l1relerror}.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.49\linewidth]{sections/Setup/l1error_rel.eps}
-    \includegraphics[width=0.49\linewidth]{sections/Setup/l1error_rel_mean.eps}
-    \caption{Caption}
+    \includegraphics[width=0.49\linewidth]{sections/Setup/l1error_rel_mean_cropped.eps}
+    \caption{Relative $L1$ error of the bed height according to equation \eqref{eq:l1relerror} for different cell length. On the right the mean relative error is depicted.}
     \label{fig:l1relerror}
 \end{figure}
+
+For both the absolute $L2$ error in figure \ref{fig:l2error} and the relative $L2$ error in figure \ref{fig:l2relerror} we see a similar behavior to the one described above.
+The $L2$ error is more susceptible to outliers. Compared to the $L1$ absolute error the sudden growth error at grid length $\Delta \x = 0.33$ is more prominent, as can be seen in figure \ref{fig:l2error}.
+We can observe the same trends for the absolute and relative error with both errors.
+At first the error at grid length $\Delta \x = 0.33 \operatorname{mm}$ exceeds the error for $\Delta \x = 0.5 \operatorname{mm}$ before they once again0 swapping.
+The error for $\Delta \x = 0.25 \operatorname{mm}$.
+
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.49\linewidth]{sections/Setup/l2error.eps}
     \includegraphics[width = 0.49\linewidth]{sections/Setup/l2error_mean.eps}
-    \caption{Caption}
+    \caption{Absolute $L2$ error of the bed height according to equation \eqref{eq:l2error} for different cell length. On the right the mean absolute error is depicted.}
     \label{fig:l2error}
 \end{figure}
 
@@ -425,34 +436,43 @@ The relative $L1$-error is depicted in figure \ref{fig:l1relerror}.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.48\linewidth]{sections/Setup/l2error_rel.eps}
-    \includegraphics[width=0.48\linewidth]{sections/Setup/l2error_rel_mean.eps}
-    \caption{Caption}
+    \includegraphics[width=0.48\linewidth]{sections/Setup/l2error_rel_mean_cropped.eps}
+    \caption{Relative $L2$ error of the bed height according to equation \eqref{eq:l2relerror} for different cell length. On the right the mean relative error is depicted.}
     \label{fig:l2relerror}
 \end{figure}
 
-
-
-We can now look at the stationary accuracy. We use the relative $L1$ error computed over the entire five seconds, see figure \ref{fig:statL1}.
+%\todo{What the hell Python? Label noch festigen.}
+After discussing the consistency error we now look at the stationary accuracy.
+We use the bed height of the last time step and compare it to the bed height of the last time step of the reference simulation, see figure \ref{fig:statL1}.
+A smaller grid size leads to a smaller error.
 We can estimate the order of convergence by
 \begin{equation*}
     EOC =\dfrac{\lvert L1_{0.25}- L1_{0.33} \rvert}{\lvert L1_{0.33}- L1_{0.5} \rvert} = \dfrac{\lvert 0.00498634584254441-0.022492365778959397 \rvert}{\lvert 0.022492365778959397-0.03705231627423083\rvert}\approx 1.2.
 \end{equation*}
-We note that due to the averaging methods applied the error grows for smaller cell lengths. We can see this behavior for $\Delta \x = 0.1 \operatorname{mm}$.
+% \begin{equation*}
+%     \dfrac{\log \left\lvert\dfrac{0-0.00498634584254441}{0.022492365778959397-0.00498634584254441}\right\rvert}{\log \left \lvert \dfrac{ 0.00498634584254441-0.022492365778959397 }{ 0.022492365778959397-0.03705231627423083}\right\rvert} \approx 
+% \end{equation*}
 
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.7\linewidth]{sections/Setup/l1stat.eps}
-    \caption{Absolute error for the last time step for different }
+    \includegraphics[width=0.49\linewidth]{sections/Setup/abs_last_time.eps}
+    %\includegraphics[width=0.49\linewidth]{sections/Setup/abs_last_time_to_one.eps}
+    \caption{Absolute error to the bed height of $1\operatorname{cm}$.} %On the right: Absolute error to the bed height of $1cm$ at the last time step.}
     \label{fig:statL1}
 \end{figure}
 
 
 
-We therefor choose a cell length of $0.25 \operatorname{mm}$.
+Overall we observe that the error of cell length $\Delta \x = 0.33 \operatorname{mm}$ grows rapidly at first and later less rapidly.
+The corresponding mirrored behavior can be observed for  a cell length of $\Delta \x = 0.5 \operatorname{mm}$ which grows moderately at first and then more rapidly.
+Because both behaviors are undesirable we rule out both cell length for our grid.
+To mitigate simulation costs and because the error of a cell length of $0.25 \operatorname{mm}$ looks good we stick to that cell length in the following instead of the reference solution.
+\ref{fig:statL1}.
 
+We note that due to the averaging methods applied the error grows for smaller cell lengths. We can see this behavior for $\Delta \x = 0.1 \operatorname{mm}$.
 
-
+The mesh used for simulations is depicted in figure \ref{fig:grid}.
 The simulation is one cell deep leading to a mesh of size $10 \operatorname{mm} \times 0.25 \operatorname{mm} \times 50 \operatorname{mm}$.
 
 
@@ -492,6 +512,8 @@ The simulation is one cell deep leading to a mesh of size $10 \operatorname{mm} 
     \begin{subfigure}[t]{0.45\textwidth}
         \includegraphics[width=\linewidth, trim = {12cm 0 12cm 0}, clip]{sections/Setup/grid_size_side.png}
     \end{subfigure}
+    \caption{Domain with dimensions $10 \operatorname{mm} \times 0.25 \operatorname{mm} \times 50 \operatorname{mm}$ and $40 \times 1 \times 200$ cells. The cells are cubes with length $\Delta \x = 0.25 \operatorname{mm}$.}
+    \label{fig:grid}
 \end{figure}
 
 
@@ -522,3 +544,19 @@ The simulation is one cell deep leading to a mesh of size $10 \operatorname{mm} 
 
 %\section{\lstinline|Goldschmidt| case}
 
+\section{Boundary conditions}
+Now that we have our grid we can assign it boundary conditions.
+The gas inlet at the bottom of the grid is set to \lstinline|interstialVelocityInlet| which scales the inlet velocity with the volume fraction of air
+\begin{equation*}
+    \uf = \dfrac{\u}{\fvf}.
+\end{equation*}
+The inlet fluid inlet velocity is therefor always equal or greater than the set velocity.
+If no particles are in the cell at the inlet the velocity remains as set.
+If particles are in those cells the \lstinline|interstitialInletVelocity| models the pressure build up that occurs. \todo{Wieso findet man hier keine Quelle?}
+The top is a \lstinline|pressureInletOutletVelocity| therefor a zero gradient outlet with the inlet velocity set to zero.
+The walls on the left and right hand side of the gird are set to \lstinline|noSlip|.
+For the particulate phase we set the inlet as well as the all other boundaries except the top to rebound.
+The top is left as escape in case particles fly out of the reactor.
+The pressure at the top is set to zero.
+The pressure of the inlet and the walls on the left and right side of the grid are set to \lstinline|fixedFluxPressure| with the gradient being set to zero.
+The front and the back are connected through \lstinline|symmetry| for both the pressure and the velocity.
