@@ -1,43 +1,46 @@
 \newpage
 \chapter{\MP method parameters and Simulation Setup}
 \label{ch:simSetup}
-Now that we know how the \MP method works we will setup a case to get it running. 
-We will discuss which options we have in which file and which models are pre-implemented.
+
+Building upon the implementation discussed in the previous chapter we now discuss how to initialize a case.
+We examine the available modeling options and files necessary for simulation.
+We discuss the setup of our simulation used for comparison of experimental data and simulation results, done in the following chapter.
+%The data, kindly provided by the "Division of Combustion Technology" of the "Engler-Bunte-Institute" \footnote{\url{https://vbt.ebi.kit.edu/english/21_1186.php}} are based on a simplified fluidized bed reactor.
+This includes the computational grid where we look at the convergence for different cell lengths and the boundary conditions used.
 
 \section{\OF \MP method files}
 \subsection{\lstinline|kinematicCloudProperties|}
-The particles are modeled as a kinematic Cloud. The properties of the particles can be set in \lstinline|kinematicCloudProperties|.
-Here we will look at the most important properties.
+The particles are modeled as a kinematic Cloud with properties set in \lstinline|kinematicCloudProperties|.
+This section details the parameters and models that can be adjusted.
 
-The first property we can set is the maximal Courant number \lstinline|maxCo| that is used in the Lagrangian time step fraction, see code \ref{code:stepFraction}.
-The constant properties, namely the fluid density \lstinline|rho0| and \lstinline|alphaMax| are set. 
+The first property we can configure is the maximum Courant number \lstinline|maxCo| that is used in the Lagrangian time step fraction, see listing \ref{code:stepFraction}.
+Constant physical properties, specifically the fluid density \lstinline|rho0| and the maximum packing fraction \lstinline|alphaMax| are set. 
 The latter is used in \lstinline|createFields| to set the minimum fluid volume fraction that is allowed per cell 
 \begin{equation*}
     \fvf_{min} = 1- \fvf_{max}
 \end{equation*}
 used in equation \eqref{eq:maxAlpha}.
-For the particles we set the Drag force model and particle injection in \lstinline|subModels|. 
-In \ref{sec:MPLoop} two drag models are discussed: \lstinline|ErgunWenYu| and \lstinline|PlessisMasliyah| which will be tested in the next chapter \ref{sec:paramStudy} as they have an influence on both the fluid and the particulate phase.
-
-Particles can be either placed inside the reactor by \lstinline|manualInjection| or 
-For the first we define the particle positions in \lstinline|kinematicCloudPositions|.
+Particle dynamics are influenced by the Drag force model and particle injection in \lstinline|subModels|. 
+In \ref{sec:MPLoop} two drag models are discussed: \lstinline|ErgunWenYuDrag| and \lstinline|PlessisMasliyahDrag| which will be evaluated in the next chapter \ref{sec:paramStudy} as they have an influence on both the fluid and the particulate phase.
+The particles are either initialized inside the reactor at time step $0$ by \lstinline|manualInjection|, where particle positons are defined in \lstinline|kinematicCloudPositions|, or injected by \lstinline|patchInjection|.
 For the latter we define a patch through which the particles are injected over a set time.
-For both injection types we can set a particle velocity at injection and distribution for the particle diameters.
-With \lstinline|nParticle| we set the number of particles in a cell.
+For both injection models we can set a particle velocity at injection and distribution for the particle diameters.
+With \lstinline|nParticle| we set the number of particles in one parcel, as explained in sec \ref{sec:PartGrouping}.
 
-In \lstinline|localInteraction| we define how the particles interact with the patches with the elasticity coefficient \lstinline|e| and restitution coefficient \lstinline|mu|.
+Particle-boundary interactions are specified in \lstinline|localInteraction|, where we define each patches' restitution coefficient \lstinline|e| and friction coefficient \lstinline|mu|.
 
-The packing model defines the particle normal stress mode. In section \ref{sec:MPLoop} we discussed the explicit Harris and Crighton model.
-In \OF we can also set the particle normal model to the implicit Harris and Crighton model or the explicit or implicit Lun model.
-For the explicit Harris and Crighton model we can set the parameters \lstinline|alphaPacked| as the close packed volume fraction $\pvfcp$, \lstinline|pSolid| as the pressure constant $P_s$, \lstinline|beta| as the exponent and \lstinline|eps| as the small constant limiting how far away from close pack we can get.
-We can also add a correction limiting method with the parameter \lstinline|e| which is given by equation \eqref{eq:correctLimiting}.
-The collision damping model can be applied by setting \lstinline|dampingModel| to \lstinline|relaxation|. 
+The packing model defines which particle normal stress model we use. In section \ref{sec:MPLoop} we discussed the explicit Harris and Crighton model.
+Further models implemented in \OF are the implicit Harris and Crighton model or the explicit or implicit Lun model.
+For the explicit Harris and Crighton model, the parameters are the close packed volume fraction $\pvfcp$ as \lstinline|alphaPacked|, \lstinline|pSolid| as the pressure constant $P_s$, \lstinline|beta| as the exponent $\beta$ and \lstinline|eps| as the small constant limiting used for avoiding singularities.
+Additionaly, we can also add a correction limiting method with the parameter \lstinline|e| which is given by equation \eqref{eq:correctLimiting}.
+A collision damping model can be applied by setting \lstinline|dampingModel| to \lstinline|relaxation|. 
 In our later simulations it is always set to \lstinline|none| and therefor not applied.
 
-The return-to-isotropy-model is turned on by setting \lstinline|isotropyModel| to \lstinline|stochastic| and turned off by setting it to \lstinline|none|.
-We set the close-pack volume for radial distribution function $g_0$ which is used in the relaxation time.
-The factor \lstinline|e| determines how elastic the collision is, see $\eta$ in \eqref{eq:DampingTimeG}.
-The impact of the parameters and the dependence of the simulation on the parameters is discussed in chapter \ref{ch:results}.
+The return-to-isotropy model is turned on by setting \lstinline|isotropyModel| to \lstinline|stochastic| and turned off by setting it to \lstinline|none|.
+This model uses the radial distribution function $g_0$ defined in \ref{eq:rtiSol} which utilizes the close-pack volume fraction \lstinline|alphaPacked|.
+Along with the elasticity factor \lstinline|e|, see $\eta$, both are used to determine the relaxation time $\ss_G$ in equation \eqref{eq:DampingTimeG}.
+The impact of the isotropy model is discussed in sec \ref{sec:returnToIsotropyImpact}.
+%The impact of the parameters and the dependence of the simulation on the parameters is discussed in chapter \ref{ch:results}.
 
 %drag plays big role in coupling
 
@@ -270,22 +273,10 @@ cloudFunctions
 
 
 \section{Simplified fluidized bed reactor}
-For comparison the fluidized bed reactor is simplified to a tube with a mesh at the bottom on top of which are glass beats with a diameter of $40 \mu m$ to $70 \mu m$.
-The diameter of the glass beats is chosen to be similar to that of the iron particles in \cite{Malte}.
-The size distribution of the glass beats is unknown. For the simulation we use uniformly distributed particle diameters.
-
-
-% \begin{figure}
-%     \centering
-%     \begin{subfigure}{0.4\textwidth}
-%          \includegraphics[width=0.8\linewidth]{sections/Setup/1-s2.0-S0016236125021477-gr3_lrg.jpg}
-%     \end{subfigure}
-%     \begin{subfigure}{0.55\textwidth}
-%         \includegraphics[width=1.5\linewidth]{sections/Setup/geometry_1cm.png}
-%     \end{subfigure}
-%     \caption{Caption}
-%     \label{fig:placeholder}
-%\end{figure}
+For better comparison the experiments were done on in a cylindrical tube with a porous mesh at the bottom.
+The bed consists of glass beads of a diameter of $40 \mu m$ to $70 \mu m$, chosen to be similar to the iron particles in \cite{Malte}.
+The size distribution was unknown at the time of simulation and therefor assumed to be uniformly distributed.
+Figure \ref{fig:glassBeats} shows the experiment at two different inlet velocities.
 
 
 
@@ -295,19 +286,18 @@ The size distribution of the glass beats is unknown. For the simulation we use u
     \hfill
     \includegraphics[width=0.45\linewidth,trim = {15cm 3cm 14cm 4cm},clip]{sections/Setup/03_grey48.png}
     \caption{Fluidized bed with glass beads at $u = 0.006m/s$ and $0.06m/s$ inlet velocity}
-    \label{fig:placeholder}
+    \label{fig:glassBeats}
 \end{figure}
 
-The particles in the experiment have a bed height of $1\operatorname{cm}$.
-For the simulation we calculate the number of particles for the same bed height based on the close pack volume fraction of $\pvfcp = 0.65$
+The experimental bed is $1 \operatorname{cm}$.
+In the simulation this is replicated using $N_p$ particles based on the close pack volume fraction of $\pvfcp = 0.65$.
+Because the \MP method models particles only as point masses rather than resolved spheres with a volume we do not face sphere packing problems and can therefor calculate the number of particles with a diameter $d$ for a bed height $h_{bed}$ and a bed area of $A_{bed}$ as
 \begin{equation*}
-    0.65  x y h_{bed} = \dfrac{4}{3} \pi \left( \dfrac{d}{2} \right)^3 N_p
+    0.65  A_{bed} h_{bed} = \dfrac{4}{3} \pi \left( \dfrac{d_p}{2} \right)^3 N_p
     \Leftrightarrow 
-    N_p = \dfrac{3}{4 \pi} \left( \dfrac{2}{d} \right)^3 0.65  x y h_{bed}.
+    N_p = \dfrac{3}{4 \pi} \left( \dfrac{2}{d_p} \right)^3 0.65  A_{bed} h_{bed}.
 \end{equation*}
-Because the \MP method models particles as point masses we do not face issues with sphere packing.
-
-
+The particles are initialized up to a height $25 \operatorname{mm}$ spaced out equidistantly in a grid with no velocity.
 
 
 % \begin{figure}
@@ -322,12 +312,40 @@ Because the \MP method models particles as point masses we do not face issues wi
 %   \end{tikzpicture}
 % \end{figure}
 
+\section{Experimental Bed height}
+\label{sec:bedHeightBest}
+To validate the simulation results, the experimental bed height is extracted from the images set to grayscale.
+We start by cropping the images to isolate the reactor tube, see \ref{fig:img_processing}.
+We iterate over each column of pixels, starting from the top.
+For each column we identify the bed height by iterating over each pixel and saving it if the following three conditions apply.
+First we calculate the gradient based on the current pixel and the one below and save the current pixel if it has the largest gradient.
+Second gradient must be positive, therefor we are entering a lighter region as to not exit the bed.
+Lastly, to reduce the error of identifying smudges and noise as a bed we set a minimum brightness value of $120$.
+The bed heights of each column are averaged to determine the mean bed height.
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width = 0.395 \linewidth, trim = {12cm 0 12cm 0},clip]{sections/result/016_grey19.png}
+    \hspace{4cm}
+    \includegraphics[width=0.048\linewidth]{sections/result/016_crop19.png}
+    \caption{Image processing for a single time step at velocity $\uf = 0.034 m/s$. On the left images of the fluidized bed reactor. On the right hand side the image is cropped to show only the reactor. The single dots represent the bed height of the column. The solid line represents the mean bed height.}
+    \label{fig:img_processing}
+\end{figure}
+The resulting bed height for different fluid inlet velocities is presented in the following figure \ref{fig:bed_height_exp}.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{sections/result/expBedHeightWobble.png}
+    \caption{Bed height gathered from the images of the experimental data.}
+    \label{fig:bed_height_exp}
+\end{figure}
 
 \section{Grid}
-The highest mean bed height from the data is about $2.4 \operatorname{cm}$. 
-To include inflections from the particle we roughly double the height for the simulation using $5 \operatorname{cm}$ as the height of our mesh.
-The width of our simulation mesh is adapted to the simplified fluidized bed with $1 \operatorname{cm}$.
-For the following mesh study, where we tested grid sizes of two times particle diameter up to twenty times, we use a depth of $1\operatorname{mm}$.
+The experimental data indicates a maximum mean bed height of approximately $2.5 \operatorname{cm}$. To account for particle fluctuations and bed expansion, we extend  simulation domain to a height of $5 \operatorname{cm}$. The domain width is adapted to the simplified fluidized bed geometry width of $1 \operatorname{cm}$.
+To reduce computation time we effectively model the reactor as 2d by modeling a cuboid with the above described dimensions and a depth of $0.1 \operatorname{cm}$.
+The mesh consists of cubes. 
+In the following we conduct a grid sensitivity study by varying the cube side length $\Delta \x$ from $2 d_p$  up to $20 d_p$, as detailed in table \ref{tab:grid_sizes}.
+
 \begin{table}[h!]
     \centering
     \begin{tabular}{c|c|c}
@@ -340,44 +358,37 @@ For the following mesh study, where we tested grid sizes of two times particle d
         $4$ & $5$ &$0.2 \operatorname{mm}$ \\
         $2$ & $10$ &$0.1 \operatorname{mm}$
     \end{tabular}
-    \caption{Caption}
-    \label{tab:placeholder}
+    \caption{Cell length tested in the grid study from coarsest to finest mesh.}
+    \label{tab:grid_sizes}
 \end{table}
-For a velocity of $0.001 m/s$ we expect to see no fluidization therefor the particles should drop and lay in a bed.
-For the simulation we use a close pack volume fraction of $0.65$.
-Because the \MP method only models particles as point masses we can determine that we need approximately one million particles for a bed height of $1 \operatorname{cm}$.
-Here the diameter of the particles is $0.00005\operatorname{m}$.
-In figure \ref{fig:mesh_study} we can see that for a grid size of $1 \operatorname{mm}$ the particles are flung through the reactor multiple times.
+We test the grid with an inlet velocity of $0.001 m/s$. At this velocity we expect to see no fluidization, therefor the particles should drop and settle in a bed.
+We use the close pack volume fraction of $0.65$ and particle diameter of $50 \operatorname{\mu m}$
+to determine that we need about one million particles. %\todo{ist die gneaue Zahl von Interesse?}
+For the coarsest grid we can observe that the simulation becomes unstable, with particles launched through the reactor multiple times, see figure \ref{fig:mesh_study}.
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.7\linewidth]{sections/Setup/meshStudy.eps}
+    \includegraphics[width=0.6\linewidth]{sections/Setup/meshStudy.eps}
     \caption{Mean bed height for different cell length in $\operatorname{mm}$. For the simulation with $\Delta \x  = 1 mm$ the simulation become unstable. For a cell length of $\Delta \x = 0.1\operatorname{mm}$ the simulation was aborted after three days of computation time.}
     \label{fig:mesh_study}
 \end{figure}
+On the other end for the finest grid of $\Delta \x = 0.1 \operatorname{mm}$, the cell size is insufficient to contain enough particles per cell.
+The averaging use by the \MP method leads to reduced accuracy and long simulation times.
 
-
-
-
-The behavior is less prevalent for a grid size of $0.5 \operatorname{mm}$ but still occurs at later time steps.
-For a cell length of $0.1 \operatorname{mm}$ we can see that the cells are too small for the number of particles.
-Because the \MP averages over the number of particles in a cell the simulation becomes less accurate.
-The simulation was aborted after three days of simulation time.
-The bed height of at the last time step is exactly $1 cm$ for a cell length of $0.2 \operatorname{mm}$.
-We use this as a reference to examine the convergence behavior for the cell length $0.5 \operatorname{mm}$, $0.25 \operatorname{mm}$, $0.33 \operatorname{mm}$.
-
+The grid with cell length $\Delta x = 0.2 \operatorname{mm}$ shows the best behavior, with a settled bed height of exactly $1 \operatorname{cm}$ at the last time step.
+Therefor we the simulation as our reference to examine the convergence of the coarser grids with cell length $0.5 \operatorname{mm}$, $0.33 \operatorname{mm}$ and $0.25 \operatorname{mm}$.
 %\Todo{überlegen die means wieder mit raus zu nehmen}
-In the following we look at the mean absolute $L1$-error
+To quantify the discretization error we use the absolute and relative $L_1$ and $L_2$ errors summed over $N$ time steps..
+The absolute $L1$-error and its time-averaged counterpart are defined as
 \begin{equation}
 \label{eq:l1error}
-    err_{L1} =\sum_{i=1}^N \lvert h_i - h_{ref,i} \rvert \qquad err_{L1,mean} = \dfrac{1}{N}\sum_{i=1}^N \lvert h_i - h_{ref,i} \rvert
+    err_{L1} =\sum_{i=1}^N \lvert h_i - h_{ref,i} \rvert \qquad err_{L1,mean} = \dfrac{1}{N}\sum_{i=1}^N \lvert h_i - h_{ref,i} \rvert,
 \end{equation}
-the relative $L1$-error
+and the relative $L1$-error as
 \begin{equation}
 \label{eq:l1relerror}
     err_{L1,rel} = \dfrac{\sum_{i=1}^N \lvert h_i - h_{ref,i} \rvert}{\sum_{i=1}^N \lvert h_{ref,i} \rvert} \qquad  err_{L1,rel, mean} = \dfrac{1}{N} \dfrac{\sum_{i=1}^N \lvert h_i - h_{ref,i} \rvert}{\sum_{i=1}^N \lvert h_{ref,i} \rvert}.
 \end{equation}
-We also look at the $L2$-error which is more sensitive to outliers.
-We use the absolute $L2$-error
+Similarly we look at $L2$-errors which are more sensitive to outliers with the absolute $L2$-error
 \begin{equation}
 \label{eq:l2error}
     err_{L2} = \sqrt{\sum_{i=1}^N \lvert h_i - h_{ref,i} \rvert^2} \qquad err_{L2,mean} = \dfrac{1}{N}\sqrt{\sum_{i=1}^N \lvert h_i - h_{ref,i} \rvert^2}
@@ -388,11 +399,8 @@ and the relative $L2$-error
     err_{L2,rel} = \dfrac{\sqrt{\sum_{i=1}^N \lvert h_i - h_{ref,i} \rvert^2}}{\sqrt{\sum_{i=1}^N \lvert h_{ref,i} \rvert^2}} \qquad err_{L2,rel,mean} = \dfrac{1}{N}\dfrac{\sqrt{\sum_{i=1}^N \lvert h_i - h_{ref,i} \rvert^2}}{\sqrt{\sum_{i=1}^N \lvert h_{ref,i} \rvert^2}}.
 \end{equation}
 
-For the $L1$-error depicted in figure \ref{fig:l1error}. 
-during the initial fall of the particle the error for a cell length of $0.33 \operatorname{mm}$ grows rapidly.
-Afterward the mean absolute error levels out as the absolute error grows linearly.
-On the other hand the error for a cell length of $0.5 \operatorname{mm}$ only grows moderately at first. After the first initial fall the error starts to grow more rapidly. 
-The error is the lowest for a cell length of $0.25 \operatorname{mm}$ the mean error stays close to constant at $0.005$.
+As we can see in figure \ref{fig:l1error}, in which the $L1$-error is depicted, we can see that the error for $\Delta \x = 0.33 \operatorname{mm}$ increases rapidly during the initial fall of the particles.
+In contrast, the error for $\Delta \x = 0.5 \operatorname{mm}$ rises moderately at first and later accelerates. A consistently small error is achieved by $L1$-error of cell length $0.25 \operatorname{mm}$.
 
 \begin{figure}[h!]
     \centering
@@ -402,12 +410,8 @@ The error is the lowest for a cell length of $0.25 \operatorname{mm}$ the mean e
     \label{fig:l1error}
 \end{figure}
 
-For the relative error we divide by the reference bed height according to equation \eqref{eq:l1relerror}. 
-The result in figure \ref{fig:l1relerror} shows a similar behavior to the $L1$ absolute error.
-Again we can see that at cell length $0.33 \operatorname{mm}$ the error grows rapidly at first and the remains nearly constant.
-For a cell length of $0.5 \operatorname{mm}$ the relative error grows linearly for the first three seconds.
-After about $1.5s$ the relative error and the mean relative error of the cell length $0.5 \operatorname{mm}$ exceeds that of the cell length $0.33 \operatorname{mm}$.
-Once again the relative error of a cell length of $0.25 \operatorname{mm}$ is smaller than the previous two.
+Both the relative $L_1$-error in figure \ref{eq:l1relerror} and the $L_2$-errors in figures \ref{fig:l2error} and figure \ref{eq:l2relerror} further show these trends with the sudden spike in error for the $0.33 \operatorname{mm}$ case and the large cumulative error of the $0.5 \operatorname{mm}$ eventually exceeding it.
+In all cases the error of $0.25 \operatorname{mm}$ case is smaller.
 
 \begin{figure}[h!]
     \centering
@@ -417,11 +421,11 @@ Once again the relative error of a cell length of $0.25 \operatorname{mm}$ is sm
     \label{fig:l1relerror}
 \end{figure}
 
-For both the absolute $L2$ error in figure \ref{fig:l2error} and the relative $L2$ error in figure \ref{fig:l2relerror} we see a similar behavior to the one described above.
-The $L2$ error is more susceptible to outliers. Compared to the $L1$ absolute error the sudden growth error at grid length $\Delta \x = 0.33$ is more prominent, as can be seen in figure \ref{fig:l2error}.
-We can observe the same trends for the absolute and relative error with both errors.
-At first the error at grid length $\Delta \x = 0.33 \operatorname{mm}$ exceeds the error for $\Delta \x = 0.5 \operatorname{mm}$ before they once again0 swapping.
-The error for $\Delta \x = 0.25 \operatorname{mm}$.
+% For both the absolute $L2$ error in figure \ref{fig:l2error} and the relative $L2$ error in figure \ref{fig:l2relerror} we see a similar behavior to the one described above.
+% The $L2$ error is more susceptible to outliers. Compared to the $L1$ absolute error the sudden growth error at grid length $\Delta \x = 0.33$ is more prominent, as can be seen in figure \ref{fig:l2error}.
+% We can observe the same trends for the absolute and relative error with both errors.
+% At first the error at grid length $\Delta \x = 0.33 \operatorname{mm}$ exceeds the error for $\Delta \x = 0.5 \operatorname{mm}$ before they once again0 swapping.
+% The error for $\Delta \x = 0.25 \operatorname{mm}$.
 
 
 \begin{figure}[h!]
@@ -441,39 +445,41 @@ The error for $\Delta \x = 0.25 \operatorname{mm}$.
     \label{fig:l2relerror}
 \end{figure}
 
-%\todo{What the hell Python? Label noch festigen.}
-After discussing the consistency error we now look at the stationary accuracy.
-We use the bed height of the last time step and compare it to the bed height of the last time step of the reference simulation, see figure \ref{fig:statL1}.
-A smaller grid size leads to a smaller error.
-We can estimate the order of convergence by
-\begin{equation*}
-    EOC =\dfrac{\lvert L1_{0.25}- L1_{0.33} \rvert}{\lvert L1_{0.33}- L1_{0.5} \rvert} = \dfrac{\lvert 0.00498634584254441-0.022492365778959397 \rvert}{\lvert 0.022492365778959397-0.03705231627423083\rvert}\approx 1.2.
-\end{equation*}
-% \begin{equation*}
-%     \dfrac{\log \left\lvert\dfrac{0-0.00498634584254441}{0.022492365778959397-0.00498634584254441}\right\rvert}{\log \left \lvert \dfrac{ 0.00498634584254441-0.022492365778959397 }{ 0.022492365778959397-0.03705231627423083}\right\rvert} \approx 
-% \end{equation*}
-
-
+After assessing the consistency error we nor look at the stationary accuracy by comparing it to the bed height of the last time step of the reference simulation, see figure \ref{fig:statL1}.
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.49\linewidth]{sections/Setup/abs_last_time.eps}
-    %\includegraphics[width=0.49\linewidth]{sections/Setup/abs_last_time_to_one.eps}
+    \includegraphics[width=0.49\linewidth]{sections/Setup/abs_err_height.eps}
+    \includegraphics[width=0.49\linewidth]{sections/Setup/EOC.eps}
     \caption{Absolute error to the bed height of $1\operatorname{cm}$.} %On the right: Absolute error to the bed height of $1cm$ at the last time step.}
     \label{fig:statL1}
 \end{figure}
+As expected refining the grid reduces the error. To investigate the convergence we look at the estimated order of convergence
+% \begin{equation*}
+%     EOC =\dfrac{\lvert L1_{0.25}- L1_{0.33} \rvert}{\lvert L1_{0.33}- L1_{0.5} \rvert} = \dfrac{\lvert 0.00498634584254441-0.022492365778959397 \rvert}{\lvert 0.022492365778959397-0.03705231627423083\rvert}\approx 1.2.
+% \end{equation*}
+\begin{equation*}
+    EOC_{\Delta x_1,\Delta x_2} = \dfrac{\log \left( \frac{h_1 - h}{h_2 -h} \right)}{\log \left( \frac{\Delta x_1}{\Delta x_2} \right)}.
+\end{equation*}
+Plugging in values for our case we then have
+\begin{align*}
+    EOC_{0.5,0.33} &= \dfrac{\log \left( \frac{0.03705}{0.02249} \right)}{\log \left( \frac{0.5}{0.33} \right)} = 0.97715
+    \qquad EOC_{0.33,0.25} = \dfrac{\log \left( \frac{0.02249}{0.00499} \right)}{\log \left( \frac{0.33}{0.25} \right)} =5.42615\\
+    EOC_{0.5,0.25} &=\dfrac{\log \left( \frac{0.03705}{0.00499} \right)}{\log \left( \frac{0.5}{0.25} \right)} = 2.89351.
+\end{align*}
+As seen in figure \ref{fig:statL1} we estimate an order of convergence of about $3$.
 
 
 
-Overall we observe that the error of cell length $\Delta \x = 0.33 \operatorname{mm}$ grows rapidly at first and later less rapidly.
-The corresponding mirrored behavior can be observed for  a cell length of $\Delta \x = 0.5 \operatorname{mm}$ which grows moderately at first and then more rapidly.
-Because both behaviors are undesirable we rule out both cell length for our grid.
-To mitigate simulation costs and because the error of a cell length of $0.25 \operatorname{mm}$ looks good we stick to that cell length in the following instead of the reference solution.
-\ref{fig:statL1}.
+Overall we observe that the error of cell length $\Delta x = 0.33 \operatorname{mm}$ grows rapidly at first and later more gradually.
+The corresponding mirrored behavior can be observed for  a cell length of $\Delta x = 0.5 \operatorname{mm}$ which grows moderately at first and then more rapidly.
+To avoid both behaviors we rule out both cell length.
+The grid size $\Delta x = 0.25$ offers the best compromise between simulation costs and error. For grid length $\Delta x = 0.25$ the simulation on average takes $11824s$ per simulation second and $19614s$ for $\Delta x = 0.2 mm$.
+% To mitigate simulation costs and because the error of a cell length of $0.25 \operatorname{mm}$ looks good we stick to that cell length in the following instead of the reference solution.
+% \ref{fig:statL1}.
 
 We note that due to the averaging methods applied the error grows for smaller cell lengths. We can see this behavior for $\Delta \x = 0.1 \operatorname{mm}$.
 
-The mesh used for simulations is depicted in figure \ref{fig:grid}.
-The simulation is one cell deep leading to a mesh of size $10 \operatorname{mm} \times 0.25 \operatorname{mm} \times 50 \operatorname{mm}$.
+The final mesh dimensions are $10 \operatorname{mm} \times 0.25 \operatorname{mm} \times 50 \operatorname{mm}$ and is depicted in figure \ref{fig:grid}.
 
 
 % \begin{figure}
@@ -545,18 +551,20 @@ The simulation is one cell deep leading to a mesh of size $10 \operatorname{mm} 
 %\section{\lstinline|Goldschmidt| case}
 
 \section{Boundary conditions}
-Now that we have our grid we can assign it boundary conditions.
-The gas inlet at the bottom of the grid is set to \lstinline|interstialVelocityInlet| which scales the inlet velocity with the volume fraction of air
+After generating our mesh we assign boundary conditions for both the fluid and the particulate phase. The domain consists of an inlet at the bottom, an outlet at the top, no-slip walls on the sides, and symmetry planes for the front and back.
+
+
+The gas inlet at the bottom of the grid is set to \lstinline|interstialVelocityInlet| which scales the inlet velocity based on the volume fraction of air
 \begin{equation*}
     \uf = \dfrac{\u}{\fvf}.
 \end{equation*}
-The inlet fluid inlet velocity is therefor always equal or greater than the set velocity.
-If no particles are in the cell at the inlet the velocity remains as set.
-If particles are in those cells the \lstinline|interstitialInletVelocity| models the pressure build up that occurs. \todo{Wieso findet man hier keine Quelle?}
-The top is a \lstinline|pressureInletOutletVelocity| therefor a zero gradient outlet with the inlet velocity set to zero.
-The walls on the left and right hand side of the gird are set to \lstinline|noSlip|.
-For the particulate phase we set the inlet as well as the all other boundaries except the top to rebound.
-The top is left as escape in case particles fly out of the reactor.
+Consequently the inlet fluid inlet velocity is always equal or greater than the set velocity.
+If no particles are in the cell at the inlet the velocity remains as set. This ensures the correct phase flux.
+The top is a \lstinline|pressureInletOutletVelocity| therefor a zero gradient outlet for outflow and a fixed-value condition set to zero for the backflow.
 The pressure at the top is set to zero.
 The pressure of the inlet and the walls on the left and right side of the grid are set to \lstinline|fixedFluxPressure| with the gradient being set to zero.
+
+
+For the particulate phase we set the inlet as well as the all other boundaries except the top to rebound.
+The top is left as escape to allow particles to exit the reactor.
 The front and the back are connected through \lstinline|symmetry| for both the pressure and the velocity.

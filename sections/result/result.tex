@@ -1,199 +1,67 @@
 \newpage
 \chapter{Simulation Results}
 \label{ch:results}
-In this chapter we study the impacts the parameters of the \MP method have on the simulation.
-We start by varying the parameters of the explicit Harris and Crighton model one by one to study the effects.
-Then we look at the collision damping term and why it is excluded from our investigation.
-Afterward we conduct a parameter study where we vary two parameters at a time and compare the results to data kindly provided by the "Division of Combustion Technology" of the "Engler-Bunte-Institute" \footnote{\url{https://vbt.ebi.kit.edu/english/21_1186.php}}.
-We look at the simulation with the parameters from the parameter study.
-Lastly we look at one shortcoming of the \MP method.
+in this chapter we investigate the impact of the parameters used in the \MP method on the simulation results.
+We begin by looking at each parameter isolated to study their individual effects on the bed height.
+Subsequently, we examine the impact of both damping terms and explain why the collision damping term is switched off during the parameter study.
+We analyze the interaction of the parameters by varying two coefficients at a time and comparing the results to data provided by the "Division of Combustion Technology" of the "Engler-Bunte-Institute" \footnote{\url{https://vbt.ebi.kit.edu/english/21_1186.php}}
+%Following the parameter study we identify an optimal parameter set for our case and look at the simulation.
+Finally we conclude by discussing limitations of the \MP method.
+
+
 
 \section{Single Parameter Testing}
-In this section we study the effects of three parameters that are important in the explicit Harris and Crighton model
+We start by investigating the effects of the three governing parameters of the explicit Harris and Crighton model
 \begin{equation*}
-    \ss = \dfrac{P_s \pvf^\beta}{\max [( \pvfcp - \pvf), \varepsilon ( 1- \pvf)]}
+    \scs = \dfrac{P_s \pvf^\beta}{\max [( \pvfcp - \pvf), \varepsilon ( 1- \pvf)]}
 \end{equation*}
 the close pack volume fraction $\pvfcp$, the exponent $\beta$ and the pressure constant $P_s$.
-The single parameter testing and the collision damping testing was done earlier in this thesis. Therefor the grid is slightly modified to the grid described in the previous section.
-Here we use a cuboid that has a side length of
-$0.15 \operatorname{mm} \times \operatorname{mm} \times 100 \operatorname{mm}$ and a grid consisting of $1 \times 20 \times 100$ cells.
-At time step zero $165251$ particles with a diameter of $0.05\operatorname{mm}$ are injected, spread out to a height of $25 \operatorname{mm}$.
+Here we use a simplified domain consisting of a cuboid with dimensions $0.15 \operatorname{mm} \times 10 \operatorname{mm} \times 50 \operatorname{mm}$ with a grid consisting of $1 \times 20 \times 100$ cells.
+At time step zero about $160000$  are injected. %$165251$
 Probes are taken at $1000$ points at $x = 0.075\operatorname{mm}$ (middle of the domain), and on a $20 \times 50$ grid on the domain $ [0\operatorname{mm},10\operatorname{mm}] \times [0\operatorname{mm},50\operatorname{mm}]$.
+In each column the bed height is determined by the highest cell with a fluid volume fraction lower than $0.95$. We take the mean over all columns for the mean bed height.
 
+
+% \subsection{Influence of the Exponent β} In the reference Goldschmidt case, the stress follows a quadratic dependency (β=2). To analyze the influence of β, we express the particle volume fraction as a fraction of the packing limit: \begin{equation} \alpha_p = \lambda \alpha_{cp} \quad \text{where} \quad \lambda \in [0,1). \end{equation} Substituting this into a simplified form of the solid stress equation yields: \begin{equation} \tau_s \propto \frac{P_s (\lambda \alpha_{cp})^\beta}{\alpha_{cp} - \lambda \alpha_{cp}} = P_s \alpha_{cp}^{\beta -1} \frac{\lambda^\beta}{1-\lambda}. \end{equation} The term λβ dominates the behavior for lower volume fractions. Since λ<1, a smaller exponent β results in a larger value for λβ. Consequently, for lower β, the solid stress τs​ becomes significant at lower volume fractions, resulting in a more expanded bed. As β increases, the "activation" of the stress is delayed until the particles are more densely packed, causing the mean bed height to decrease exponentially, as shown in Figure \ref{fig:meanBedBeta}.
 
 \subsection{Constant $\beta$}
-In the reference Goldschmidt case, we have a quadratic dependency, therefore $\beta = 2$.
-To explain the effect of $\beta$ on our simulation, we can rewrite the particle volume fraction as
-\begin{align}
-    \pvf = \alpha \pvfcp \qquad \lambda \in [0,1),
-\end{align}
+In the reference Goldschmidt case the stress has a quadratic dependency on the particle volume fraction, therefor $\beta = 2$.
+To analyze the effect of varying $\beta$ on our simulation, we rewrite the particle volume fraction as
+\begin{align*}
+    \pvf = \lambda \pvfcp \qquad \lambda \in [0,1),
+\end{align*}
 and insert it into a simplified version of the particle solid stress
-\begin{align}
-    \scs = \dfrac{P_s \pvf^\beta}{\pvfcp - \pvf} = \dfrac{\lambda^\beta}{(1-\lambda)} \pvfcp^{\beta -1}.
-\end{align}
-We can see from the first term that the solid particle stress diverges for the volume fraction approaching close pack. 
-For smaller $\beta$, the leading factor rises faster, thus $\scs$ is higher for lower volume fractions. %In the plot for $\beta = 1$, we can observe this behavior in both the implicit \ref{fig:betaImp1} and the explicit \ref{fig:betaExp1} case, where the particles' position exceeds the plotted area.
-With an increasing, $\beta$ the mean area in which particles are located shrinks.
-Plotting the bed height for different values of $\beta$ reveals an exponential decay, see fig \ref{fig:meanBedBeta}
-%\subsubsection{Explicit Case}
-% \FloatBarrier
-% \begin{figure}[h!]
-% \captionsetup[subfigure]{
-%   font={footnotesize},
-%   %justification=raggedright,
-%   singlelinecheck=false,
-%   position=below,
-%   %aboveskip=2.5cm, %belowskip=2.5cm,
-%   skip=-0.7cm
-%   %margin={0cm,-1cm}
-% }
-%     \centering
-%     \begin{subfigure}[b]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/BetaExp/2d_apacked_1_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:betaExp1}
-%     \end{subfigure}
-%     \begin{subfigure}[b]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/BetaExp/2d_apacked_1.5_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:betaExp2}
-%     \end{subfigure}
-%     \begin{subfigure}[b]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/BetaExp/2d_apacked_2.5_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:betaExp3}
-%     \end{subfigure}
-%     \begin{subfigure}[b]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/BetaExp/2d_apacked_10.0_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:betaExp4}
-%     \end{subfigure}
-%     %\caption{Mean particle volume fraction for $0.5s - 5s$ for different values of $\beta$. The packing model here is chosen as explicit.}
-%     \label{fig:placeholder}
-% %\end{figure}
-% %\FloatBarrier
-% %\subsubsection{Implicit Case}
-% %\FloatBarrier
-% %\begin{figure}
-%     \begin{subfigure}[b]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/BetaImp/2d_apacked_1_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:betaImp1}
-%     \end{subfigure}
-%     \begin{subfigure}[b]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/BetaImp/2d_apacked_1.5_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:betaImp2}
-%     \end{subfigure}
-%     \end{figure}
-%     \begin{figure}[h!]\ContinuedFloat
-%     \centering
-%     \begin{subfigure}[b]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/BetaImp/2d_apacked_2.5_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:betaImp3}
-%     \end{subfigure}
-%     \begin{subfigure}[b]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/BetaImp/2d_apacked_10.0_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:betaImp4}
-%     \end{subfigure}
-%     \caption{Mean particle volume fraction at $0.5s - 5s$ for different values of $\beta$. With packing model explicit (\ref{fig:betaExp1}) - (\ref{fig:betaExp4}) and implicit (\ref{fig:betaImp1}) - (\ref{fig:betaImp4}).}
-%     \label{fig:placeholder}
-% \end{figure}
-% \FloatBarrier
+\begin{align*}
+    \scs = \dfrac{P_s \pvf^\beta}{\pvfcp - \pvf} = P_s\dfrac{\lambda^\beta}{(1-\lambda)} \pvfcp^{\beta -1}
+\end{align*}
+thus yielding 
+\begin{align*}
+    \nabla_{\lambda } \scs = P_s \left(\dfrac{\beta \lambda^{\beta -1}}{1 - \lambda}  + \dfrac{\lambda^\beta}{(1- \lambda)^2}\right) \pvfcp^{\beta - 1}.
+\end{align*}
+We can see from both terms that the solid particle stress diverges for the volume fraction approaching close pack. 
+For smaller $\lambda$ the term $\pvfcp^{\beta -1}$ dominates the gradient.
+For $\lambda$ approaching one, therefor a close packed bed, the first term starts to dominate. 
+% For a smaller $\beta$ this occurs earlier leading to a higher particle normal stress gradient for smaller particle volume fractions.
+% Decreasing $\beta$ 
+% For smaller $\beta$, the leading factor rises faster, thus $\scs$ is higher for lower volume fractions. %In the plot for $\beta = 1$, we can observe this behavior in both the implicit \ref{fig:betaImp1} and the explicit \ref{fig:betaExp1} case, where the particles' position exceeds the plotted area.
+Due to the higher particle acceleration for lower volume fraction the bed expands for smaller $\beta$.
+Plotting the bed height for different values of $\beta$ reveals an exponential decay, see fig \ref{fig:meanBedBeta}.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.55\linewidth]{sections/result/BetaExp/alphaExp.png}
-    \caption{Mean bed height for different values of $\beta$. Bed heights exceeding $50mm$ are plotted as $50mm$.}
+    \caption{Exponentially decaying mean bed height for different values of $\beta$. Bed heights exceeding the plotted range are clipped at $50 \operatorname{mm}$.}
     \label{fig:meanBedBeta}
 \end{figure}
+\todo{Plots werden noch an den restlichen Stil angepasst (und die leere Legende entfernt)}
 
+% \subsection{Influence of the Solid Pressure Constant Ps​} The parameter Ps​ acts as a stiffness constant for the particle bed. Increasing Ps​ linearly scales the particle normal stress. A higher stress magnitude results in stronger inter-particle repulsion, maintaining larger inter-particle spacing and leading to a linear increase in bed height (Figure \ref{fig:meanBedPS}).
 \subsection{Solid pressure constant}
-The solid pressure constant increases the solid particle stress linearly, which results in a linear increase in bed height, see figure \ref{fig:meanBedPS}.
-A higher solid particle stress therefor leads to a higher bed. %, as observed in the following figure \ref{fig:pSolid}. The implicit case again leads to a higher bed height and a more pronounced hour-glass shape.
-%\vspace{-1cm}
-
-% \FloatBarrier
-% \begin{figure}[h!]
-% \captionsetup[subfigure]{
-%   font={footnotesize},
-%   %justification=raggedright,
-%   singlelinecheck=false,
-%   position=below,
-%   %aboveskip=2.5cm, %belowskip=2.5cm,
-%   skip=-0.9cm
-%   %margin={0cm,-1cm}
-% }
-%     \centering
-%     \vspace{-0.2cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     %\caption{} 
-%     \includegraphics[width=0.9\linewidth]{sections/result/PSolidExp/2d_apacked_2.5_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:psolidExp1}
-%     \end{subfigure}
-%     \vspace{-0.2cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/PSolidExp/2d_apacked_7.5_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:psolidExp2}
-%     \end{subfigure}
-%     \vspace{-0.15cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/PSolidExp/2d_apacked_10.0_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:psolidExp3}
-%     \end{subfigure}
-%     \vspace{-0.15cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/PSolidExp/2d_apacked_15.0_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:psolidExp4}
-%     \end{subfigure}
-%     \vspace{-0.15cm}
-%     %\label{fig:placeholder}
-% %\end{figure}
-% %\FloatBarrier
-% %\FloatBarrier
-% %\begin{figure}
-%     %\centering
-%     \end{figure}
-%     \begin{figure}[h!]\ContinuedFloat
-%     \centering
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/PSolidImp/2d_apacked_1.0_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:psolidImp1}
-%     \end{subfigure}
-%     \vspace{-0.15cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/PSolidImp/2d_apacked_4.5_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:psolidImp2}
-%     \end{subfigure}
-%     \vspace{-0.15cm}
-%     \end{figure}
-%     \begin{figure}\ContinuedFloat
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/PSolidImp/2d_apacked_5.5_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:psolidImp3}
-%     \end{subfigure}
-%     \vspace{-0.15cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/PSolidImp/2d_apacked_9.0_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:psolidImp4}
-%     \end{subfigure}
-%     \caption{Mean particle volume fraction for $0.5s - 5s$ for different values of $P_s$. With packing model explicit (\ref{fig:psolidExp1}) - (\ref{fig:psolidExp4}) and implicit (\ref{fig:psolidImp1}) - (\ref{fig:psolidImp4}).}
-%     \label{fig:pSolid}
-% \end{figure}
-% \FloatBarrier
+The solid pressure constant $P_s$ linearly scales the particle normal stress gradient.
+A higher solid pressure constant results in particles being accelerated even for low particle fractions, leading to a linear increase in bed height, see figure \ref{fig:meanBedPS}.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.55\linewidth]{sections/result/PSolidExp/alphaExp.png}
-    \caption{Mean bed height for different values of $P_s
+    \caption{Linearly growing mean bed height for different values of $P_s
     $.}
     \label{fig:meanBedPS}
 \end{figure}
@@ -202,102 +70,27 @@ A higher solid particle stress therefor leads to a higher bed. %, as observed in
 
 
 \subsection{Volume fraction close packed}
-Close to the close pack volume fraction, the solid particle stress increases rapidly. For a lower close pack volume fraction, the particles are accelerated for a lower volume fraction leading to a higher bed height, see figure \ref{fig:meanBedPacked}.
-From experiments \cite{closePack}, we know that random sphere packing generally has a particle volume fraction of $0.63$, and the Kepler conjecture states that sphere packing cannot exceed $ \sim 0.74$. 
-We can increase the close pack volume fraction of the particles further than what is theoretically possible, because the MP-PIC method does not check if the packing of spheres in a cell exceeds this limit, as particles are not modeled as spheres but as point masses. 
-%For $\pvfcp = 0.85$ both the implicit and explicit case are stable, see figure \ref{fig:apackedExp4}, \ref{fig:apackedImp4}. In the implicit case, the simulation becomes unstable for a close pack volume fraction $\pvfcp = 0.95$.
+The gradient of the particle normal stress diverges as the particle volume fraction approaches close packed. If the close packed volume fraction is set to a lower value, the singularity is reached earlier, causing particles to be accelerated at lower concentrations. This leads to an increased bed height, see figure \ref{fig:meanBedPacked}.
+From experiments \cite{closePack}, we know that random sphere packing generally has a particle volume fraction of $0.63$. An upper limit is given by the Kepler conjecture, which states that sphere packing cannot exceed $ \sim 0.74$. 
+In the \MP method particles are modeled as point masses rather than resolved spheres and therefor geometric constraints are not enforced.
+Consequently, we can increase the close packed volume fraction further than theoretically possible.
+% We can increase the close pack volume fraction of the particles further than what is theoretically possible, because the MP-PIC method does not check if the packing of spheres in a cell exceeds this limit, as particles are not modeled as spheres but as point masses. 
+% %For $\pvfcp = 0.85$ both the implicit and explicit case are stable, see figure \ref{fig:apackedExp4}, \ref{fig:apackedImp4}. In the implicit case, the simulation becomes unstable for a close pack volume fraction $\pvfcp = 0.95$.
 %\vspace{-1cm}
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.55\linewidth]{sections/result/alphaPackedExp/alphaExp.png}
-    \caption{Mean bed height for different values of $\pvfcp$.}
+    \caption{Mean bed height for varying values of closed packed volume fractions $\pvfcp$.}
     \label{fig:meanBedPacked}
 \end{figure}
-
-% \FloatBarrier
-% \begin{figure}[h!]
-% \captionsetup[subfigure]{
-%   font={footnotesize},
-%   %justification=raggedright,
-%   singlelinecheck=false,
-%   position=below,
-%   %aboveskip=2.5cm, %belowskip=2.5cm,
-%   skip=-0.9cm
-%   %margin={0cm,-1cm}
-% }
-%     \centering
-%     \vspace{-0.2cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     %\caption{} 
-%     \includegraphics[width=0.9\linewidth]{sections/result/alphaPackedExp/2d_apacked_0.45_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:apackedExp1}
-%     \end{subfigure}
-%     \vspace{-0.2cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/alphaPackedExp/2d_apacked_0.65_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:apackedExp2}
-%     \end{subfigure}
-%     \vspace{-0.15cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/alphaPackedExp/2d_apacked_0.75_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:apackedExp3}
-%     \end{subfigure}
-%     \vspace{-0.15cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/alphaPackedExp/2d_apacked_0.85_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:apackedExp4}
-%     \end{subfigure}
-%     \vspace{-0.15cm}
-%     %\label{fig:placeholder}
-% %\end{figure}
-% %\FloatBarrier
-% %\FloatBarrier
-% %\begin{figure}
-%     %\centering
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/alphaPackedImp/2d_apacked_0.45_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:apackedImp1}
-%     \end{subfigure}
-%     \vspace{-0.15cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/alphaPackedImp/2d_apacked_0.65_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:apackedImp2}
-%     \end{subfigure}
-%     % \end{figure}
-%     % \begin{figure}\ContinuedFloat
-%     \vspace{-0.15cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/alphaPackedImp/2d_apacked_0.75_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:apackedImp3}
-%     \end{subfigure}
-%     \vspace{-0.15cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/alphaPackedImp/2d_apacked_0.85_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:apackedImp4}
-%     \end{subfigure}
-%     \caption{Mean particle volume fraction for $0.5s - 5s$ for different values of $\pvfcp$. With packing model explicit (\ref{fig:apackedExp1}) - (\ref{fig:apackedExp4}) and implicit (\ref{fig:apackedImp1}) - (\ref{fig:apackedImp4}).}
-%     \label{fig:aPacked}
-% \end{figure}
-% \FloatBarrier
-
 
 
 \section{Damping Terms}
 \subsection{Results collision damping}
 \label{sec:DampResults}
-
-
-We now include the collision damping term in the simulations. The term is not included in the standard \texttt{Goldschmidt} case.
-We test the collision damping term in a total of $84$ cases:
+We evaluate the performance of the collision damping term, which is switched off in the \lstinline|Goldschmidt| tutorial.
+We assess the behavior of the collision damping term in a total of $84$ cases:
 \begin{table}[h!]
     \centering
     \begin{tabular}{ c | c | c}
@@ -311,8 +104,8 @@ We test the collision damping term in a total of $84$ cases:
     \label{tab:placeholder}
 \end{table}
 
-Simulations are run with an adjustable time step limited by a Courant number of $0.6$. Simulations are terminated if the calculation time of single time step takes longer than ten minutes or the time step falls below a threshold of $10^{-20}s$.
-The final simulation times are listed in the two tables below for the non-equilibrium and the equilibrium term.
+Simulations are run with an adjustable time step limited by a Courant number of $0.6$. Simulations are terminated if the calculation time of single time step takes longer than ten minutes or the time step falls below a threshold of $\Delta \tvar < 10^{-20}s$.
+The final simulation times are detailed in the two tables below for the equilibrium \ref{tab:dampEqui} and the non-equilibrium \ref{tab:dampNonEqui} term.
 
 
 \begin{table}[h!]
@@ -371,8 +164,8 @@ The final simulation times are listed in the two tables below for the non-equili
 \cellcolor{ForestGreen!33}4.999988
 \\ \hline
 \end{tabular}    
-    \caption{Runtime for the damping term type \texttt{equilibrium} rounded. Entries marked in green reached a simulation time of $5$ seconds.}
-    \label{tab:placeholder}
+    \caption{Runtime for the damping term type \texttt{equilibrium} rounded. Entries marked in green reached the full simulation time of $5$ seconds.}
+    \label{tab:dampEqui}
 \end{table}
 
 \begin{table}[h!]
@@ -435,33 +228,35 @@ The final simulation times are listed in the two tables below for the non-equili
 2.888154
 \\ \hline
 \end{tabular}    
-    \caption{Runtime for the damping term type \texttt{nonEquilibrium}. Entries marked in green reached a simulation time of $5$ seconds.}
-    \label{tab:placeholder}
+    \caption{Runtime for the damping term type \texttt{nonEquilibrium}. Entries marked in green reached the full simulation time of $5$ seconds.}
+    \label{tab:dampNonEqui}
 \end{table}
 
-Out of the $84$ cases two terms reached a simulation time of five seconds. The term is therefore not considered in further applications.
+Out of $84$ cases only two successfully reached the target simulation time of $5$ seconds.
+The remaining cases were aborted prematurely. Consequently the term is not considered in further applications.
 
 \subsection{Results return-to-isotropy}
-The second damping term modifies the particle velocities based on a velocity distribution to imitate the scattering from collisions and is described in detail in sec \ref{sec:MPLoop}.
-To conserve comparability the seed which we use to draw from velocity distributions is fixed to $123456$.
-We run the simulation with a random seed a total of fifty times.
-For a total of $1000$ we save the fluid volume fraction and calculate a mean value for each sample point.
-We then calculate the maximal distance from the mean for each time step.
-The result can be observed in figure \ref{fig:maxDiffIso}.
+\label{sec:returnToIsotropyImpact}
+
+The second damping term introduces a stochastic element, by modifying the particle velocities based on a velocity distribution to imitate the scattering from collisions, see sec \ref{sec:MPLoop}.
+In \OF the unmodified \MP solver is run with the fixed seed \lstinline|123456|.
+We run the simulation fifty times with identical set up and a random seed.
+Data is sampled from $1000$ probe locations and compared over all $50$ simulations.
+We calculate a mean value of each probe for each time step and calculate the maximal deviation from the mean particle volume fraction as well as the mean deviation, see figure \ref{fig:maxDiffIso}.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.6\linewidth]{sections/result/isotropyModel.eps}
-    \caption{Maximal difference of fluid volume to the mean fluid volume fraction in $1000$ points.}
+    \includegraphics[width=0.49\linewidth]{sections/result/isotropyModel.eps}
+    %\includegraphics[width = 0.49 \linewidth]{sections/result/mean_abw.eps}
+    \includegraphics[width = 0.49 \linewidth]{sections/result/mean_mean_abw.eps}
+    \caption{Maximal difference of fluid volume to the mean fluid volume fraction (left) and mean deviation of all cells averaged in each time step (right) in $1000$ points.}
     \label{fig:maxDiffIso}
 \end{figure}
 
-After the particles first fall down the maximal difference to the mean error spikes to over $0.6$.
-In the following figure \ref{fig:diffIsoPV} two cases at time step $0.999741$ and $0.999599$ are depicted.
-In one case the fluid forms a layer in between the particles while in the second it does not.
+After the particles are inserted we see a spike in the mean deviation.
+After the particles have settled into a bed the particles are accelerated by the fluid inlet velocity a second spike appears in the mean deviation and the maximal deviation.
+The spike in maximal deviation is due to a layer of fluid forming in the particle bed in some of the cases, as depicted in figure \ref{fig:diffIsoPV}.
 This leads to a large local difference in the fluid volume fraction.
-%nr 0
-
 \begin{figure}[h!]
     \centering
     \includegraphics[height =5.5cm, trim = {10cm 0 10cm 0},clip]{sections/result/Part_wrong_iso.png}
@@ -469,124 +264,24 @@ This leads to a large local difference in the fluid volume fraction.
     \caption{Fluid volume fraction for two different seeds at $t = 0.999741$ (left) and $t = 0.999599$ (right).}
     \label{fig:diffIsoPV}
 \end{figure}
-In the following we use again use a fixed seed for the simulations.
 
-% \begin{figure}[h!]
-% \captionsetup[subfigure]{
-%   font={footnotesize},
-%   %justification=raggedright,
-%   singlelinecheck=false,
-%   position=below,
-%   %aboveskip=2.5cm, %belowskip=2.5cm,
-%   skip=-0.9cm
-%   %margin={0cm,-1cm}
-% }
-%     \centering
-%     \vspace{-0.2cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     %\caption{} 
-%     \includegraphics[width=0.9\linewidth]{sections/result/IsotropyExp/2d_apacked_0.5_0.65_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:IsotropyExp1}
-%     \end{subfigure}
-%     \vspace{-0.2cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/IsotropyExp/2d_apacked_0.7_0.65_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:IsotropyExp2}
-%     \end{subfigure}
-%     \vspace{-0.15cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/IsotropyExp/2d_apacked_0.9_0.65_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:IsotropyExp3}
-%     \end{subfigure}
-%     \vspace{-0.15cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/IsotropyExp/2d_apacked_0.95_0.65_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:IsotropyExp4}
-%     \end{subfigure}
-%     \vspace{-0.15cm}
-%     %\label{fig:placeholder}
-% %\end{figure}
-% %\FloatBarrier
-% %\FloatBarrier
-% %\begin{figure}
-%     %\centering
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/IsotropyImp/2d_apacked_0.5_0.65_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:IsotropyImp1}
-%     \end{subfigure}
-%     \vspace{-0.15cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/IsotropyImp/2d_apacked_0.7_0.65_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:IsotropyImp2}
-%     \end{subfigure}
-%     \end{figure}
-%     \begin{figure}[h!]\ContinuedFloat
-%     \centering
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/IsotropyImp/2d_apacked_0.9_0.65_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:IsotropyImp3}
-%     \end{subfigure}
-%     \vspace{-0.15cm}
-%     \begin{subfigure}[t]{0.49 \linewidth}
-%     \includegraphics[width=0.9\linewidth]{sections/result/IsotropyImp/2d_apacked_0.95_0.65_0.00005_0.07.png}
-%     \caption{}
-%     \label{fig:IsotropyImp4}
-%     \end{subfigure}
-%     \caption{Mean particle volume fraction for $0.5s - 5s$ for different values of $e_p$. With packing model explicit (\ref{fig:IsotropyExp1}) - (\ref{fig:IsotropyExp4}) and implicit (\ref{fig:IsotropyImp1}) - (\ref{fig:IsotropyImp4}).}
-%     \label{fig:Isotropy}
-% \end{figure}
-%  \FloatBarrier
+Although the mean and maximal deviation stabilizes, longer simulation times could amplify the effects of the return-to-isotropy model.
+%nr 0
+To ensure reproducibility the subsequent simulations are run with a fixed seed.
 
-
-% \subsection{Drag Model}
-% The frictional pressure drop was empirically correlated to the cube Reynolds number
-% \begin{equation*}
-%     F_D = (A \pvf + B \operatorname{Re}_p) \dfrac{\pvf \mu_f}{\fvf^2 d_p^2} \qquad \operatorname{Re}_p = \dfrac{\rf \lvert \u_{rel} \rvert d_p}{\mu_f}
-% \end{equation*}
-% Several different coefficient values have been proposed for $A$ and $B$. %\Todo{Ein paar schreiben}
-% Two models available in \OF are the Plessis-Masliyah drag model \cite{Plessis}
-% \begin{equation*}
-%     A = \dfrac{26.8 \fvf^2}{\pvf^{2/3}(1-\pvf^{1/3})(1-\fvf^{2/3}} \qquad B = \dfrac{\fvf^2}{(1-\pvf^{2/3})^2}
-% \end{equation*}
-% and the Ergun-Wen-Yu model \cite{ErgunWenYu}
-% \begin{equation*}
-%     F_D = \begin{cases}
-%         \dfrac{3 (1-\fvf) \mu_f \fvf \operatorname{Re}_p}{d_p^2} C_D \fvf^{-2.65} & \text{if } \fvf \geq 0.8 \\
-%         \left(150 \dfrac{1-\fvf}{\fvf} + 1.75 \operatorname{Re}_p \right) \dfrac{(1-\fvf) \mu_f}{d_p^2} & \text{if } \fvf < 0.8
-%     \end{cases} \qquad C_D = \begin{cases}
-%         24 \left(1+0.15 \operatorname{Re}_p^{0.687}\right) & \text{if } \operatorname{Re}_p < 1000 \\
-%         0.44 & \text{if } \operatorname{Re}_p \geq 1000
-%     \end{cases}
-% \end{equation*}
-% which uses the Ergun expression for fluid volume fractions below $0.8$ .
-
-% \section{Pressure drop}
-% %\Todo{Plot einfügen}
-% At the beginning of this thesis in the background chapter we discussed the pressure drop in a fluidized bed reactor, see section \ref{sec:basicFBR}.
-% We expect the pressure drop grows linearly at first. 
-% As we reach the minimum fluidization velocity we expect to get a slight increase in pressure drop before staying nearly constant in order to match the experimental data.
-
-% We can observe that behavior in the following plot
-% \begin{figure}[h!]
-%     \centering
-%     \includegraphics[width=0.5\linewidth]{sections/result/pressureDrop.png}
-%     \caption{Kinematic pressure drop}
-%     \label{fig:placeholder}
-% \end{figure}
 
 
 
 
 \section{Parameter Study}
 \label{sec:paramStudy}
-To fit our simulation to the given data we vary the models and parameters of the \MP method. The particle normal stress, here chosen as the explicit Harris and Crighton model, depends on the particle close pack volume fraction $\pvfcp$, the exponent $\beta$ and the pressure constant $P_s$. As all three have different influences on the simulation we always vary two parameters at a time and leave the third as defined in the \lstinline|Goldschmidt| tutorial, see table \ref{tab:cases},
+
+The objective of this section is to fit the \MP model parameters to the experimental fluidized bed data.
+Here we choose the explicit Harris and Crighton model which is governed by three parameters: the particle close pack volume fraction $\pvfcp$, the exponent $\beta$ and the pressure constant $P_s$
+We vary parameters pairwise with the third parameter being held constant at the default value from the \lstinline|Goldschmidt| tutorial.
+The definition of these parameters is detailed in table \ref{tab:cases}.
+
+ % As all three have different influences on the simulation we always vary two parameters at a time and leave the third as defined in the \lstinline|Goldschmidt| tutorial, see table \ref{tab:cases},
 % \begin{table}[h!]
 %     \centering
 %     \begin{tabular}{c|c c c}
@@ -612,10 +307,10 @@ To fit our simulation to the given data we vary the models and parameters of the
         Case 3 & $\pvfcp =0.65$ & $\beta \in [1.5 , 5.0]$ & $P_s \in [5.0,10.0]$
         %\lstinline|0.65| & \lstinline|1.5|, \lstinline|2.0|, \lstinline|2.5|, \lstinline|3.0|, \lstinline|3.5|, \lstinline|4.0|, \lstinline|4.5|, \lstinline|5.0| & \lstinline|5.0|, \lstinline|6.0|, \lstinline|7.0|, \lstinline|8.0|, \lstinline|9.0|, \lstinline|10.0|
     \end{tabular}
-    \caption{Caption}
+    \caption{Parameters for pairwise parameter testing with the parameters in each range defined in table \ref{tab:exact_param}.}
     \label{tab:cases}
 \end{table}
-with exact parameters as listed in table \ref{tab:exact_param}.
+The exact parameters utilized are listed in table \ref{tab:exact_param}.
 \begin{table}[h!]
     \centering
     \begin{tabular}{c|c}
@@ -628,31 +323,9 @@ with exact parameters as listed in table \ref{tab:exact_param}.
     \caption{Parameters for the Harris and Crighton model}
     \label{tab:exact_param}
 \end{table}
-% For the close pack volume fraction we use the parameters $\pvfcp$ = \{ \lstinline|0.55|, \lstinline|0.58|, \lstinline|0.6|, \lstinline|0.63|, \lstinline|0.65|, \lstinline|0.68|, \lstinline|0.7|\} the exponent as $\beta $= \{\lstinline|1.5|, \lstinline|2.0|, \lstinline|2.5|, \lstinline|3.0|, \lstinline|3.5|, \lstinline|4.0|, \lstinline|4.5|, \lstinline|5.0|\} and the pressure constant as $P_s$ = \{\lstinline|5.0|, \lstinline|6.0|, \lstinline|7.0|, \lstinline|8.0|, \lstinline|9.0|, \lstinline|10.0|\}.
+% Beyond the packing model parameters, the sensitivity of the simulation to physical modeling choices is also evaluated. This includes variations in the drag model (\lstinline|ErgunWenYu| vs. \lstinline|PlessisMasliyah|) and the return-to-isotropy model (\lstinline|stochastic| vs. \lstinline|none|).
 
-
-% \begin{table}[h!]
-%     \centering
-%     \begin{tabular}{c|c c c}
-%         Parameters & Case 1 & Case 2 & Case 3 \\
-%         $\pvfcp$ & \lstinline|0.55|, \lstinline|0.58|, \lstinline|0.6|, \lstinline|0.63|, \lstinline|0.65|, \lstinline|0.68|, \lstinline|0.7|& \lstinline|0.55|, \lstinline|0.58|, \lstinline|0.6|, \lstinline|0.63|, \lstinline|0.65|, \lstinline|0.68|, \lstinline|0.7|& \lstinline|0.65| \\
-%         $\beta$ & \lstinline|1.5|, \lstinline|2.0|, \lstinline|2.5|, \lstinline|3.0|, \lstinline|3.5|, \lstinline|4.0|, \lstinline|4.5|, \lstinline|5.0|&\lstinline|2.0| & \lstinline|1.5|, \lstinline|2.0|, \lstinline|2.5|, \lstinline|3.0|, \lstinline|3.5|, \lstinline|4.0|, \lstinline|4.5|, \lstinline|5.0| \\
-%         $P_s$ & \lstinline|10.0| & \lstinline|5.0|, \lstinline|6.0|, \lstinline|7.0|, \lstinline|8.0|, \lstinline|9.0|, \lstinline|10.0| & \lstinline|5.0|, \lstinline|6.0|, \lstinline|7.0|, \lstinline|8.0|, \lstinline|9.0|, \lstinline|10.0|
-%     \end{tabular}
-% \end{table}
-% \begin{table}[h!]
-%     \centering
-%     \begin{tabular}{c|c c c}    
-%         Parameters & $\pvfcp$ & $\beta$ & $P_s$ \\
-%         \hline
-%         Case 1  & \lstinline|0.55|, \lstinline|0.58|, \lstinline|0.6|, \lstinline|0.63|, \lstinline|0.65|, \lstinline|0.68|, \lstinline|0.7| & \lstinline|1.5|, \lstinline|2.0|, \lstinline|2.5|, \lstinline|3.0|, \lstinline|3.5|, \lstinline|4.0|, \lstinline|4.5|, \lstinline|5.0| & \lstinline|10.0|\\
-%         Case 2 & \lstinline|0.55|, \lstinline|0.58|, \lstinline|0.6|, \lstinline|0.63|, \lstinline|0.65|, \lstinline|0.68|, \lstinline|0.7| & \lstinline|2.0| & \lstinline|5.0|, \lstinline|6.0|, \lstinline|7.0|, \lstinline|8.0|, \lstinline|9.0|, \lstinline|10.0|\\
-%         Case 3 & \lstinline|0.65| & \lstinline|1.5|, \lstinline|2.0|, \lstinline|2.5|, \lstinline|3.0|, \lstinline|3.5|, \lstinline|4.0|, \lstinline|4.5|, \lstinline|5.0| & \lstinline|5.0|, \lstinline|6.0|, \lstinline|7.0|, \lstinline|8.0|, \lstinline|9.0|, \lstinline|10.0|
-%     \end{tabular}
-%     \caption{Caption}
-%     \label{tab:placeholder}
-% \end{table}
-Apart from the Harris and Crighton model, the drag model is varied, the isotropy model is switched on and off, and four different inlet velocities are considered. 
+We test the packing model parameters with different modeling choices for the drag model and the return-to-isotopy model as listed in table \ref{tab:ParmStudSwitch}.
 \begin{table}[h!]
     \centering
     \begin{tabular}{c|c c c c}
@@ -660,39 +333,17 @@ Apart from the Harris and Crighton model, the drag model is varied, the isotropy
          isotropy & \lstinline|stochastic| & \lstinline|none| & & \\
          velocity & 0.015 & 0.025 & 0.034 & 0.042
     \end{tabular}
-    \caption{Sixteen cases are tested with different parameters for $\pvfcp$, $\beta$, $P_s$}
-    \label{tab:placeholder}
+    \caption{Modeling options that are tested along different parameters for $\pvfcp$, $\beta$, $P_s$}
+    \label{tab:ParmStudSwitch}
 \end{table}
 
-The velocities are selected to ensure that the bed is in a fluidized state.
-In a fluidized state the mean bed height varies only slightly. 
-From the provided images we can deduce a mean bed height, see \ref{fig:bed_height_exp} and choose velocities so the volumetric inflow rate is between $0.07 \operatorname{l}/\operatorname{min}$ and $0.2 \operatorname{l}/\operatorname{min}$.
-
-The bed height is gathered from the provided images.
-We crop the pixel to only include the tube of the fluidized bed reactor, see \ref{fig:img_processing}.
-We iterate over the pixels in one column starting from the top.
-We start at the first pixel with a light difference of zero.
-The pixel is updated if the light difference of the pixel considered with the one below it is higher than the current light difference.
-To make sure we enter a bed instead of leaving it we check if we have a negative difference, because the bed is white and therefor brighter and if the pixel below has a value of at least $120$ to check we are in a bed and not at a smudge.
-We average over the columns and take the result as the bed height
-\begin{figure}
-    \centering
-    \includegraphics[width = 0.395 \linewidth, trim = {12cm 0 12cm 0},clip]{sections/result/016_grey19.png}
-    \hspace{4cm}
-    \includegraphics[width=0.048\linewidth]{sections/result/016_crop19.png}
-    \caption{Image processing for bed height for a single time step at velocity $\uf = 0.034 m/s$. On the left images of the fluidized bed reactor provided by. On the right hand side the bed height. The single dots represent the bed height of the column. The solid line represents the mean bed height.}
-    \label{fig:img_processing}
-\end{figure}
-The bed height over the velocity is presented in the following figure \ref{fig:bed_height_exp}.
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.7\linewidth]{sections/result/expBedHeightWobble.png}
-    \caption{Caption}
-    \label{fig:bed_height_exp}
-\end{figure}
-
-
-The aim of this section is to fit simulation parameters of different inlet velocities to the data provided by the experiments listed in table \ref{tab:expData}.
+As discussed in sec \ref{sec:basicFBR} the bed height varies only slightly in a fluidized state.
+Based on the gathered bed height data summarized in figure \ref{fig:bed_height_exp} we determine four inlet velocities that are listed in table \ref{tab:expData}.
+% The velocities are selected to ensure that the bed is in a fluidized state.
+% In a fluidized state the mean bed height varies only slightly. 
+% From the provided images we can deduce a mean bed height, see \ref{fig:bed_height_exp} and choose velocities so the volumetric inflow rate is between $0.07 \operatorname{l}/\operatorname{min}$ and $0.2 \operatorname{l}/\operatorname{min}$.
+We aim to fit the simulation parameters for different inlet velocities to minimize the deviation from both the experimental pressure drop and the experimental bed height.
+% The aim of this section is to fit simulation parameters of different inlet velocities to the data provided by the experiments listed in table \ref{tab:expData}, with the bed height gathered as explained in sec \ref{sec:bedHeightBest}.
 \begin{table}[h!]
     \centering
     \begin{tabular}{c|c c c}
@@ -706,12 +357,42 @@ The aim of this section is to fit simulation parameters of different inlet veloc
     \caption{Bed height for different volumetric flow rates.}
     \label{tab:expData}
 \end{table}
-The provided data consists of a mean pressure drop and a mean bed height.
-Fitting parameters is done by minimizing the relative error for the data
+%The provided data consists of a mean pressure drop and a mean bed height.
+Fitting parameters is done by minimizing the relative error for the data  y
  \begin{equation}
  \label{eq:relError}
         err = \sqrt{\left( \dfrac{\Delta p - \Delta p_{exp}}{\Delta p_{exp}}\right)^2 + \left( \dfrac{h_{bed} - h_{bed,exp}}{h_{bed,exp}} \right)^2}.
 \end{equation}
+
+In the \MP method the pressure calculated and output is the kinematic pressure, which we multiply by the fluid density $1.2 \operatorname{kg/m^3}$ to get the static pressure.
+The kinematic pressure is measured in the center of the grid at the top%, $P(7.5e-05| 0.005| 0.0497487)$ 
+and the bottom %$P(7.5e-05| 0.005| 0.000251256)$ 
+away from the boundary.
+%\Todo{Punkte einfügen}
+The simulated bed height is determined by finding the highest cell with a fluid volume fraction of less than $0.95$.
+Averaging over several columns gives us the mean bed height, which we use for comparison.
+All simulations are run for $3.5s$ and data is gathered from the last two seconds and averaged. \todo{Plot pressure drop über $3.5s$ um zu sehen das sich der nicht mehr wirklich ändert?}
+
+In the following we go over all three cases for the velocity of $0.015 \operatorname{m/s}$ and look at the relative error of the pressure, the bed height and the combined relative error defined in equation \eqref{eq:relError}.
+The results are summarized and discussed in sec \ref{sec:discAndRes}.
+
+
+
+% \subsection{Operating Conditions and Model Variations} Beyond the packing model parameters, the sensitivity of the simulation to physical modeling choices is also evaluated. This includes variations in the drag model (\lstinline|ErgunWenYu| vs. \lstinline|PlessisMasliyah|) and the return-to-isotropy model (\lstinline|stochastic| vs. \lstinline|none|).
+
+% These variations are tested across four superficial gas velocities, corresponding to the experimental operating points where the bed is in a stable fluidized state (see Table \ref{tab:model_vars}).
+
+% \begin{table}[h!] \centering \begin{tabular}{l | l} \hline \textbf{Model/Condition} & \textbf{Settings} \ \hline Drag Model & \lstinline|ErgunWenYu|, \lstinline|PlessisMasliyah| \ Isotropy Model & \lstinline|stochastic|, \lstinline|none| \ Inlet Velocity (usup​) & 0.015,0.025,0.034,0.042 m/s \ \hline \end{tabular} \caption{Physical modeling options and operating conditions.} \label{tab:model_vars} \end{table}
+
+% \subsection{Experimental Reference and Error Metric} The target data for calibration was obtained from experiments corresponding to volumetric flow rates between 0.07 and 0.2 l/min. The reference values for pressure drop (Δpexp​) and bed height (hbed,exp​) are summarized in Table \ref{tab:expData}.
+
+% \begin{table}[h!] \centering \begin{tabular}{c c c c} \hline Flow Rate (l/min) & Velocity (m/s) & Pressure Drop (Pa) & Bed Height (cm) \ \hline 0.07 & 0.015 & 140 & 1.68 \ 0.12 & 0.025 & 149 & 1.76 \ 0.16 & 0.034 & 157 & 1.80 \ 0.20 & 0.042 & 159 & 1.76 \ \hline \end{tabular} \caption{Experimental reference data used for calibration.} \label{tab:expData} \end{table}
+
+% To quantify the accuracy of a parameter set, a combined relative error metric is defined, giving equal weight to the pressure drop and the bed expansion:
+
+% \begin{equation} \label{eq:relError} err = \sqrt{\left( \frac{\Delta p - \Delta p_{exp}}{\Delta p_{exp}}\right)^2 + \left( \frac{h_{bed} - h_{bed,exp}}{h_{bed,exp}} \right)^2} \end{equation}
+
+% Minimizing this error function identifies the parameter set that best captures the macroscopic hydrodynamics of the fluidized bed.
 
 
 \ifschonwars
@@ -1036,41 +717,38 @@ We test the parameters for four inlet velocities.
 \paragraph{Drag model \lstinline|PlessisMaliyahDrag| and isotropy model \lstinline|stochastic|}
 \fi
 
-In the \MP method the pressure calculated and output is the kinematic pressure, which we multiply by the fluid density $1.2 \operatorname{kg/m^3}$ to get the static pressure.
-The kinematic pressure is measured at the top, $P(7.5e-05| 0.005| 0.0497487)$ and the bottom of the grid $P(7.5e-05| 0.005| 0.000251256)$ in the center but not on the boundary.
-%\Todo{Punkte einfügen}
-The bed height is determined in the simulation by checking if a cell has a fluid volume fraction of less than $0.95$.
-We do this in several columns and save for each the top most cell where this is the case.
-For the bed height we then average over those values.
-
-In the following we go over all three cases for the velocity of $0.015 \operatorname{m/s}$ and look at the relative error of the pressure, the bed height and the combined relative error define in equation \eqref{eq:relError}.
-The results are summarized and discussed in sec \ref{sec:discAndRes}.
 
 
 
 
-\subsection{Case 1: $\pvfcp$ and $\beta$}
+\subsection{Case 1: Variation of $\pvfcp$ and $\beta$}
 %first pressure, second height, third both
 
-First we vary the close pack volume fraction $\pvfcp$ and $\beta$.
-The pressure constant $P_s$ is left constant as $P_s = 10$, as set in the \lstinline|Goldschmidt| case.
-Here we discuss the inlet velocity $\uf = 0.015 \operatorname{m/s}$. The results of the three remaining velocities are in the Appendix \todo{Appendix einfügen}.
+% \subsubsection{Performance of the \lstinline|ErgunWenYu| Drag Model}
+
+
+ In the first case we vary the close pack volume fraction $\pvfcp$ and $\beta$, while the pressure constant $P_s$ is left constant as $P_s = 10$, as set in the \lstinline|Goldschmidt| case.
+Here we discuss the results at inlet velocity $\uf = 0.015 \operatorname{m/s}$. The remaining velocities are provided in the Appendix \todo{Appendix einfügen}.
 
 %\subsubsection{Inlet velocity $\uf = 0.015m/s$}
 
-For an inlet velocity $\uf = 0.015m/s$ we expect a bed height of $1.68cm$ and a pressure drop of $140 Pa$.
+% For an inlet velocity $\uf = 0.015m/s$ we expect a bed height of $1.68cm$ and a pressure drop of $140 Pa$.
+
+% Without Isotropy Model (\lstinline|none|) Figure \ref{fig:EWYNone0015} illustrates the error landscape for the standard configuration. The pressure drop error (Fig. \ref{fig:PDEWYNone0015}) is minimized at β=4.5 and αcp​=0.7 (errrel​≈0.23). A sharp increase in error is observed at the upper bound (β=5.0), while lower values of αcp​ and β generally yield higher errors, peaking at 0.30 for β=3.0,αcp​=0.55.
+
+% The bed height error (Fig. \ref{fig:BHEWYNone0015}) clearly favors higher exponents, reaching a minimum of 0.04 at β=5.0,αcp​=0.7. Notably, the pressure drop error dominates the combined metric. Consequently, the global minimum for the combined error aligns with the pressure drop optimum at β=4.5 and αcp​=0.7.
 
 \paragraph{Drag model \lstinline|ErgunWenYuDrag| and isotropy model \lstinline|none|}
+\todo{Lieber Tabellen statt so viel Text?}
 We start by using the \lstinline|ErgunWenYuDrag| drag model and turn off the isotropy model.
-The pressure drop is plotted in figure \ref{fig:PDEWYNone0015}. 
-The relative error of the pressure drop is minimal for an exponent of $\beta = 4.5$ and close pack particle volume fraction $\pvfcp = 0.7$ with a relative error of $0.23$ before spiking for $\beta = 5$. Possible causes of the high relative error for the pressure drop are discussed in sec \ref{sec:discAndRes}.
+The pressure drop error, plotted in figure \ref{fig:C1PDEWYNone0015}, is minimal for an exponent of $\beta = 4.5$ and close pack particle volume fraction $\pvfcp = 0.7$ with a relative error of $0.23$ before spiking for $\beta = 5$. Possible causes of the high relative error for the pressure drop are discussed in sec \ref{sec:discAndRes}.
 The relative error grows for smaller exponents and smaller close pack volume fractions up to $0.30$ at $\beta = 3.0$ and $\pvfcp = 0.55$.
 For even smaller $\pvfcp$ the error grows smaller again.
 
 
 
-In contrast the minimum relative error for the bed height in figure \ref{fig:BHEWYNone0015} is at $\beta = 5.0$ and $\pvfcp = 0.7$ with a relative error of $0.04$. The error stays largely the same for all parameters and peaks at $0.12$ at $\beta = 1.5$ and $\pvfcp = 0.68$.
-Because the relative error from the pressure drop dominates, the overall behavior of the combined relative error is similar to that of the pressure drop, except for slightly smoothed. The lowest relative error aligns with that of the pressure drop and is at $\beta = 4.5$ and $\pvfcp = 0.7$. 
+In contrast the minimum relative error for the bed height in figure \ref{fig:C1BHEWYNone0015} is at $\beta = 5.0$ and $\pvfcp = 0.7$ with a relative error of $0.04$. Apart from the sharp decrease toward the minimum the error stays largely the same for all parameters and peaks at $0.12$ at $\beta = 1.5$ and $\pvfcp = 0.68$.
+Because the relative error depicted in \ref{fig:C1EWYNone0015} from the pressure drop dominates, the overall behavior of the combined relative error is similar to that of the pressure drop, except for slightly smoothed. The lowest relative error aligns with that of the pressure drop and is at $\beta = 4.5$ and $\pvfcp = 0.7$. 
 
 \FloatBarrier
 \begin{figure}[h!]
@@ -1078,45 +756,47 @@ Because the relative error from the pressure drop dominates, the overall behavio
     \begin{subfigure}[b]{0.49 \linewidth}
         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_pres0.015_ErgunWenYuDrag_none.png}
         \caption{Relative error of pressure with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
-        \label{fig:PDEWYNone0015}
+        \label{fig:C1PDEWYNone0015}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.49 \linewidth}
         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_height0.015_ErgunWenYuDrag_none.png}
         \caption{Relative error of bed height with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
-        \label{fig:BHEWYNone0015}
+        \label{fig:C1BHEWYNone0015}
     \end{subfigure}
     \caption{Relative error of the pressure drop (left) and the bed height (right).}
 \end{figure}
-\todo{Gibt es Meinungen zur Color Map / Plot Style? Der ist am Anfang in Ordnung. Die Plots später meeh}
+\todo{Gibt es Meinungen zur Color Map / Plot Style? Je länger ich die anschaue desto meeher finde ich die}
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_both0.015_ErgunWenYuDrag_none.png}
     \caption{Combined relative error with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$, according to equation \eqref{eq:relError}.}
-    \label{fig:EWYNone0015}
+    \label{fig:C1EWYNone0015}
 \end{figure}
 \FloatBarrier
 
 \paragraph{Drag model \lstinline|ErgunWenYuDrag| and isotropy model \lstinline|stochastic|}
 Including the isotropy model in the simulations leads to a vastly different result.
-In this case the minimal relative error for the pressure drop of $0.23$ is at $\beta = 2.0$, therefor at the other end of the spectrum. The close pack volume fraction at the minimal relative error is at $\pvf = 0.65$.
+In this case the minimal relative error for the pressure drop in figure \ref{fig:C1PDEWYStoch0015} of $0.23$ is at $\beta = 2.0$, therefor at the other end of the spectrum. The close pack volume fraction at the minimal relative error is at $\pvf = 0.65$.
 The pressure drop peaks at $\beta = 3.0$ and $\pvfcp = 9.55$ with a relative error of $0.30$. 
-The bed height is similar to the previous case. Again we see a plateau with a steep slope descending towards high particle volume fractions and exponents.
+The bed height in figure \ref{fig:C1BHEWYStoch0015} is similar to the previous case. Again we see a plateau with a steep slope descending towards high particle volume fractions and exponents.
 The minimal relative error can be found at the bottom of the slope at $\beta = 5.0$ and $\pvfcp = 0.7$ with a relative error of $0.04$.
 The maximal relative error is at the opposite side with $\beta = 1.5$ and $\pvfcp = 0.68$ and a relative error of $0.12$.
-Once again the higher relative error from the pressure drop dominates the overall error.
-The parameters of oth the highest and lowest relative overall error coincide with those of the pressure drop.
+Once again the higher relative error from the pressure drop dominates the overall error, see figure \ref{fig:C1EWYStoch0015}.
+The parameters of both the highest and lowest relative overall error coincide with those of the pressure drop.
 \FloatBarrier
 \begin{figure}[h!]
     \centering
     \begin{subfigure}[b]{0.49 \linewidth}
         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_pres0.015_ErgunWenYuDrag_stochastic.png}
         \caption{Relative error of pressure with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015m/s$.}
+        \label{fig:C1PDEWYStoch0015}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.49 \linewidth}
         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_height0.015_ErgunWenYuDrag_stochastic.png}
         \caption{Relative error of bed height with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015m/s$.}
+        \label{fig:C1BHEWYStoch0015}
     \end{subfigure}
 \end{figure}
 
@@ -1124,7 +804,7 @@ The parameters of oth the highest and lowest relative overall error coincide wit
     \centering
     \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_both0.015_ErgunWenYuDrag_stochastic.png}
     \caption{Combined relative error with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015m/s$, according to equation \eqref{eq:relError}.}
-    \label{fig:placeholder}
+    \label{fig:C1EWYStoch0015}
 \end{figure}
 \FloatBarrier
 
@@ -1134,13 +814,13 @@ The parameters of oth the highest and lowest relative overall error coincide wit
 In the following we swap the \lstinline|ErgunWenYuDrag| model for the \lstinline|PlessisMaliyahDrag| model.
 We start again by turning the isotropy model off.
 
-The relative errors for the bed height and the pressure drop show similar trends, both descending for a higher exponent and bigger particle volume fractions.
+The relative errors for the pressure drop, figure \ref{fig:C1PDPMNone0015} and the bed height, figure \ref{fig:C1BHPMNone0015} show similar trends, both descending for a higher exponent and bigger particle volume fractions.
 The pressure drops spikes for $\beta =5$ and $\pvfcp = 0.7$. The minimal relative error for the pressure drop is therefor at $\beta = 4.5$ and $\pvfcp = 0.7$ with a minimal relative error of $0.26$.
 The pressure drop error peaks at $\beta = 3.0$ and $\pvfcp = 0.6$ with a marginally higher relative error of $0.29$.
 The bed height error again is minimal at $\beta = 5.0$ and $\pvfcp = 0.7$ with a minimal relative error of $0.08$ and peaks at $\beta = 3.5$ and $\pvfcp = 0.58$ with an error of $0.22$.
 Both the minimal and maximal bed height error are roughly double that of what they were in the \lstinline|ErgunWenYuDrag| model.
 
-The overall relative error shows the same trend with the minimal relative error at $\pvfcp = 0.68$ and $\beta = 5.0$ of $0.29$ and a maximal relative error at $\pvfcp = 0.6$ and $\beta = 3.0$ of $0.36$.
+The overall relative error, figure \ref{fig:C1PMNone0015}, shows the same trend with the minimal relative error at $\pvfcp = 0.68$ and $\beta = 5.0$ of $0.29$ and a maximal relative error at $\pvfcp = 0.6$ and $\beta = 3.0$ of $0.36$.
 
 
 \FloatBarrier
@@ -1149,11 +829,13 @@ The overall relative error shows the same trend with the minimal relative error 
     \begin{subfigure}[b]{0.49 \linewidth}
         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_pres0.015_PlessisMasliyahDrag_none.png}
         \caption{Relative error of pressure with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
+        \label{fig:C1PDPMNone0015}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.49 \linewidth}
         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_height0.015_PlessisMasliyahDrag_none.png}
         \caption{Relative error of bed height with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
+        \label{fig:C1BHPMNone0015}
     \end{subfigure}
 \end{figure}
 
@@ -1161,7 +843,7 @@ The overall relative error shows the same trend with the minimal relative error 
     \centering
     \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_both0.015_PlessisMasliyahDrag_none.png}
     \caption{Combined relative error with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$, according to equation \eqref{eq:relError}.}
-    \label{fig:placeholder}
+    \label{fig:C1PMNone0015}
 \end{figure}
 \FloatBarrier
 
@@ -1169,15 +851,15 @@ The overall relative error shows the same trend with the minimal relative error 
 
 \paragraph{Drag model \lstinline|PlessisMaliyahDrag| and isotropy model \lstinline|stochastic|}
 
-Including the isotropy model in our simulation again switches the impact of the exponent on the pressure drop.
+Including the isotropy model in our simulation again switches the impact of the exponent on the pressure drop in figure \ref{fig:C1PDPMStoch0015}.
 The minimal relative error is at $\beta = 1.5$ and $\pvfcp = 0.68$ with a relative error of $0.24$.
-For higher exponents and lower particle volume fraction the relative error is uneven.
+For higher exponents and lower close packed particle volume fractions the relative error fluctuates.
 The pressure drop has is maximal relative error of $0.29$ at $\beta = 2.0$ and $\pvfcp = 0.55$.
-The bed height again plateaus with a maximal error of about $0.22$ at $\beta = 2.5$ and $\pvfcp = 0.7$.
+The bed height again plateaus with a maximal error of about $0.22$ at $\beta = 2.5$ and $\pvfcp = 0.7$ in figure \ref{fig:C1BHPMStoch0015}. \todo{Wo Betthöhe minimum}
 
 
 Because the pressure drop error is in a smaller range compared to the bed height the overall relative error is smallest at $\beta = 5.0$ and $\pvfcp = 0.7$ with a relative error of $0.30$.
-The bed height dominates the relative error for large exponents and large close pack particle volume fractions and leads to a decline. The error plateaus where both errors are big, therefor at intermediate $\beta$ and declines for smaller exponents analogously to the relative error of the pressure drop.
+The bed height dominates the overall relative error in figure \ref{fig:C1PMStoch0015} for large exponents and large close pack particle volume fractions and leads to a decline. The error plateaus where both errors are big, therefor at intermediate $\beta$ and declines for smaller exponents analogously to the relative error of the pressure drop.
 The maximal error coincides with the parameters of the pressure drop, as the error is larger, at $\pvfcp = 0.55$ and $\beta = 2.0$ and a relative error of $0.36$. 
 
 
@@ -1187,11 +869,13 @@ The maximal error coincides with the parameters of the pressure drop, as the err
     \begin{subfigure}[b]{0.49 \linewidth}
         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_pres0.015_PlessisMasliyahDrag_stochastic.png}
         \caption{Relative error of pressure with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
+        \label{fig:C1PDPMStoch0015}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.49 \linewidth}
         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_height0.015_PlessisMasliyahDrag_stochastic.png}
         \caption{Relative error of bed height with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015m/s$.}
+        \label{fig:C1BHPMStoch0015}
     \end{subfigure}
 \end{figure}
 
@@ -1199,12 +883,43 @@ The maximal error coincides with the parameters of the pressure drop, as the err
     \centering
     \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_both0.015_PlessisMasliyahDrag_stochastic.png}
     \caption{Combined relative error with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015m/s$, according to equation \eqref{eq:relError}.}
-    \label{fig:placeholder}
+    \label{fig:C1PMStoch0015}
 \end{figure}
 \FloatBarrier
 
-Overall the \lstinline|ErgunWenYuDrag| results in a lower overall error. The bed height plateaus in all four cases. For the \lstinline|ErgunWenYuDra| model at a relative error of about $0.11$ and for the \lstinline|PlessisMasliyahDrag| model at about $0.22$.
+
+% \subsubsection{Summary of Case 1} The \lstinline|ErgunWenYu| drag model consistently outperforms the \lstinline|PlessisMasliyah| model, achieving bed height errors approximately 50% lower. A critical observation is the influence of the isotropy model on the pressure drop: \begin{itemize} \item \textbf{Without Isotropy:} Pressure drop accuracy improves with \textbf{increasing} β. \item \textbf{With Isotropy:} Pressure drop accuracy improves with \textbf{decreasing} β. \end{itemize} However, since the bed height accuracy consistently favors higher β values across all configurations, the combined global optimum is generally located at high β (≈4.5−5.0) and high αcp​ (≈0.7).
+
+
+The \lstinline|ErgunWenYuDrag| model outperforms the \lstinline|PlessisMasliyahDrag| model consistently.
+This is largely due to the relative error of the bed height in the \lstinline|ErgunWenYu| model being approximately half of the \lstinline|PlessisMasliyahDrag|.
 In all cases the minimal relative error occurred at higher close pack particle volume fraction. The pressure drop relative error is either at higher beta for no isotropy model or at lower beta for the isotropy model \lstinline|stochastic|. Depending on the bed height the minimal relative error is then sided at either a very high or a very low exponent.
+
+
+% Improved Version
+
+% \subsection{Case 1: Variation of αcp​ and β}
+
+
+% With Isotropy Model (\lstinline|stochastic|) Activating the stochastic isotropy model inverts the dependency of the pressure drop on β. The minimum pressure error (0.23) shifts to the lower end of the spectrum (β=2.0,αcp​=0.65). However, the bed height error remains consistent with the previous case, favoring high exponents (minimum error 0.04 at β=5.0). Since the bed height error gradient is steep, it influences the combined error significantly. Despite the shift in pressure drop behavior, the global optimum remains at high β values, though the error landscape is flatter compared to the non-isotropy case.
+
+% \FloatBarrier \begin{figure}[h!] \centering \begin{subfigure}[b]{0.49 \linewidth} \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_pres0.015_ErgunWenYuDrag_stochastic.png} \caption{Pressure drop error.} \end{subfigure} \hfill \begin{subfigure}[b]{0.49 \linewidth} \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_height0.015_ErgunWenYuDrag_stochastic.png} \caption{Bed height error.} \end{subfigure} \caption{Relative error maps for \lstinline|ErgunWenYuDrag| with \lstinline|stochastic| isotropy.} \end{figure}
+
+% \begin{figure}[h!] \centering \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_both0.015_ErgunWenYuDrag_stochastic.png} \caption{Combined relative error for \lstinline|ErgunWenYuDrag| with \lstinline|stochastic| isotropy.} \label{fig:placeholder} \end{figure} \FloatBarrier
+
+% \subsubsection{Performance of the \lstinline|PlessisMasliyah| Drag Model}
+
+% Without Isotropy Model (\lstinline|none|) Switching to the \lstinline|PlessisMasliyah| model (without isotropy) yields trends similar to the \lstinline|ErgunWenYu| case, though with generally higher error magnitudes. The pressure drop error is minimized (0.26) at high parameter values (β=4.5,αcp​=0.7). The bed height error is approximately double that of the \lstinline|ErgunWenYu| model, ranging from a minimum of 0.08 (at β=5.0) to a maximum of 0.22. Consequently, the combined error is minimized at β=5.0 and αcp​=0.68, with a global error value of 0.29.
+
+% \FloatBarrier \begin{figure}[h!] \centering \begin{subfigure}[b]{0.49 \linewidth} \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_pres0.015_PlessisMasliyahDrag_none.png} \caption{Pressure drop error.} \end{subfigure} \hfill \begin{subfigure}[b]{0.49 \linewidth} \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_height0.015_PlessisMasliyahDrag_none.png} \caption{Bed height error.} \end{subfigure} \caption{Relative error maps for \lstinline|PlessisMasliyahDrag| without isotropy.} \end{figure}
+
+% \begin{figure}[h!] \centering \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_both0.015_PlessisMasliyahDrag_none.png} \caption{Combined relative error for \lstinline|PlessisMasliyahDrag| without isotropy.} \label{fig:placeholder} \end{figure} \FloatBarrier
+
+% With Isotropy Model (\lstinline|stochastic|) Similar to the previous drag model, enabling stochastic isotropy inverts the pressure drop response. The minimum pressure error (0.24) is found at the lowest exponent (β=1.5). However, the bed height error remains high for low exponents, plateauing at approx. 0.22. Because the bed height error dominates at high β, and the pressure drop error dominates at low β, the combined error surface shows a saddle point. The global minimum is located at β=5.0 and αcp​=0.7 (errrel​≈0.30), indicating that despite the pressure drop improvement at low β, the bed height accuracy dictates the optimal parameter set.
+
+% \FloatBarrier \begin{figure}[h!] \centering \begin{subfigure}[b]{0.49 \linewidth} \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_pres0.015_PlessisMasliyahDrag_stochastic.png} \caption{Pressure drop error.} \end{subfigure} \hfill \begin{subfigure}[b]{0.49 \linewidth} \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_height0.015_PlessisMasliyahDrag_stochastic.png} \caption{Bed height error.} \end{subfigure} \caption{Relative error maps for \lstinline|PlessisMasliyahDrag| with \lstinline|stochastic| isotropy.} \end{figure}
+
+% \begin{figure}[h!] \centering \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_both0.015_PlessisMasliyahDrag_stochastic.png} \caption{Combined relative error for \lstinline|PlessisMasliyahDrag| with \lstinline|stochastic| isotropy.} \label{fig:placeholder} \end{figure} \FloatBarrier
 
 
 \subsection{Case 2: $\pvfcp$ and $P_s$}
@@ -1702,29 +1417,26 @@ As we saw in the
 The \lstinline|ErgunWenYuDrag| model consistently outperforms the \lstinline|PlessisMasliyahDrag| model.
 The mean bed height is higher when the \lstinline|PlessisMasliyahDrag| model is used leading to almost twice the relative error and therefor a higher combined relative error.
 Both the pressure drop and the bed height exceed the values from the given data. 
-\Todo{Grafik mit gemittelter Betthöhe und Pressure drop}
-
-
-
 
 The error that is consistently the lowest is that of the \lstinline|ErgunWenYuDrag| model with the isotropy model \lstinline|stochastic|.
 In this case the minimizing parameters are the same for all three cases, namely $\beta = 2$, $\pvfcp = 0.65$, $P_s = 10$ which happens to coincide with the parameters of the standard \lstinline|Goldschmidt| case. \todo{Das macht irgendwie die Simulationen die ich noch laufen lassen wollte redundant :(}
 
 The pressure drop relative error often ranged no more than $0.04$ in our parameter study, leaving little opportunity for adapting the parameters to fit the experiment.
-
-Multiple error sources skew the parameter study.
-The bed height calculated from the experimental videos is debatable.
-The method here of counting pixels for a bed height of $1cm$ and dividing the pixel height in the following images.
-For the bed height of $1cm$ we settle on $31$ pixels but estimate an error range of $3$ pixels, almost $10 \%$.
-On top of in certain cases distinguishing between dust from the particles and the particles proves to be nearly impossible and the images sometimes wobble.
-The algorithm therefor sometimes provides wrong bed heights.
-Therefor the accuracy of the experimental bed height used here needs to be revisited.
-
-Comparing pressure from the simulation to the experiments is only partially useful. This is due to the locations where data was collected in the experiments compared to the simulation.
-In the experiments pressure is measured beneath the mesh.
+The high relative pressure drop error could be due to the different locations where we measure the pressure in the simulation vs the experiments.
+In the following figure \ref{fig:expPressMeasurePlace} is a sketch of the experimental setup.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.33\linewidth, trim = {2cm 10cm 6cm 2cm},clip]{sections/result/Reaktorplanung.png}
+    \caption{Setup of the experiments used to collect reference data.}
+    \label{fig:expPressMeasurePlace}
+\end{figure}
+The reference data pressure at the bottom was collected beneath the mesh.
 In the simulation we do not simulate beneath the mesh. Simulations that included the region beneath the mesh showed unphysical interactions between the baffle used to imitate the mesh and the particles. 
-In this simulation we therefor reverted to measuring the pressure near the top of the simulation and near the bottom. We expect the pressure to be higher at the bottom of the bed than what is measured beneath the bed.
+In the simulation we therefor revert to evaluating the bottom pressure right on top of the inlet, which would be the mesh in the experiments.
 Although the simulation and experiments do not yield a coinciding result it is unclear whether the \MP method is not capable of predicting the pressure drop accurately.
+
+The model managed to capture the bed height more accurately, though it remains unclear if the bed height gathered from the experiments is accurate, especially at higher inlet velocities due to dust settling on the tube and being nearly indistinguishable from the bed. The image wobbles from time to time further increasing the error.
+
 
 
 
@@ -1774,3 +1486,4 @@ The particle moves from the right hand side of the simulation to the left hand s
 
 %\Todo{Color one particle in the reactor}
 
+\todo[inline]{Was fehlt? Bzw was könnte man noch so schönes machen: Grafik mit gemittelter Betthöhe und Pressure drop damit man sieht das beides größer ist als die experimentellen daten. Hoch qualitative Bild vergleich analyse damit man sieht das die Simulationen nicht mal annähernd das richtige Verhalten haben (so von Partikel erheben sich von dem Bett). Eine schöne lange Simulation mit den Goldschmidt Daten und etwas Erlärung zum Goldschmidt Fall.}

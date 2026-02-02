@@ -362,6 +362,7 @@ To determine whether a particle collides, we use the return-to-isotropy relaxati
 \label{eq:DampingTimeG}
 \dfrac{1}{\ss_G} = \dfrac{8 \sqrt{2}}{5 \pi} \dfrac{\pvf}{r_{32}^3} \dfrac{\MultiIntegral{2} f (r+ r_{32})^4 (\up - \overline{\up})^2 d \m d \up}{\MultiIntegral{2} f (r + r_{32})^2 \sqrt{(\up - \overline{\up})^2}d \m d \up} g_0(\pvf) \eta (2-\eta)
 \end{equation}
+\todo{Ich glaube das subscript $G$ steht für Granular da die relaxation time von der Granular temperature abhängt.}
 that approximates the average time until the next collision. The Sauter mean radius $r_{32}$ and the radial distribution function $g_0$ are defined as above.
 The return-to-isotropy is derived in the Appendix of \cite{isotropy} and is obtained by comparing the particle momentum shear viscosity to the shear viscosity of continuum-fluid models.
 We split the collision of the particles from the rest of the particle properties, thus solving
@@ -392,6 +393,7 @@ For the continuous phase, we discretize the mass and momentum conservation and c
 We iterate until we have reached our last time step.
 
 \subsection{Parcel Grouping}
+\label{sec:PartGrouping}
 To reduce the number of particles we need to track we can group particles with similar characteristics. The number of particles in a parcel is given by the statistical weight of the parcel \wp.
 The parcels each contain \wp \ particles with identical particle mass $\mp$, velocity $\up$ and position $\xp$. 
 The sketch below illustrates the grouping of particles. The sketches on the left and in the middle are for illustration purposes only. In the \MP method the particles are represented through point masses, infinitesimal small points with properties assigned to them.
