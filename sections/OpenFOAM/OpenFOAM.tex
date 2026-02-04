@@ -423,13 +423,13 @@ Because the results discussed in also do not show promising results we do not di
 
 In the previous section we defined the advanced time velocity in equation \eqref{eq:errVel} as
 \begin{equation*}
-    \up^{n+1} = \dfrac{\up^n + \Delta \tvar \left[ \d_p \up^{n+1} - \dfrac{1}{\rp} \nabla \p_p^{n+1} - \dfrac{1}{\rp \pvf} \nabla \scs^{n+1} - \g \right]}{1 + \Delta \tvar \d} .
+    \up^{n+1} = \dfrac{\up^n + \Delta \tvar \left[ \d \up^{n+1} - \dfrac{1}{\rp} \nabla \p_p^{n+1} - \dfrac{1}{\rp \pvf} \nabla \scs^{n+1} - \g \right]}{1 + \Delta \tvar \d} .
 \end{equation*}
 
 
 Several drag terms are implemented in \OF which includes the Plessis-Masliyah drag model \cite{Plessis}
 \begin{equation*}
-    \d_p = (A \pvf + B \operatorname{Re}_p) \dfrac{\pvf \mu_f}{\fvf^2 d_p^2} \qquad \operatorname{Re}_p = \dfrac{\rf \lvert \u_{rel} \rvert d_p}{\mu_f}
+    \d = (A \pvf + B \operatorname{Re}_p) \dfrac{\pvf \mu_f}{\fvf^2 d^2} \qquad \operatorname{Re}_p = \dfrac{\rf \lvert \u_{rel} \rvert d}{\mu_f}
 \end{equation*}
 with coefficients $A$ and $B$ chosen as
 \begin{equation*}
@@ -437,7 +437,7 @@ with coefficients $A$ and $B$ chosen as
 \end{equation*}
 and the Ergun-Wen-Yu model \cite{ErgunWenYu}
 \begin{equation*}
-    \d_p = \begin{cases}
+    \d = \begin{cases}
         \dfrac{3 (1-\fvf) \mu_f \fvf \operatorname{Re}_p}{d_p^2} C_D \fvf^{-2.65} & \text{if } \fvf \geq 0.8 \\
         \left(150 \dfrac{1-\fvf}{\fvf} + 1.75 \operatorname{Re}_p \right) \dfrac{(1-\fvf) \mu_f}{d_p^2} & \text{if } \fvf < 0.8
     \end{cases} \qquad C_D = \begin{cases}
@@ -453,7 +453,7 @@ With the new particle positions the particle normal stress is applied.
 The terms are split as follows
 \begin{align*}
     \up^{n+1} & = \tilde{\up}^{n+1} + \u_{p,\scs} \\
-    \tilde{\up}^{n+1} &= \dfrac{\up^n + \Delta \tvar \left[ \d_p \up^{n+1} - \dfrac{1}{\rp} \nabla \p_p^{n+1} + \g \left( 1- \dfrac{\rf}{\rp}\right) \right]}{1 + \Delta \tvar \d} \qquad \u_{p,\scs} = - \dfrac{\Delta \tvar \nabla \scs}{\rp \pvf (1+\Delta \tvar \d)}
+    \tilde{\up}^{n+1} &= \dfrac{\up^n + \Delta \tvar \left[ \d \up^{n+1} - \dfrac{1}{\rp} \nabla \p_p^{n+1} + \g \left( 1- \dfrac{\rf}{\rp}\right) \right]}{1 + \Delta \tvar \d} \qquad \u_{p,\scs} = - \dfrac{\Delta \tvar \nabla \scs}{\rp \pvf (1+\Delta \tvar \d)}
 \end{align*}
 with the previously unregarded buoyancy force included in the first term.
 

@@ -18,28 +18,117 @@ The goal of this master thesis is a numerical simulation of a simplified reducti
 Classification of the particle: Fall in category C, difficult to fluidize lots of forces in between the particles.
 \todo{Noch nicht fertig}
 
+
+
+
+
+
+
+
+
+
+% \section{Fluidized Bed Reactor}
+% \label{sec:basicFBR}
+
+% Fluidized Bed Reactors (FBR) are a cornerstone of multiphase chemical processing, with recent experimental studies highlighting their efficacy in the reduction of iron oxide \cite{Malte}. In a typical setup, solid particles are loaded into a reactor vessel, resting atop a porous distributor plate. This accumulation of solids is referred to as the particle bed.
+
+% The fundamental principle of an FBR is the suspension of these solid particles by an upward-flowing fluid—in this study, a gas. This suspension induces fluid-like properties in the granular material, such as the ability of lighter objects to float on the bed surface and the maintenance of a horizontal surface level even when the reactor is tilted \cite{zustand_eng}.
+
+% \subsection{Fluidization Regimes}
+% The behavior of the bed is strictly dependent on the superficial gas velocity. Figure \ref{fig:fluidize_states} illustrates the progression of fluidization regimes:
+
+% \begin{enumerate}
+%     \item \textbf{Fixed Bed:} At low inflow rates, the gas percolates through the interstitial spaces between stationary particles. The drag force is insufficient to overcome gravity, and the bed remains static.
+%     \item \textbf{Minimum Fluidization:} As the inflow velocity approaches the minimum fluidization velocity, denoted as $u_{mf}$, the upward drag force ($F_D$) equilibrates with the gravitational force ($F_g$) acting on the particles. At this point, the bed begins to expand and particles are suspended.
+%     \item \textbf{Bubbling Fluidization:} As the velocity exceeds $u_{mf}$, the bed expands further. In gas-solid systems, instabilities arise, leading to the formation of voids or "bubbles" near the distributor plate. These bubbles coalesce as they rise, promoting vigorous mixing.
+%     \item \textbf{Turbulent Fluidization and Pneumatic Transport:} At significantly higher velocities, the distinct upper surface of the bed vanishes, and the particle motion becomes turbulent. Eventually, the drag force is sufficient to entrain solids out of the reactor entirely, a state known as pneumatic transport.
+% \end{enumerate}
+
+% \begin{figure}[h!]
+%     \centering
+%     % Improved spacing: using subfigure or minipage is often safer, 
+%     % but standard includegraphics with width fractions works if sums < 1.0
+%     \includegraphics[width=0.23\linewidth, keepaspectratio]{sections/background/FixedBed.png}
+%     \hfill
+%     \includegraphics[width=0.23\linewidth, keepaspectratio]{sections/background/MinimumFluidization.png}
+%     \hfill
+%     \includegraphics[width=0.23\linewidth, keepaspectratio]{sections/background/BubblingFluidization.png}
+%     \hfill
+%     \includegraphics[width=0.23\linewidth, keepaspectratio]{sections/background/TrubulentFluidization.png}
+%     \caption{Fluidization states for increasing inflow velocities (left to right): Fixed Bed, Minimum Fluidization, Bubbling Fluidization, and Turbulent Fluidization. Adapted from \cite{zustand_eng}.}
+%     \label{fig:fluidize_states}
+% \end{figure}
+
+% \subsection{Pressure Drop Mechanics}
+% A key physical indicator of fluidization is the pressure drop across the bed, $\Delta p$. 
+% In the fixed bed regime ($u < u_{mf}$), the pressure drop increases practically linearly with gas velocity. 
+% However, once the bed is fluidized ($u \geq u_{mf}$), the pressure drop plateaus. This occurs because the drag force supports the full weight of the bed. Assuming the pressure contribution of the fluid is negligible compared to the solids ($\rho_p \gg \rho_f$), the pressure drop at minimum fluidization can be estimated by:
+% \begin{equation}
+%     \label{eq:prDrop}
+%     \Delta p \approx \frac{m \cdot g}{A_r} = \phi \cdot L_{mf} \cdot (\rho_p - \rho_f) \cdot g
+% \end{equation}
+% where $m$ is the total mass of the bed, $A_r$ is the reactor cross-section, $\phi$ is the solid volume fraction, and $L_{mf}$ is the bed height at minimum fluidization. This characteristic plateau is illustrated in Figure \ref{fig:pressure_drop}.
+
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=0.6\linewidth]{pressure_drop_vel.png}
+%     \caption{Relationship between pressure drop and inlet gas velocity, highlighting the transition from fixed to fluidized bed. Adapted from \cite{pressureDrop}.}
+%     \label{fig:pressure_drop}
+% \end{figure}
+
+% \subsection{Flow Regime Map}
+% To predict the operating state of the reactor based on particle properties and flow conditions, flow regime maps are utilized \cite{flowRegime}. Figure \ref{fig:fluidizeDiagram} presents such a diagram, relating the dimensionless particle diameter $d_p^*$ to the dimensionless gas velocity $u^*$:
+
+% \begin{equation}
+%     d_p^* = d_p \sqrt[3]{\dfrac{\rho_f g (\rho_p - \rho_f)}{\eta_c^2}}, \quad
+%     u^* = u_f \sqrt[3]{\dfrac{\rho_f^2}{\eta_c (\rho_p - \rho_f) g}}   
+% \end{equation}
+
+% where $\eta_c$ represents the dynamic viscosity. This map aids in identifying the boundaries between regimes and determining the optimal operating window—typically between the minimum fluidization velocity and the terminal free-fall velocity—to minimize particle carry-over.
+
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=0.5\linewidth]{sections/background/zustand_englisch.png}
+%     \caption{Fluidization regime diagram plotting dimensionless velocity against dimensionless particle diameter. Adapted from \cite{zustand_eng}.}
+%     \label{fig:fluidizeDiagram}
+% \end{figure}
+
+
+
 \color{black}
 \section{Fluidized Bed Reactor}
 \label{sec:basicFBR}
-\Todo{Add image of FBR}
+%\Todo{Add image of FBR}
+Using iron as a carbon-free energy carrier both reaction steps, the oxidation and the reduction need to be as efficient as possible.
+Currently, further studies into which reactor type give the most promising results for the iron oxide reduction are needed \cite{StudyForReactorNecessary}.
 Recent experiments have shown the possibility of reducing iron oxide via a fluidized bed reactor \cite{Malte}.
-Particles are either inserted into the reactor via a chute or placed inside the reactor on top of a porous plate. The accumulated particles are called a bed of particles. 
-The particles are suspended by an upward-flowing fluid, in our case gas, causing the particles to behave like a fluid. The behavior and properties are described in \cite{zustand_eng}.
-In figure \ref{fig:fluidize_states} the different fluidization regimes in a fluidized bed reactor are illustrated.
-On the left, the gas inflow rate is low. The gas percolates through the empty spaces in-between the particles. The particles form a fixed bed and particles are still stationary.
-As the flow rate increases, the bed begins to expand.
-In the second illustration the inflow velocity is increased until minimum fluidization $\u_{mf}$, where the upward drag force equals the gravitational force on the particles.
-The particles are suspended by the upward flow of the gas.
+% A sketch of the used reactor is shown in the following fig \ref{fig:malteFBR}.
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=0.3\linewidth]{sections/background/1-s2.0-S0016236125021477-gr3_lrg.jpg}
+%     \caption{Caption}
+%     \label{fig:malteFBR}
+% \end{figure}
+In a fluidized bed reactor solid particles are in suspension by a upward flowing fluid, in our case a reducing gas.
+This induces fluid-like properties in the particles, like the ability to maintain a horizontal surface when the reactor is tilted \cite{zustand_eng}.
+Due to the suspension of the particles and the rapid mixing near isothermal conditions are achieved throughout the reactor and heat and mass transfer between gas and particles are high \cite{advantageFBR}.
+%The particles are suspended by the upward flow of the gas.
 % Beyond this point, the particles are suspended by the upward flow of the gas and the bed exhibits fluid-like behavior.
-A dense-phase fluidized bed, a bed in which the surface of the bed is still fairly observable, behaves like a fluid.
-Fluid-like properties, such as a light object floating to the top of the reactor and the surface staying horizontal in a tilted reactor.
+%A dense-phase fluidized bed, a bed in which the surface of the bed is still fairly observable, behaves like a fluid.
 
-Depending on the inflowing gas velocity different and properties of the solid particles the behavior of the bed varies.
-At higher flow rates the bed does not expand much beyond its minimum fluidization volume. Large instabilities and bubbles start to form leading to a bubbling fluidized bed.
+Particles are either inserted into the reactor via a chute or placed inside the reactor on top of a porous plate. The accumulated particles are called a bed of particles. 
+%The particles are suspended by an upward-flowing fluid, in our case gas, causing the particles to behave like a fluid. 
+Depending on the gas inlet velocity the bed shows different behaviors \cite{zustand_eng}.
+In fig \ref{fig:fluidize_states} the different fluidization regimes in a fluidized bed reactor are illustrated.
+On the left, the gas inflow rate is low. The gas percolates through the empty spaces in-between the particles. The particles form a fixed bed and the particles are still stationary.
+As the flow rate increases, the bed begins to expand.
+In the second illustration, the inflow velocity is increased until minimum fluidization $\u_{mf}$, where the upward drag force equals the gravitational force on the bed.
+%Depending on the inflowing gas velocity different and properties of the solid particles the behavior of the bed varies.
+At higher flow rates, the bed does not expand much beyond its minimum fluidization volume. Large instabilities and bubbles start to form leading to a bubbling fluidized bed.
 Bubbles form at the bottom of the bed and coalesce into larger bubbles.
 When further increasing the gas velocity an upper surface of the bed can no longer be observed.
 The bed extrudes a turbulent motion and a turbulent fluidized bed is formed.
-Even further is the pneumatic transport of solids in which the solids are carried out of the bed by the gas.
+For an even higher velocity we reach the terminal velocities at which for a single particle forces acting on the particle, e.g. drag are balanced. Exceeding this velocity can lead to particles leaving the reactor.
 \begin{figure}[h!]
     \centering
     % Each subfigure occupies 24% of the line width
@@ -50,14 +139,13 @@ Even further is the pneumatic transport of solids in which the solids are carrie
     \includegraphics[width=0.24\linewidth,height=8cm,width = 3.5cm, keepaspectratio=false]{sections/background/BubblingFluidization.png}
     \hfill
     \includegraphics[width=0.24\linewidth,height=8cm,width = 3cm, keepaspectratio=false,trim={0 0.1cm 0 0},clip]{sections/background/TrubulentFluidization.png}
-    \caption{Fluidization state in a fluidized bed reactor for different inflow velocities, from left low velocity to right high velocity. From \cite{zustand_eng}.}
+    \caption{Fluidization state in a fluidized bed reactor for different inflow velocities, from left low velocity to right high velocity \cite{zustand_eng}.}
     \label{fig:fluidize_states}
 \end{figure}
-\todo{Beim zitieren noch Figure number aus dem Buch angeben?}
+%\todo{Beim zitieren noch Figure number aus dem Buch angeben?}
 
-To determine the fluidization behavior several different particles properties and their influence have been studied in the past.
-The first is the velocity minimum fluidization velocity $\umf$.
-At the minimum fluidization velocity the drag force exhibited by the upward moving gas is at equilibrium with the weight of the particles.
+% The first is the velocity minimum fluidization velocity $\umf$.
+% At the minimum fluidization velocity the drag force exhibited by the upward moving gas is at equilibrium with the weight of the particles.
 % The drag force $F_D$ can be expressed as the pressure drop $\Delta \p$ across the bed times the cross section of the reactor $A_r$
 % \begin{equation*}
 %     F_D = \Delta \p A_r.
@@ -77,16 +165,18 @@ At the minimum fluidization velocity the drag force exhibited by the upward movi
 %     \Delta \p \approx \pvf L_{mf} \rp g = \dfrac{\m \g}{A_r}.
 % \end{equation*}
 
-Above the minimum fluidization velocity the pressure drop stays constant. 
-For uniformly sized particles during velocities inducing a fixed bed, the pressure drop is nearly proportional.
-During the transition from a fixed bed to a fluidized be the maximal pressure is reached due to adhesive forces. Similarly to a liquid the pressure drop then remains constant during the fluidized bed phase \cite{zustand_eng}.
-\todo{Welche Definition auch immer die hier von Slope verwenden...}
+To characterize the different states experimentally we can look at the pressure drop in fig \ref{fig:presDropRegime}.
+Up to the minimum fluidization velocity the pressure drop grows practically linearly. 
+At the transition from fixed bed to fluidized bed the pressure drop can grow slightly until the adhesive forces of the particles are overcome.
+Above the minimum fluidization velocity the pressure drop stays nearly constant. 
+After reaching the terminal velocity the pressure drop decreases.
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.8\linewidth]{pressure_drop_vel.png}
-    \caption{Pressure drop for different inlet gas velocity. From \cite{pressureDrop}}
-    \label{fig:placeholder}
+    \includegraphics[width=0.8\linewidth, trim = {0cm 6cm 0cm 4cm},clip]{sections/background/1-s2.0-S0360128521000289-gr2.jpg}
+    \caption{Pressure drop for different inlet gas velocity \cite{feichi}.}
+    \label{fig:presDropRegime}
 \end{figure}
+
 
 %https://link.springer.com/article/10.1007/s13399-020-01189-9 explains going up or down
 
@@ -106,15 +196,15 @@ The diagram in figure \ref{fig:fluidizeDiagram} relates the dimensionless partic
 \begin{equation*}
  d_p^* = d_p \sqrt[3]{\dfrac{\rf \g \Delta \rho}{\eta_c^2}}.
 \end{equation*}
-and the dimensionless gas velocities
+on the $x$-axis to the dimensionless gas velocities
 \begin{equation*}
 u^* = \uf \sqrt[3]{\dfrac{\rf^2}{\eta_c \Delta\rho \g}}    
 \end{equation*}
-and classifies different fluidization regimes. Here $\rf$ is the gas density, $g$ is the gravitational force, $\Delta \rho$ is the difference between the solid and gas density and $\eta_c$ is the kinematic gas viscosity.
+on the $y$-axis and classifies different fluidization regimes. Here $d_p$ is the particle diameter, $\uf$ is the fluid velocity, $\rf$ is the gas density, $g$ is the gravitational force, $\Delta \rho$ is the difference between the solid and gas density and $\eta_c$ is the kinematic gas viscosity.
+The diagram aids in distinguishing between the different fluidization regimes.
+We can see that the bubbling fluidized beds are achieved for velocities above the minimum fluidization velocity. For larger particles the gap in dimensionless velocity between the two decreases.
+The terminal velocity for smaller particles co-occurs with the bubbling fluidized bed. 
 
-In addition to the minimum fluidization velocity the diagram also shows the terminal free fall velocity. 
-This represents an equilibrium between gravitational and drag forces acting on a particle.
-Keeping the velocity between the minimum fluidization and terminal free fall velocity is recommended to reduce carry over of particles from a fluidized bed.
 
 % Two empirically calculated velocities are shown. The first is the minimal fluidization velocity discussed earlier.
 % It is based on the empirical correlation by Ergun \cite{Ergun} for the pressure drop
@@ -236,14 +326,50 @@ Keeping the velocity between the minimum fluidization and terminal free fall vel
 
 
 
-\section{Numerical Simulation}
+
+% \section{Modelling of Gas-Solid Systems}
+% \label{sec:modelling_intro}
+
+% Before simulating a fluidized bed reactor, it is essential to understand the fundamental approaches to modeling multiphase systems in Computational Fluid Dynamics (CFD) \cite{cfdComp}.
+% In gas-solid flows, the gas phase is almost exclusively modeled as a **continuous phase** (Eulerian framework). In this approach, the fluid is treated as a continuum where macroscopic properties---such as density, velocity, and pressure---are defined as fields averaged over computational cells.
+
+% The **solid phase**, however, can be represented in two distinct ways:
+% \begin{enumerate}
+%     \item \textbf{Discrete Phase (Lagrangian):} The solid material is treated as distinct, individual entities (particles). The motion of each particle is tracked by solving Newton’s equations of motion. This preserves the discrete nature of the solids, including their history and trajectories.
+%     \item \textbf{Continuous Phase (Eulerian):} The solid phase is treated as a "pseudo-fluid" interpenetrating the gas phase. Particle properties are averaged over control volumes, converting discrete mass into a continuous density field.
+% \end{enumerate}
+
+% These representations lead to different numerical methods, primarily distinguished by how they handle particle-particle interactions.
+
+% \subsection{Discrete Particle Methods (Euler-Lagrange)}
+% Using a solver with a fully discrete solid phase, such as the Discrete Element Method (DEM) or the discrete parcel method in \OF, allows for the precise resolution of granular dynamics.
+% In these methods, every collision and contact force between particles is explicitly calculated. While highly accurate, the computational cost is significant. The simulation time typically scales non-linearly with the number of particles (often $N \log N$ or $N^2$ depending on the neighbor-search algorithm). Consequently, this approach is often computationally prohibitive for industrial-scale applications containing millions of particles.
+
+% \subsection{Continuum Methods (Euler-Euler)}
+% To simulate larger systems, the solid phase can be modeled as a continuum using the Two-Fluid Model (TFM).
+% In this Euler-Euler approach, particle-particle interactions are not resolved individually but are instead modeled through closure relations (e.g., Kinetic Theory of Granular Flow).
+% While this method is computationally efficient, the averaging process smoothes out discrete flow structures. This can lead to inaccuracies, particularly in regimes with sharp interfaces or complex particle size distributions \cite{mathMPPIC}.
+
+% \subsection{The Hybrid Approach: MP-PIC}
+% To mitigate the high computational cost of discrete methods while retaining the accuracy of Lagrangian tracking, we utilize the Multiphase Particle-in-Cell (\MP) method.
+% This is a hybrid approach in which the gas is continuous (Eulerian) and the solids are discrete (Lagrangian), but particle-particle interactions are handled via a continuum approximation.
+% Instead of resolving individual collisions, the \MP method maps particle properties to the Eulerian grid to calculate a "particle normal stress" gradient. This gradient is then interpolated back to the particles to apply a repulsive force, mimicking the effect of collisions without the expensive contact detection.
+
+% In the \MP method, interpolation operators are used to transfer properties between the discrete parcels and the continuous grid.
+% The primary advantage is that interaction forces are calculated from gradients on the Eulerian grid, meaning the computational cost scales linearly with the number of particles ($O(N)$), rather than quadratically.
+% The theoretical derivation of the \MP method is detailed in Chapter \ref{ch:MPPIC}, followed by its implementation in \OF in Chapter \ref{ch:OpenFOAM}.
+
+
+
+
+
+
+
+\section{Modelling of Gas-Solid systems}
 Before we simulate a fluidized bed reactor we first look at how multiphase systems are generally modeled in CFD \cite{cfdComp}.
-We can classify CFD simulations by how the solid phase is modeled, whether we model it as a continuum or a discrete phase, while the gas phase is always modeled as a continuum. 
-The models differ in how particle-particle interactions are handled.
-Using a solver with a discrete particle phase, such as the \DP method in \OF we can model each particle-particle interaction, therefor each collision and the resulting behavior of the particles. With an increasing number of particles, the simulation time grows quadratically with the number of particles, which is often not feasible for industrial scale applications, where the trend of the experiment is often more important than the exact behavior.
-For these cases one could consider modeling the particle as a continuum using an Euler-Euler approach where particle-particle interactions are needed for closure relations.
-In general this leads to a computationally less expensive method that does not account for particle-particle interactions, leading to inaccurate results, especially in dense systems \cite{mathMPPIC}.
-To mitigate the disadvantages from the previously mentioned methods we will use a hybrid approach which models particle as a discrete phase but models interactions through the particle normal stress and damping terms without resolving them, called the \MP method.
+We have two phases we need to model for our fluidized bed reactor, the fluid phase (gas) and the dispersed solid phase (particles).
+The fluid is generally treated as a continuum, therefore its properties, such as volume fraction, pressure, velocity, are modeled by continuous fields. 
+The dispersed phase as shown in fig \ref{fig:solidClass} can be modeled by one of two main approaches.
 \FloatBarrier
 \begin{figure}[h!]
 \centering
@@ -278,12 +404,36 @@ To mitigate the disadvantages from the previously mentioned methods we will use 
   node[midway, below] {more accurate};
 \end{tikzpicture}
 \caption{Classification of solvers based on the representation of the solid phase. Adapted from: \cite{mathMPPIC}.}
+\label{fig:solidClass}
 \end{figure}
 \FloatBarrier
+In the continuum approach the particulate phase is treated analogously to the fluid phase. Transport equations are solved for average quantities such as velocity and fluid fraction.
+Particle-particle interactions, like collisions, are considered indirectly, often through a solid stress tensor.
+Conservation equations are obtained through volume averaging. The two phases are coupled via the phase volume fractions.
+In \OF simulations are run with the \lstinline|twoPhaseEulerFoam| solver.
+Although this model is computationally less expensive the modeling used requires closure relations. Generally more closure relations lead to less model accuracy but also less computation time \cite{mathMPPIC}.
+On the other hand we can model particles as a discrete phase, which is more suitable for dense particulate flows.
+%In a fluidized bed reactor particle-particle interactions are significant. 
+Here each particle along with properties like velocity and mass is tracked individually and in \OF each particle-particle interaction is resolved via a spring-dashpot model. This method is computationally expensive and scales exponentially with the number of particles.
+To mitigate the disadvantages from both methods, we use a hybrid model, called the Multiphase-Particle-In-Cell (\MP\hspace{-12pt}) method.
+Particle trajectories are advanced as dispersed particles with each being tracked individually. After they are moved the positions are interpolated and treated as a continuous phase. 
+The continuous properties of both phases are then calculated via on the continuous. The continuous properties are interpolated back to the particles and used to calculate the following advanced time step.
+the acceleration of the particles due to collisions is calculated as done in the Euler-Euler method by a solid stress tensor.
+
+
+
+
+% The fluid is generally modeled as a continuum, therefor with properties like, volume fraction, density, pressure and velocity as continuous functions of space and time.
+% For the particles we can use one of two main approaches. 
+% First we could model them as a continuous phase, coupling the particles through a phase fraction for each cell to the fluid phase.
+% Here particle-particle interactions, like collision are modeled through the solid stress tensor.
+% Conservation equations are obtained through averaging methods.
+% To mitigate the disadvantages from the previously mentioned methods we will use a hybrid approach which models particle as a discrete phase but models interactions through the particle normal stress and damping terms without resolving them, called the Multiphase-Particle-In-Cell (\MP\hspace{-12pt}) method.
+
 \color{black}
 
-In this method the particles are modeled as both a discrete and a continuous phase with interpolation operators being used to transfer properties between the two.
-The main advantage of this method is, that particle-particle interactions are calculated from parameters that only depend on the Eulerian grid and are not fully resolved.
+% In this method the particles are modeled as both a discrete and a continuous phase with interpolation operators being used to transfer properties between the two.
+% The main advantage of this method is, that particle-particle interactions are calculated from parameters that only depend on the Eulerian grid and are not fully resolved.
 We will discuss in detail how the \MP method works by first looking at the paper that presented the method in chapter \ref{ch:MPPIC} and then at the \OF implementation discussed in chapter \ref{ch:OpenFOAM}.
 %twoPhaseEuler: https://www.tfd.chalmers.se/~hani/kurser/OS_CFD_2014/Alessandro%20Manni/ReportAM.pdf
 

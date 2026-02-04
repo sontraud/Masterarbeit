@@ -340,6 +340,9 @@ The resulting bed height for different fluid inlet velocities is presented in th
     \label{fig:bed_height_exp}
 \end{figure}
 
+
+\todo[inline]{Für den folgenden Teil hab ich korrekturen von Stephan bekommen. Ein paar Kleingkeiten soll ich noch ändern aber ansonsten ist der Teil für ihn Abgabefertig.}
+
 \section{Grid}
 The experimental data indicates a maximum mean bed height of approximately $2.5 \operatorname{cm}$. To account for particle fluctuations and bed expansion, we extend  simulation domain to a height of $5 \operatorname{cm}$. The domain width is adapted to the simplified fluidized bed geometry width of $1 \operatorname{cm}$.
 To reduce computation time we effectively model the reactor as 2d by modeling a cuboid with the above described dimensions and a depth of $0.1 \operatorname{cm}$.
@@ -440,6 +443,7 @@ In all cases the error of $0.25 \operatorname{mm}$ case is smaller.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.48\linewidth]{sections/Setup/l2error_rel.eps}
+    \hfill
     \includegraphics[width=0.48\linewidth]{sections/Setup/l2error_rel_mean_cropped.eps}
     \caption{Relative $L2$ error of the bed height according to equation \eqref{eq:l2relerror} for different cell length. On the right the mean relative error is depicted.}
     \label{fig:l2relerror}
@@ -448,10 +452,17 @@ In all cases the error of $0.25 \operatorname{mm}$ case is smaller.
 After assessing the consistency error we nor look at the stationary accuracy by comparing it to the bed height of the last time step of the reference simulation, see figure \ref{fig:statL1}.
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.49\linewidth]{sections/Setup/abs_err_height.eps}
-    \includegraphics[width=0.49\linewidth]{sections/Setup/EOC.eps}
-    \caption{Absolute error to the bed height of $1\operatorname{cm}$.} %On the right: Absolute error to the bed height of $1cm$ at the last time step.}
+    \begin{subfigure}{0.49\textwidth}
+    \includegraphics[width=\linewidth]{sections/Setup/abs_err_height.eps}
+    \caption{Absolute error to the bed height of $h = 1 \operatorname{cm}$ at the last time step for $\Delta \x = 0.25 \operatorname{mm}$, $\Delta \x = 0.33 \operatorname{mm}$ and $\Delta \x = 0.5 \operatorname{mm}$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\textwidth}
+    \includegraphics[width=\linewidth]{sections/Setup/EOC_with_fit.eps}
+    \caption{Absolute error to the bed height of $h = 1 \operatorname{cm}$ at the last time step with $EOC_{ges}$ in orange and $EOC_{0.5,0.25}$ in green.}
     \label{fig:statL1}
+    \end{subfigure}
+    %\caption{Absolute error to the bed height of $1\operatorname{cm}$.} %On the right: Absolute error to the bed height of $1cm$ at the last time step.}
 \end{figure}
 As expected refining the grid reduces the error. To investigate the convergence we look at the estimated order of convergence
 % \begin{equation*}
@@ -463,10 +474,11 @@ As expected refining the grid reduces the error. To investigate the convergence 
 Plugging in values for our case we then have
 \begin{align*}
     EOC_{0.5,0.33} &= \dfrac{\log \left( \frac{0.03705}{0.02249} \right)}{\log \left( \frac{0.5}{0.33} \right)} = 0.97715
-    \qquad EOC_{0.33,0.25} = \dfrac{\log \left( \frac{0.02249}{0.00499} \right)}{\log \left( \frac{0.33}{0.25} \right)} =5.42615\\
-    EOC_{0.5,0.25} &=\dfrac{\log \left( \frac{0.03705}{0.00499} \right)}{\log \left( \frac{0.5}{0.25} \right)} = 2.89351.
+    \qquad EOC_{0.33,0.25} = \dfrac{\log \left( \frac{0.02249}{0.00499} \right)}{\log \left( \frac{0.33}{0.25} \right)} =5.42615%\\
+    %EOC_{ges} &= \dfrac{EOC_{0.5,0.33} + EOC_{0.33,0.25}}{2} = 3.20165
+    %\qquad &EOC_{0.5,0.25} = \dfrac{\log \left( \frac{0.03705}{0.00499} \right)}{\log \left( \frac{0.5}{0.25} \right)} = 2.89351.
 \end{align*}
-As seen in figure \ref{fig:statL1} we estimate an order of convergence of about $3$.
+We estimate the overall order of convergence by a linear fit calculated via \lstinline|numpy.polyfit|. The slope, which is our estimated order of convergence, here is about $2.76073$. We also fit a line to the grid points $0.5$ and $0.25$ which has a slope of $2.89351$.
 
 
 

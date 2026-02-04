@@ -73,13 +73,19 @@
 \addbibresource{thesis.bib}
 
 %\usepackage{blindtext}
+\usepackage{multirow}
 \usepackage{mathtools}
 \usepackage{amsmath}
 \usepackage{mathcommand}
 \usepackage{placeins}
 \usepackage{wrapfig}
 \usepackage{caption}
-\usepackage{subcaption}
+\usepackage[labelformat=simple]{subcaption}
+\makeatletter
+\renewcommand\thesubfigure{Fig. \thefigure\alph{subfigure}} % redefine subcaption number format
+\renewcommand\p@subfigure{}
+\makeatother
+
 \usepackage{cleveref}
 \usepackage{csquotes}
 
@@ -330,7 +336,7 @@
 \newcommand{\Vp}{\ensuremath{V_p}} %Value particle velocity
 \newcommand{\M}{\ensuremath{M}} %value Mass
 \newcommand{\Ap}{\ensuremath{A_p}} %Acceleration particle
-\renewcommand{\d}{\ensuremath{D}} %Drag function
+\renewcommand{\d}{\ensuremath{D_p}} %Drag function
 \newcommand{\nuf}{\ensuremath{\overline{u}_c}} %%mean fluid flow velocity
 \newcommand{\pvf}{\ensuremath{\theta}} %particle volume fraction
 \newcommand{\vf}{\ensuremath{\varphi}} %volume fraction
