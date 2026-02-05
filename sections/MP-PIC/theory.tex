@@ -379,7 +379,7 @@ To determine whether a particle collides, we use the return-to-isotropy relaxati
 \label{eq:DampingTimeG}
 \dfrac{1}{\ss_G} = \dfrac{8 \sqrt{2}}{5 \pi} \dfrac{\pvf}{r_{32}^3} \dfrac{\MultiIntegral{2} f (r+ r_{32})^4 (\up - \overline{\up})^2 d \m d \up}{\MultiIntegral{2} f (r + r_{32})^2 \sqrt{(\up - \overline{\up})^2}d \m d \up} g_0(\pvf) \eta (2-\eta)
 \end{equation}
-\todo{Ich glaube das subscript $G$ steht für Granular da die relaxation time von der Granular temperature abhängt.}
+%\todo{Ich glaube das subscript $G$ steht für Granular da die relaxation time von der Granular temperature abhängt.}
 that approximates the average time until the next collision. The Sauter mean radius $r_{32}$ and the radial distribution function $g_0$ are defined as above.
 The return-to-isotropy is derived in the Appendix of \cite{isotropy} and is obtained by comparing the particle momentum shear viscosity to the shear viscosity of continuum-fluid models.
 We split the collision of the particles from the rest of the particle properties, thus solving
@@ -1004,22 +1004,22 @@ and the velocity is rearranging by the discretized acceleration \eqref{eq:accel}
 % \Todo{Anpassen auf altes Paper}
 \begin{align}
     \dfrac{\up^{n+1} - \up^{n}}{\Delta \tvar} &= \d (\upi^{n+1} -
-    \up^{n+1})  - \dfrac{1}{\rp} \nabla_{\xp} \p_p^{n+1} - \dfrac{1}{\rp \pvf} \nabla_{\xp} \scs^{n+1} - \g  \nonumber \\
-    \Leftrightarrow \up^{n+1} &= \dfrac{\up^n + \Delta \tvar \left[ \d \up^{n+1} - \dfrac{1}{\rp} \nabla_{\xp} \p_p^{n+1} - \dfrac{1}{\rp \pvf} \nabla_{\xp} \scs^{n+1} - \g \right]}{1 + \Delta \tvar \d} .\label{eq:errVel} 
+    \up^{n+1})  - \dfrac{1}{\rp} \nabla \p_p^{n+1} - \dfrac{1}{\rp \pvf} \nabla \scs^{n+1} - \g  \nonumber \\
+    \Leftrightarrow \up^{n+1} &= \dfrac{\up^n + \Delta \tvar \left[ \d S\up^{n+1} - \dfrac{1}{\rp} \nabla \p_p^{n+1} - \dfrac{1}{\rp \pvf} \nabla \scs^{n+1} - \g \right]}{1 + \Delta \tvar \d} .\label{eq:errVel} 
 \end{align}
 
 In the following we will restrict ourselves to the one dimensional case for easier reading. 
 For the gradients we use a differential quotient 
 \begin{equation}
 \label{eq:MPvelocity}
-    \up^{n+1} = \dfrac{\up^n + \Delta \tvar \left[\d \tilde{u_{G,p}} - \g - \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right]}{1 + \Delta \tvar \d}
+    \up^{n+1} = \dfrac{\up^n + \Delta \tvar \left[\d \tilde{u_{p}} - \g - \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right]}{1 + \Delta \tvar \d}
 \end{equation}
 Variables marked with a tilde $\tilde{\cdot}$ are implicit approximations to the advanced-time step. They as well as the interphase momentum transfer will be defined in the following.
 
 The equations for updating the position \eqref{eq:MPposition} and velocity \eqref{eq:MPvelocity} are used at the end of a time step to calculate the new particle velocities and positions.
 These two equations are the first of eight equations.
 In total we will need eight equations which we will derive in the following.
-We start by applying the finite differences scheme to the fluid continuity equation
+We start by applying a central diffrencing scheme to the fluid continuity equation
 \begin{equation}
     \label{eq:gasContDisc}
     \dfrac{(\fvf \rf)_i^{n+1} - (\fvf \rf)_i^n}{\Delta \tvar} + \dfrac{(\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1}- (\fvf \rf \uf)_{i-\frac{1}{2}}^{n+1}}{\Delta \xp} = 0,
@@ -1027,26 +1027,26 @@ We start by applying the finite differences scheme to the fluid continuity equat
 and the momentum equation
 \begin{equation}
     \label{eq:discMom}
-    \dfrac{(\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1}- (\fvf \rf \uf)_{i+\frac{1}{2}}^{n}}{\Delta \tvar} + \dfrac{(\fvf \rf \uf^2)^n_{i+1}-\fvf \rf \uf^2)^n_{i}}{\Delta \xp} + \dfrac{\tilde{\p}_{i+1}-\tilde{p}_i}{\Delta \xp} = - \F_{i+\frac{1}{2}}-\dfrac{((\fvf \rf)_i^n + (\fvf \rf)_{i+1}^n)\g}{2}.
+    \dfrac{(\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1}- (\fvf \rf \uf)_{i+\frac{1}{2}}^{n}}{\Delta \tvar} + \dfrac{(\fvf \rf \uf^2)^n_{i+1}-(\fvf \rf \uf^2)^n_{i}}{\Delta \xp} + \dfrac{\tilde{\p}_{i+1}-\tilde{p}_i}{\Delta \xp} = - \F_{i+\frac{1}{2}}-\dfrac{((\fvf \rf)_i^n + (\fvf \rf)_{i+1}^n)\g}{2}.
 \end{equation}
 % \Todo{Does this actually make sense?}
-
+A different approach, a finite volume method, is use in \OF. For now though we will stick to the finite differencing scheme used in the original paper.
 
 To approximate the convective flux $\fvf \rf \uf^2$ we it into the mass flux and the fluid velocity.
 Since the mass flux is only known at the cell faces we use a central approximation scheme for the cell center. 
 For the velocity, we use an upwind approximation scheme
 
 \begin{align*}
-    (\fvf \rf \uf^2)_i^n = \dfrac{\m_{i+\frac{1}{2}}+\m_{i-\frac{1}{2}}}{2} \cdot
+    (\fvf \rf \uf^2)_i^n = \dfrac{\dot{\m}_{i+\frac{1}{2}}+\dot{\m}_{i-\frac{1}{2}}}{2} \cdot
     \begin{cases}
-        (\uf)^n_{i- \frac{1}{2}} & \text{if } \m_{i-\frac{1}{2}} + \m_{i+\frac{1}{2}} > 0 \\
-        (\uf)^n_{i+ \frac{1}{2}} & \text{if } \m_{i-\frac{1}{2}} + \m_{i+\frac{1}{2}} < 0
+        (\uf)^n_{i- \frac{1}{2}} & \text{if } \dot{\m}_{i-\frac{1}{2}} + \dot{\m}_{i+\frac{1}{2}} > 0 \\
+        (\uf)^n_{i+ \frac{1}{2}} & \text{if } \dot{\m}_{i-\frac{1}{2}} + \dot{\m}_{i+\frac{1}{2}} < 0
     \end{cases}
 \end{align*}
 
 with the mass flux calculated at the matching face and the fluid velocity calculated with the neighboring volume fraction times the fluid density
 \begin{align*}
-    m_{i+\frac{1}{2}} = (\fvf \rf \uf)^n_{i+\frac{1}{2}} \qquad (\uf)_{i+\frac{1}{2}}^n = \dfrac{2 (\fvf \rf \uf)_{i+\frac{1}{2}}}{(\fvf \rf)_{i} + (\fvf \rf)_{i+1}^n}.
+    \dot{\m}_{i+\frac{1}{2}} = (\fvf \rf \uf)^n_{i+\frac{1}{2}} \qquad (\uf)_{i+\frac{1}{2}}^n = \dfrac{2 (\fvf \rf \uf)_{i+\frac{1}{2}}}{(\fvf \rf)_{i} + (\fvf \rf)_{i+1}^n}.
 \end{align*}
 
 
@@ -1093,7 +1093,8 @@ and use the cell-face interpolation function e.g.
     \label{eq:cellFaceInterpolation}
     \left( \dfrac{\tilde{\p_{i+1}} - \tilde{\p_{i}}}{\Delta x} \right)_p = \sum_i \ifg_{i+ \frac{1}{2}} (\xpp ) \frac{\tilde{p}_{i+1} - \tilde{p}_i}{\Delta x}.
 \end{equation}
-For the approximation of the advanced-time solids stress we again use a an linearly implicit approximation, the Taylor expansion applied to \eqref{eq:solidStress} around $\pvfi^n$ evaluated at $\tilde{\pvfi}$
+The solid stress is highly nonlinear. Using the old velocity and fluid properties when particles are near close pack can push particles into already close-packed space.
+For the approximation of the advanced-time solids stress we again use a linearly implicit approximation, the Taylor expansion applied to \eqref{eq:solidStress} around $\pvfi^n$ evaluated at $\tilde{\pvfi}$
 \begin{align}
     \ss_i^{n+1} &= \ss_i^n + \dfrac{\partial \ss}{\partial \pvf}\bigg|_n  (\pvfi^{n+1} - \pvfi^n)  \qquad \dfrac{\partial \ss}{\partial \pvf}\bigg|_n = P_s \dfrac{\pvfcp}{\pvf^2} \left( \dfrac{\pvfcp}{\pvf} -1 \right)^{-2}\\
     \Rightarrow \tilde{\ss}_i &= \ss_i^n + P_s\dfrac{\pvfcp}{(\pvfcp - \pvf)^2} (\tilde{\pvf}- \pvfi^n).
@@ -1162,10 +1163,7 @@ The advanced particle volume fraction $\tilde{\pvfi}$ closely approximates $\pvf
 So far we have given approximations to the grid values, e.g. $\ss$ and $\p$.
 Once the grid values are calculated we can approximate the new particle positions by using the velocity calculated in equation \eqref{eq:MPvelocity} and approximate the new particle positions. 
 We then map the particle properties to their positions.
-\color{ForestGreen}
-Using the advanced particle velocities and inserting them into the momentum exchange term $\F_{i+\frac{1}{2}}$ and that into the momentum equation we get the fluid momentum equation
-\todo[color=kit-green!40]{Markierung das etwas im Appendix gelandet ist.}
-\color{black}
+Using the advanced particle velocities and inserting them into the momentum exchange term $\F_{i+\frac{1}{2}}$ and that into the momentum equation we get the fluid momentum equation.
 %Combining these terms we have fluid momentum equation
 \begin{equation}
 \begin{aligned}
@@ -1263,9 +1261,7 @@ which only depends on grid quantities.
 We now have all everything to assemble the \MP-method. The gas and solid continuity and momentum equations. 
 These are used to calculate $\pvf \ \delta \us$, $\fvf \rf $, $\fvf \rf \uf$ and $\pvf$.
 To solve the equations more efficiently we can reformulated equations \eqref{eq:gasContDisc} and \eqref{eq:fluidContDisc} to be independent of $\pvf \ \delta \us$ and $\fvf \rf \uf$. 
-\color{ForestGreen}
-\todo[color=kit-green!40]{Sehr hässlich... und führt niergends gescheit hin}
-The calculation is extensive and does not yield a nice result. We therefor leave it out of this master thesis.
+The calculation is extensive and does not yield a nice result. We therefore leave it out of this master thesis.
 % First for equation \eqref{eq:gasContDisc} we take all terms of \eqref{eq:momentumEquationFluidDisc} which depend on $(\fvf \rf)^{n+1}$ and $(\fvf \rf \uf)^{n+1}$ and sum all others in the term $const$
 % \begin{align*}
 %     \dfrac{(\fvf \rf \uf)_{i+\frac{1}{2}}^{n+1}}{\Delta \tvar} &+ (1 - C_{i+\frac{1}{2}})  \left( \p_{i+1}^n \left( \dfrac{(\fvf \rf)_{i+1}^{n+1}}{(\fvf \rf)_{i+1}^n} + \dfrac{\tilde{\pvf}_{i+1}}{1 - \pvf_{i+1}^n}\right) 
@@ -1414,7 +1410,7 @@ A straightforward implementation of this would lead to an exponential increase i
 To conserve particle numbers we use an approximate solution
 \begin{align}
 \label{eq:isoAdvance}
-    \pd^{n+1} =\sum_p \Np \delta (\x_i - \x_{p,i}^n) \delta (\m - \mp) \delta(\u_i - \u_{p,i}^{n+1}), \qquad \u_{p,i}^{n+1}= (1-\Psi) \overline{\nu}_i
+    \pd^{n+1} =\sum_p \Np \delta (\x_i - \x_{p,i}^n) \delta (\m - \mp) \delta(\u_i - \u_{p,i}^{n+1}), \qquad \u_{p,i}^{n+1}= (1-\Psi) \overline{u}_i
 \end{align}
 with $\Psi(\p)$ chosen so $\pd^{n+1}$ and $\tilde{\pd}$ have the same variance
 \begin{equation}
@@ -1432,7 +1428,7 @@ Comparing it with the Taylor expansion of
 we can see that the first two terms coincide.
 Approximating \eqref{eq:constDamp} with $e^{-x} \approx 1/(1+x)$ and using it to update the particle velocity according to \eqref{eq:isoAdvance} we get the new particle velocities
 \begin{equation*}
-    \u_{p,i}^{n+1} = \dfrac{\u_{p,i}^{n} + (\Delta \tvar/ (2 \ss_d)) \overline{\nu}_i}{1+ (\Delta \tvar / (2 \ss_D))}.
+    \u_{p,i}^{n+1} = \dfrac{\u_{p,i}^{n} + (\Delta \tvar/ (2 \ss_d)) \overline{u}_i}{1+ (\Delta \tvar / (2 \ss_D))}.
 \end{equation*}
 
 %\todo{Hier ist sehr viel abgekürzt, da wir den eh nicht verwenden.}
@@ -1450,7 +1446,7 @@ We can discretize the particle distribution function for each cell by summing ov
 \begin{equation*}
     \pd_d^n (\x, \u , \m, \tvar) = \sum_p \Np \delta ( \x - \x_p^n) \delta ( \u - \up^n) \delta (\m - \mp).
 \end{equation*}
-To get an approximation for the advanced time step $n+1$ we use the initial discrete distribution $\pd_0$ and the Gaussian discrete distribution $\pd_G$
+To get an approximation for the advanced time step $n+1$ we use the initial discrete distribution $\pd_0$ and the Gaussian discrete distribution $\pd_G$.
 For the initial discrete distribution $\pd_0$ we use the velocity and positions from the previous time step
 \begin{equation*}
     \pd_0 = \sum_p \Np \delta ( \x - \x_p^0) \delta ( \u - \up^0) \delta (\m - \mp).
@@ -1461,7 +1457,7 @@ For the equilibrium distribution we have
 \end{equation*}
 with the cell mean velocity, variance and mean particle mass given by
 \begin{equation*}
-    \overline{\up} = \dfrac{\sum_p \Np \mp \up^n}{\sum_p \Np \mp} \qquad \sigma^2 = \dfrac{\sum_p \Np \mp (\up^n - \overline{\up})^2}{\sum_p \Np \mp} \qquad \overline{\m} = \dfrac{\sum_p \Np \mp}{\sum_p \Np}.
+    \overline{\up} = \dfrac{\sum_p \Np \mp \up^n}{\sum_p \Np \mp} \qquad \sigma^2 = \dfrac{\sum_p \Np \mp (\up^n - \overline{\up})^2}{\sum_p \Np \mp} \qquad \overline{\mp} = \dfrac{\sum_p \Np \mp}{\sum_p \Np}.
 \end{equation*}
 We can plug this into the solution of the differential equation \eqref{eq:rtiSol} and obtain the provisional particle distribution 
 \begin{equation*}

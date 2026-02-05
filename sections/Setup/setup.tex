@@ -4,9 +4,10 @@
 
 Building upon the implementation discussed in the previous chapter we now discuss how to initialize a case.
 We examine the available modeling options and files necessary for simulation.
-We discuss the setup of our simulation used for comparison of experimental data and simulation results, done in the following chapter.
+We discuss the setup of our simulation used for comparison of experimental data provided by the "Division of Combustion Technology" of the "Engler-Bunte-Institute" \footnote{\url{https://vbt.ebi.kit.edu/english/21_1186.php}} and simulation results, done in the following chapter.
 %The data, kindly provided by the "Division of Combustion Technology" of the "Engler-Bunte-Institute" \footnote{\url{https://vbt.ebi.kit.edu/english/21_1186.php}} are based on a simplified fluidized bed reactor.
 This includes the computational grid where we look at the convergence for different cell lengths and the boundary conditions used.
+
 
 \section{\OF \MP method files}
 \subsection{\lstinline|kinematicCloudProperties|}
@@ -269,6 +270,42 @@ cloudFunctions
 %   \end{tikzpicture}
 % \end{figure}
 
+\section{\lstinline|Goldschmidt| Case}
+A tutorial for the \MP method in \OF is given by the \lstinline|Goldschmidt| tutorial, which is based on experiments and data collected by Mathijs Goldschmidt \cite{standardGoldschmidt}.
+The case is pseudo two-dimensional with a domain of $15 \operatorname{mm} \times 150 \operatorname{mm} \times 450 \operatorname{mm}$ and a grid of $1 \times 15 \times 45$ cells.
+The case here was used as a starting point for simulations and was then modified to fit the experimental setup.
+$24750$ particles with a diameter of $2.5 \operatorname{mm}$ are inserted distributed uniformly up to a bed height of $295 \operatorname{mm}$.
+The inlet velocity is set to $1.875 \operatorname{m/s}$.
+The boundary conditions are mostly identical to the ones we will use for our simulations later except for the interactions of the particles with the top of the domain which is set to \lstinline|escape| in our later simulations, allowing particles to flee the reactor while in the \lstinline|Goldschmidt| case it is shares the same patch interaction models as the walls, \lstinline|rebound|.
+The parameters are chosen as in Tab. \ref{tab:goldschmidt}.
+\begin{table}[h]
+    \centering
+    \begin{tabular}{c|c c c c c c}
+         & \lstinline|packingModel| & \lstinline|type| & \lstinline|alphaPacked| & \lstinline|pSolid| & \lstinline|beta| \\
+         \hline
+         \lstinline|Goldschmidt|& \texttt{explicit} & \lstinline|HarrisCrighton| & $0.65$ & $10$ & $2.0$ 
+    \end{tabular}
+    \begin{tabular}{c|c c c}
+         & \lstinline|dampingModel| & \lstinline|isotropyModel| & \lstinline|alphaPacked| (in \lstinline|isotropyModel|) \\
+         \hline
+         \lstinline|Goldschmidt|& \lstinline|none| & \lstinline|stochastic| & $0.65$
+    \end{tabular}
+    \caption{Parameters in the standard \lstinline|Goldschmidt| case.}
+    \label{tab:goldschmidt}
+\end{table}
+
+%& \lstinline|dampingModel| & \lstinline|isotropyModel| \\
+
+% A critical comparison of a hard-sphere discrete particle model, a two-fluid model with kinetic theory
+% closure equations and experiments performed in a pseudo two-dimensional gas-fluidised bed is made.
+% Bubble patterns, time-averaged particle distributions and bed expansion dynamics measured with a non-
+% intrusive digital image analysis technique are compared to simulation results obtained at three different
+% fluidisation velocities. For both CFD models the simulated flow fields and granular temperature profiles are
+% compared. The effects of grid refinement, particle-wall interaction, long-term particle contacts, particle
+% rotation and gas-particle drag are studied. The most critical comparison between experiments and model
+% results is given by analysis of the bed expansion dynamics. Though both models predict the right
+% fluidisation regime and trends in bubble sizes and bed expansion, the predicted bed expansion dynamics
+% differ significantly from the experimental results.
 
 
 
@@ -341,14 +378,13 @@ The resulting bed height for different fluid inlet velocities is presented in th
 \end{figure}
 
 
-\todo[inline]{Für den folgenden Teil hab ich korrekturen von Stephan bekommen. Ein paar Kleingkeiten soll ich noch ändern aber ansonsten ist der Teil für ihn Abgabefertig.}
+%\todo[inline]{Für den folgenden Teil hab ich korrekturen von Stephan bekommen. Ein paar Kleingkeiten soll ich noch ändern aber ansonsten ist der Teil für ihn Abgabefertig.}
 
 \section{Grid}
 The experimental data indicates a maximum mean bed height of approximately $2.5 \operatorname{cm}$. To account for particle fluctuations and bed expansion, we extend  simulation domain to a height of $5 \operatorname{cm}$. The domain width is adapted to the simplified fluidized bed geometry width of $1 \operatorname{cm}$.
 To reduce computation time we effectively model the reactor as 2d by modeling a cuboid with the above described dimensions and a depth of $0.1 \operatorname{cm}$.
 The mesh consists of cubes. 
 In the following we conduct a grid sensitivity study by varying the cube side length $\Delta \x$ from $2 d_p$  up to $20 d_p$, as detailed in table \ref{tab:grid_sizes}.
-
 \begin{table}[h!]
     \centering
     \begin{tabular}{c|c|c}
@@ -448,6 +484,19 @@ In all cases the error of $0.25 \operatorname{mm}$ case is smaller.
     \caption{Relative $L2$ error of the bed height according to equation \eqref{eq:l2relerror} for different cell length. On the right the mean relative error is depicted.}
     \label{fig:l2relerror}
 \end{figure}
+
+
+% L1 abs final
+% [np.float64(0.04131499999999973), np.float64(0.005559999999999933), np.float64(0.02507999999999979)]
+% L1 rel final
+% [np.float64(3.705231627423083e-05), np.float64(4.98634584254441e-06), np.float64(2.24923657789594e-05)]
+% L2 abs final
+% [np.float64(0.0015759838197138955), np.float64(0.00022068076490714168), np.float64(0.0010075713374248017)]
+% L2 rel final
+% [np.float64(4.7196039622773636e-05), np.float64(6.608734172430931e-06), np.float64(3.0173772198057725e-05)]
+
+
+
 
 After assessing the consistency error we nor look at the stationary accuracy by comparing it to the bed height of the last time step of the reference simulation, see figure \ref{fig:statL1}.
 \begin{figure}[h!]
@@ -580,3 +629,4 @@ The pressure of the inlet and the walls on the left and right side of the grid a
 For the particulate phase we set the inlet as well as the all other boundaries except the top to rebound.
 The top is left as escape to allow particles to exit the reactor.
 The front and the back are connected through \lstinline|symmetry| for both the pressure and the velocity.
+
