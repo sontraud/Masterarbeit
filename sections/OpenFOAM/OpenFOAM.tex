@@ -5,7 +5,7 @@ Since the goal of this master thesis is to use the \MP method from \OF we will n
 The \OF version used in this master thesis is \texttt{v2412} which is freely available under the GNU General Public License.
 
 \section{Introduction to OpenFOAM}
-\texttt{OpenFOAM}, short for Open Source Field Operation and Manipulation, is a \lstinline|C++| based toolbox for continuum mechanics problems, including computational fluid dynamics. Here we use \lstinline|v2412| which is available on the \footnote{\url{https://www.openfoam.com/}} website.
+\texttt{OpenFOAM}, short for Open Source Field Operation and Manipulation, is a \lstinline|C++| based toolbox for continuum mechanics problems, including computational fluid dynamics. Here we use \lstinline|v2412| which is available on the \OF \footnote{\url{https://www.openfoam.com/}} website.
 Provided in \OF are pre-processing tools, e.g. for meshing, solvers, e.g. the \lstinline|MPPICFoam| and post-processing tools which we will use later in the results chapter. Apart from \OF we use \lstinline|Paraview| \footnote{\url{https://www.paraview.org/}} for visualization and \lstinline|miniconda3| \footnote{\url{https://www.anaconda.com/docs/getting-started/miniconda/main}} scripts for evaluation of data.
 
 A typical \MP \OF case is constructed as seen in figure \ref{fig:fileStruc}. 
@@ -116,7 +116,9 @@ The implementation of the \MP method in \OF is partially explained in \cite{repo
 \subsection{Create Fields}
 In the file \lstinline|createFields.H| the fields used later are defined and initialized. 
 In the \MP method we first initialize the Eulerian fields, therefor the velocity, kinematic pressure, face flux, turbulence, density and kinematic viscosity, and the fluid volume fraction, which is initialized as zero and calculated at the end of \lstinline|createFields.H|.
-Afterward, the particles are inserted as a kinematic cloud. The upper limit of the particle volume fraction is calculated by using the user defined maximum packing, which can be set in \lstinline|kinematicCloudProperties|.
+Afterward, the particles are inserted as a kinematic cloud. 
+A kinematic Cloud consists of spherical particles with a constant density with each particle being tracked individually or in a parcel.
+The upper limit of the particle volume fraction is calculated by using the user defined maximum packing, which can be set in \lstinline|kinematicCloudProperties|.
 The fluid volume fraction is calculated by interpolating the particle positions to the Eulerian grid.
 Finally, the turbulence model is initialized.
 
