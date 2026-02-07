@@ -401,6 +401,10 @@ mathfontname=mathsf]{mhchem}
 \usepackage[final]{listings}
 \usepackage{mdframed} %nice frames
 
+
+\usepackage{tabularx}
+\usepackage{booktabs} 
+
 \let\Bbbk\relax
 \usepackage{amssymb}
 
@@ -539,7 +543,28 @@ mathfontname=mathsf]{mhchem}
 %% ----------------
 %% |   Appendix   |
 %% ----------------
-%\appendix
-%\input{sections/appendix.tex}
+\appendix
+%\newgeometry{
+%   top=1.5cm,
+%   bottom=1.5cm,
+%   left=1.5cm,
+%   right=1.5cm
+% }
+\captionsetup[subfigure]{
+  font=footnotesize,      % or small
+  labelfont=footnotesize, % size of "(a)" label
+  skip=2pt,               % vertical gap between image and subcaption
+  justification=centering,% or raggedright
+  singlelinecheck=false   % don't center very short captions inside a small box
+}
+
+\captionsetup{
+  font=small,
+  labelfont=small
+}
+\setlength{\floatsep}{3pt}
+\setlength{\textfloatsep}{3pt}
+\setlength{\intextsep}{3pt}
+\input{sections/appendix.tex}
 
 \end{document}
