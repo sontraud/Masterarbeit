@@ -11,15 +11,13 @@ Finally we conclude by discussing limitations of the \MP method.
 
 
 \section{Single Parameter Testing}
-We start by investigating the effects of the three governing parameters of the explicit Harris and Crighton model
-\begin{equation*}
+We start by recalling the explicit Harris and Crighton model
+\begin{equation}
     \scs = \dfrac{P_s \pvf^\beta}{\max [( \pvfcp - \pvf), \varepsilon ( 1- \pvf)]}
-\end{equation*}
-the close pack volume fraction $\pvfcp$, the exponent $\beta$ and the pressure constant $P_s$.
+\end{equation}
+with the close pack volume fraction $\pvfcp$, the exponent $\beta$ and the pressure constant $P_s$.
 Here we use a simplified domain consisting of a cuboid with dimensions $0.15 \operatorname{mm} \times 10 \operatorname{mm} \times 50 \operatorname{mm}$ with a grid consisting of $1 \times 20 \times 100$ cells.
 At time step zero about $160000$  are injected. %$165251$
-Probes are taken at $1000$ points at $x = 0.075\operatorname{mm}$ (middle of the domain), and on a $20 \times 50$ grid on the domain $ [0\operatorname{mm},10\operatorname{mm}] \times [0\operatorname{mm},50\operatorname{mm}]$.
-In each column the bed height is determined by the highest cell with a fluid volume fraction lower than $0.95$. We take the mean over all columns for the mean bed height.
 
 
 % \subsection{Influence of the Exponent β} In the reference Goldschmidt case, the stress follows a quadratic dependency (β=2). To analyze the influence of β, we express the particle volume fraction as a fraction of the packing limit: \begin{equation} \alpha_p = \lambda \alpha_{cp} \quad \text{where} \quad \lambda \in [0,1). \end{equation} Substituting this into a simplified form of the solid stress equation yields: \begin{equation} \tau_s \propto \frac{P_s (\lambda \alpha_{cp})^\beta}{\alpha_{cp} - \lambda \alpha_{cp}} = P_s \alpha_{cp}^{\beta -1} \frac{\lambda^\beta}{1-\lambda}. \end{equation} The term λβ dominates the behavior for lower volume fractions. Since λ<1, a smaller exponent β results in a larger value for λβ. Consequently, for lower β, the solid stress τs​ becomes significant at lower volume fractions, resulting in a more expanded bed. As β increases, the "activation" of the stress is delayed until the particles are more densely packed, causing the mean bed height to decrease exponentially, as shown in Figure \ref{fig:meanBedBeta}.
@@ -31,9 +29,9 @@ To analyze the effect of varying $\beta$ on our simulation, we rewrite the parti
     \pvf = \lambda \pvfcp \qquad \lambda \in [0,1),
 \end{align*}
 and insert it into a simplified version of the particle solid stress
-\begin{align*}
+\begin{align}
     \scs = \dfrac{P_s \pvf^\beta}{\pvfcp - \pvf} = P_s\dfrac{\lambda^\beta}{(1-\lambda)} \pvfcp^{\beta -1}
-\end{align*}
+\end{align}
 thus yielding 
 \begin{align*}
     \nabla_{\lambda } \scs = P_s \left(\dfrac{\beta \lambda^{\beta -1}}{1 - \lambda}  + \dfrac{\lambda^\beta}{(1- \lambda)^2}\right) \pvfcp^{\beta - 1}.
@@ -45,7 +43,7 @@ For $\lambda$ approaching one, therefor a close packed bed, the first term start
 % Decreasing $\beta$ 
 % For smaller $\beta$, the leading factor rises faster, thus $\scs$ is higher for lower volume fractions. %In the plot for $\beta = 1$, we can observe this behavior in both the implicit \ref{fig:betaImp1} and the explicit \ref{fig:betaExp1} case, where the particles' position exceeds the plotted area.
 Due to the higher particle acceleration for lower volume fraction the bed expands for smaller $\beta$.
-Plotting the bed height for different values of $\beta$ reveals an exponential decay, see fig \ref{fig:meanBedBeta}.
+Plotting the bed height for increasing values of $\beta$ reveals an exponential decay, see fig \ref{fig:meanBedBeta}.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.55\linewidth]{sections/result/BetaExp/alphaExp.png}
@@ -89,7 +87,7 @@ Consequently, we can increase the close packed volume fraction further than theo
 \section{Damping Terms}
 \subsection{Results collision damping}
 \label{sec:DampResults}
-We evaluate the performance of the collision damping term, which is switched off in the \lstinline|Goldschmidt| tutorial.
+We evaluate the performance of the collision damping term discussed in sec. \ref{sec:damping}, which is switched off in the \lstinline|Goldschmidt| tutorial.
 We assess the behavior of the collision damping term in a total of $84$ cases:
 \begin{table}[h!]
     \centering
@@ -238,8 +236,8 @@ The remaining cases were aborted prematurely. Consequently the term is not consi
 \subsection{Results return-to-isotropy}
 \label{sec:returnToIsotropyImpact}
 
-The second damping term introduces a stochastic element, by modifying the particle velocities based on a velocity distribution to imitate the scattering from collisions, see sec \ref{sec:MPLoop}.
-In \OF the unmodified \MP solver is run with the fixed seed \lstinline|123456|.
+The second damping term introduces a stochastic element, by modifying the particle velocities based on a velocity distribution to imitate the scattering from collisions, see sec. \ref{sec:isotropy} and sec. \ref{sec:MPLoop}.
+In \OF the unmodified \MP solver is run with the fixed seed \lstinline|123456|, therefore the same random variables are sampled and the collision term is applied to the same particles each time the simulation is run ensuring reproducability.
 We run the simulation fifty times with identical set up and a random seed.
 Data is sampled from $1000$ probe locations and compared over all $50$ simulations.
 We calculate a mean value of each probe for each time step and calculate the maximal deviation from the mean particle volume fraction as well as the mean deviation, see figure \ref{fig:maxDiffIso}.

@@ -1,67 +1,173 @@
 \chapter{Introduction}
 \label{ch:Introduction}
-In 2015 195 countries 
+Climate change is widely recognized as one of the most pressing global challenges of the 21st century \cite{climateChangeHealth}. %The ongoing increase in greenhouse gas emissions has already resulted in a measurable rise in global average temperatures, accompanied by a growing frequency and intensity of extreme weather events. 
+According to the Intergovernmental Panel on Climate Change (IPCC) report 
+the effects of climate change are not limited to single regions but instead concern every region. \cite{IntergovernmentalPanelonClimateChange}.
+At $2°C$ global warming heat waves will more often reach a critical tolerance for agriculture and health.
+Limiting climate change is possible through rapid and sustained reductions in emissions of greenhouse gases such as carbon dioxide.
+In response to this pressing problem, agreements have been fostered in which the international community commits itself to limit global warming, such as the Paris Agreement, which aims to keep the increase in global mean temperature well below $2$~\textdegree C while pursuing efforts to limit it to $1.5$~\textdegree C.
+%Achieving these goals requires rapid and sustained reductions in carbon dioxide emissions across all sectors.
 
-\begin{itemize}
-    \item Have you ever heard of climate change?
-    \item Coal bad, change to renewable...
-    \item The "Gesetz zur Reduzierung und zur Beendigung der Kohleverstromung" Act aims to phase out coal-fired power generation no later than 2038
-    \item Iron good option
-    \item Iron is an interesting recyclable fuel due to the fact that it is
-widely available, has a low cost, is non-toxic, and can be recycled
-without CO2 emissions using today’s technology.
-    \item Diagram: Power consumption and power production
-    \item With \url{https://climate.copernicus.eu/esotc/2022/clouds-and-sunshine-duration} "As with cloud cover, the large positive anomaly for 2022 is consistent with the pronounced trend toward longer sunshine duration observed over the past four decades."
-    \item "The world will not be able cope with climate change without a global energy transition. The burning of fossil fuels for power generation is the single most important cause of climate change."  \url{https://www.bmz.de/en/issues/climate-change-and-development/energy-and-climate}
-    \item Recognizing that without deep emissions cuts from heavy industry and advances in clean technology
-industries (including renewable energy technologies, energy storage, energy efficiency, circular
-production, and sustainable mining) – collectively referred to as ‘green industrialization’ – global
-carbon emissions reduction goals, in line with the Paris Agreement, cannot be met,
-\url{https://cop30.br/en/news-about-cop30/cop30-documents/cop30_belem-declaration-on-global-green-industrialization_final-4.pdf/@@download/file}
-\item Paris Agreement Article 2a) Holding the increase in the global average temperature to well below
-2°C above pre-industrial levels and pursuing efforts to limit the temperature
-increase to 1.5°C above pre-industrial levels, recognizing that this would
-significantly reduce the risks and impacts of climate change;
-\item Figure ES.1 from \url{https://wedocs.unep.org/bitstream/handle/20.500.11822/46404/EGR2024.pdf?sequence=3&isAllowed=y} 25\% of all emissions due to power generation, largest is energy production
-\item \url{https://de.statista.com/statistik/daten/studie/37595/umfrage/anteil-einzelner-sektoren-an-den-co2-emissionen-in-deutschland/} CO2 emissions in Germany in 2024 31.3\% due to the energy sector
-\item Both the CPS and the STEPS project electricity demand reaching essentially the
-same level in 2035, around 37 800 terawatt-hours (TWh). This represents an increase of 40\%
-from today’s level and an acceleration of the pace of growth compared to the past decade. (Section 1.1) \url{https://iea.blob.core.windows.net/assets/9228d782-4207-4648-9c75-e6bb908cdb90/WorldEnergyOutlook2025.pdf}
-\item Out of all of the metals identified as possible energy carriers, silicon, aluminum, and iron are the 2nd, 3rd, and 4th most abundant elements in the Earth’s crust, respectively [73]
-\item Zur Einspeicherung von Energie
-wird Eisenoxid elektrochemisch mit erneuerbarem Strom oder thermochemisch mit grünem Wasser-
-stoff zu Eisen reduziert. Die thermochemische Umsetzung von Eisenoxiden bietet sich aufgrund des
-fortgeschrittenen Technologiestands durch die Forschung auf dem Gebiet der nachhaltigen Produk-
-tion von Stahl an. Die Ausspeicherung der Energie erfolgt durch die Oxidation von Eisen mithilfe
-von Luftsauerstoff.
+In 2023 the power sector, which for example includes electricity production, was the largest global contributor to greenhouse gas emissions at 15.1 GtCO2e \cite{emmisionDueToPowerGeneration}.
+Therefore the power sector plays a key role in the transformation toward lowering CO$_2$ emissions.
+As a result nations have begun to implement policies that focus on replacing coal, oil and natural gas with renewable energy soures.
+Germany, for instance, has passed the "Gesetz zur Reduzierung und zur Beendigung der Kohleverstromung" which mandates the phase-out of coal-fired power generation by at latest 2038.
 
-    \item \ldots
-    \item Space to start MPPIC
-    \item  Particle-particle interactions are represented by models which utilise mean values calculated on the Eulerian mesh.
-    \item Collisional damping models are included to represent the mean loss in kinetic energy which occurs as particles collide. The code includes a relaxation model which uses a time-scale to calculate the rate of interaction of a particle’s momentum with that of the mean field. This helps produce physically realistic scattering behaviour, but can have a detrimental affect on the packing modelling.
-    \item Collisional isotropy models represent the scattering which occurs as a result of particle collisions. The code includes a stochastic model which uses a time-scale to calculate the probability of a particle undergoing a collision, which randomises its velocity. Momentum and energy are explicitly conserved as a second step. This approach also helps to spread the particles uniformly across cells, which improves the quality of computed averages.
-    \item MPPIC has stability issues. Mostly this is when the parcels are too large relative to the cells, meaning a reliable average cannot be computed.
-    \item Removing drag and isotropy will cause more scattering. Both act to reduce relative velocities within the system. Both will, in all likelihood, be necessary to get a physical solution. Damping, too, is important, as it is the only mechanism by which the sub-grid collision modelling dissipates energy.
-    \item The Multiphase Particle in Cell (MP-PIC) is an Eulerian-Lagrangian numerical method that resolves the particle-particle interactions using the averages mapped from the Lagrangian parcels onto the Eulerian mesh.
-    \item ...
-    \item An advantage of the fluidized bed reactor is that due to the raping mixing near isothermal conditions are reached throughout the reactor. 
-Constant mixing, due to bubbles being formed and rising to and breaking the surface, improves the contact of solid and gas and amplifies heat and mass transfer. 
+This challenge is amplified by the expected increase in electricity demand of $40\%$ by 2035 which presents an acceleration to the pace of growth compared to the past decade \cite{energyDemand}.
+Renewable energy sources are essential for decarbonizing electricity generation but their fluctuation presents significant challenges for grid stability and supply security as the supply and demand often do not coincide.
+As a result efficient large scale energy storage are becoming crucial.
 
-\end{itemize}
-\begin{figure}
+In this context, metals are a promising recyclable energy carrier as they have a high energy density.
+Among them, iron is of interest due to its wide availability, low cost and non-toxicity and.
+Iron can be recycled in a carbon-free cycle as depicted in Fig. \ref{fig:ironReductionOxidationCycle}.
+\begin{figure}[h!]
     \centering
-    \includegraphics[width=0.9\linewidth]{sections/images/SMARD_diagram___ 20240821_20240826.png}
-    \caption[Data source: SMARD]{Data source: "Bundesnetzagentur | SMARD.de" \protect\footnotemark}
-    \label{fig:placeholder}
+    \includegraphics[width=0.55\linewidth]{sections/Schematic-of-an-iron-reduction-oxidation-cycle-for-a-CO-2-free-energy-supply-Adapted.png}
+    \caption{From \cite{ironClean}.}
+    \label{fig:ironReductionOxidationCycle}
 \end{figure}
+For a closed cycle carbon-free energy storage iron oxide is reduced by renewable electricity or green hydrogen.
+Energy can be stored with little loss and can later be released through combustion (oxidation), producing heat while regenerating iron oxide. Overall the estimated efficiency of this cycle is about $21 \%$ \cite{metalEfficiency}.
 
-%\footnotetext{\url{https://www.smard.de/en/marktdaten?marketDataAttributes=%7B%22resolution%22:%22hour%22,%22from%22:1724197320620,%22to%22:1724715720619,%22moduleIds%22:%5B1001226,1001225,1004067,1004068,1001228,1004070,5000410,1004066%5D,%22selectedCategory%22:null,%22activeChart%22:true,%22style%22:%22color%22,%22categoriesModuleOrder%22:%7B%7D,%22region%22:%22DE%22%7D}}
-\footnotetext{\footurl}
+The overall efficiency of the cycle depends strongly on both the reduction and the oxidation step. 
+Among other reactors capable of reducing iron oxide a fluidized bed reactor offers several advantages.
+In a fluidized bed reactor solid particles, in our case iron oxide, are placed on a porous plate and suspended by gas flowing in from below. This ensures particles are rapidly mixed, leading to close to isothermal conditions in the reactor. The heat and mass transfer between gas and particles are high due to the intense particle mixing and continuous gas/solid contact \cite{advantageFBR}.
+
+%These characteristics make fluidized bed reactors particularly well suited for gas–solid reactions such as iron oxide reduction.
+Scaling up fluidized bed reactors for industrial scale applications can present a time-consuming and difficult process \cite{scaleProb}.
+For the optimization of a fluidized bed reactor an understanding of the flow behavior inside the reactor is necessary.
+This thesis focuses on the modelling of a fluidized bed reactor using the Multiphase Particle-In-Cell (\MP) method.
+The \MP method is a hybrid approach that treats solid particles as both discrete particles and as a continuum. 
+Properties are mapped back and forth and used to model particle-particle interactions instead of resolving them through several submodels such as packing models, damping models and isotropy models thereby leading to lower computational costs.
+
+We begin this master thesis by establishing fundamentals about the fluidized bed reactors and multiphase modelling in ch. \ref{ch:background}. Subsequently, we detail the \MP method as it was first presented in one dimension along with different submodels in ch. \ref{ch:MPPIC}. We discuss the implementation of the \MP method in \OF in ch. \ref{ch:OpenFOAM}.
+Finally to discuss the applicability and limitations of the \MP method we setup a simulation in ch. \ref{ch:simSetup} which we use to conduct a parameter study in ch. \ref{ch:results}.
+
+
+
+% Key components of this modeling approach include:
+% \begin{itemize}
+%     \item \textbf{Collisional Damping:} Models the mean loss of kinetic energy during collisions. This is the primary mechanism for dissipating energy in the sub-grid modeling.
+%     \item \textbf{Collisional Isotropy:} A stochastic model that represents scattering. It randomizes particle velocity based on a calculated time-scale, ensuring physically realistic scattering behavior and uniform particle distribution, which improves the quality of computed averages.
+%     \item \textbf{Stability Considerations:} The method can exhibit stability issues, particularly when parcel sizes are large relative to the grid cells, compromising the reliability of the Eulerian averages.
+% \end{itemize}
+
+
+% Because the flow behavior in a fluidized bed reactor can be complex gaining in-depth understanding of the behavior can be challenging.
+% For resolving interactions between the solid and gas phase numerical simulations have become an important tool.
+% Scaling up fluidized bed reactors can be a challenging process often taking up to $10$ years \cite{scaleProb}.
+
+% \cite{scaleProb}
+% The challenges related to scaling up the fluidization behavior
+% have been highlighted as different phenomena between the
+% scales, including particle sintering, erosion, solids flow, particle
+% size distribution (and evolving changes due to growth,
+% attrition, etc.), and entrainment (and thus particle losses).
+% Despite these advantages, the complex multiphase flow behavior in fluidized beds presents considerable challenges for reactor design and optimization. Experimental investigations alone are often insufficient to fully resolve the detailed interactions between gas and solid phases, especially under industrially relevant conditions. As a result, numerical simulation has become an indispensable tool for improving the understanding of fluidized bed hydrodynamics and reaction behavior.
+
+% This thesis focuses on the numerical simulation of iron oxide reduction in a fluidized bed reactor using the Multiphase Particle-in-Cell (MP-PIC) method. MP-PIC is an Eulerian–Lagrangian approach in which the gas phase is solved on an Eulerian grid, while the solid phase is represented by computational parcels, each corresponding to a large number of physical particles. Particle–particle interactions are accounted for through averaged quantities mapped onto the Eulerian grid, including models for collisional damping, relaxation, and isotropy. These sub-grid models enable the efficient representation of momentum and energy exchange within the particle phase while maintaining manageable computational costs.
+
+% The objective of this work is to assess the applicability and limitations of the MP-PIC approach for simulating iron oxide reduction in a fluidized bed reactor. Particular emphasis is placed on the influence of particle–particle interaction models on numerical stability and physical realism, as well as on the ability of the simulation to reproduce characteristic fluidization behavior. By improving the understanding of these aspects, this thesis aims to contribute to the development of reliable numerical tools for metal-based energy storage concepts and, ultimately, to the broader transition toward a sustainable, low-carbon energy system.
+
+
+
+% \begin{itemize}
+%     \item Have you ever heard of climate change?
+%     \item Coal bad, change to renewable...
+%     \item The "Gesetz zur Reduzierung und zur Beendigung der Kohleverstromung" Act aims to phase out coal-fired power generation no later than 2038
+%     \item Iron good option
+%     \item Iron is an interesting recyclable fuel due to the fact that it is
+% widely available, has a low cost, is non-toxic, and can be recycled
+% without CO2 emissions using today’s technology.
+%     \item Diagram: Power consumption and power production
+%     \item With \url{https://climate.copernicus.eu/esotc/2022/clouds-and-sunshine-duration} "As with cloud cover, the large positive anomaly for 2022 is consistent with the pronounced trend toward longer sunshine duration observed over the past four decades."
+%     \item "The world will not be able cope with climate change without a global energy transition. The burning of fossil fuels for power generation is the single most important cause of climate change."  \url{https://www.bmz.de/en/issues/climate-change-and-development/energy-and-climate}
+%     \item Recognizing that without deep emissions cuts from heavy industry and advances in clean technology
+% industries (including renewable energy technologies, energy storage, energy efficiency, circular
+% production, and sustainable mining) – collectively referred to as ‘green industrialization’ – global
+% carbon emissions reduction goals, in line with the Paris Agreement, cannot be met,
+% \url{https://cop30.br/en/news-about-cop30/cop30-documents/cop30_belem-declaration-on-global-green-industrialization_final-4.pdf/@@download/file}
+% \item Paris Agreement Article 2a) Holding the increase in the global average temperature to well below
+% 2°C above pre-industrial levels and pursuing efforts to limit the temperature
+% increase to 1.5°C above pre-industrial levels, recognizing that this would
+% significantly reduce the risks and impacts of climate change;
+% \item Figure ES.1 from \url{https://wedocs.unep.org/bitstream/handle/20.500.11822/46404/EGR2024.pdf?sequence=3&isAllowed=y} 25\% of all emissions due to power generation, largest is energy production
+% \item \url{https://de.statista.com/statistik/daten/studie/37595/umfrage/anteil-einzelner-sektoren-an-den-co2-emissionen-in-deutschland/} CO2 emissions in Germany in 2024 31.3\% due to the energy sector
+% \item Both the CPS and the STEPS project electricity demand reaching essentially the
+% same level in 2035, around 37 800 terawatt-hours (TWh). This represents an increase of 40\%
+% from today’s level and an acceleration of the pace of growth compared to the past decade. (Section 1.1) \url{https://iea.blob.core.windows.net/assets/9228d782-4207-4648-9c75-e6bb908cdb90/WorldEnergyOutlook2025.pdf}
+% \item Out of all of the metals identified as possible energy carriers, silicon, aluminum, and iron are the 2nd, 3rd, and 4th most abundant elements in the Earth’s crust, respectively [73]
+% \item Zur Einspeicherung von Energie
+% wird Eisenoxid elektrochemisch mit erneuerbarem Strom oder thermochemisch mit grünem Wasser-
+% stoff zu Eisen reduziert. Die thermochemische Umsetzung von Eisenoxiden bietet sich aufgrund des
+% fortgeschrittenen Technologiestands durch die Forschung auf dem Gebiet der nachhaltigen Produk-
+% tion von Stahl an. Die Ausspeicherung der Energie erfolgt durch die Oxidation von Eisen mithilfe
+% von Luftsauerstoff.
+
+%     \item \ldots
+%     \item Space to start MPPIC
+%     \item  Particle-particle interactions are represented by models which utilise mean values calculated on the Eulerian mesh.
+%     \item Collisional damping models are included to represent the mean loss in kinetic energy which occurs as particles collide. The code includes a relaxation model which uses a time-scale to calculate the rate of interaction of a particle’s momentum with that of the mean field. This helps produce physically realistic scattering behaviour, but can have a detrimental affect on the packing modelling.
+%     \item Collisional isotropy models represent the scattering which occurs as a result of particle collisions. The code includes a stochastic model which uses a time-scale to calculate the probability of a particle undergoing a collision, which randomises its velocity. Momentum and energy are explicitly conserved as a second step. This approach also helps to spread the particles uniformly across cells, which improves the quality of computed averages.
+%     \item MPPIC has stability issues. Mostly this is when the parcels are too large relative to the cells, meaning a reliable average cannot be computed.
+%     \item Removing drag and isotropy will cause more scattering. Both act to reduce relative velocities within the system. Both will, in all likelihood, be necessary to get a physical solution. Damping, too, is important, as it is the only mechanism by which the sub-grid collision modelling dissipates energy.
+%     \item The Multiphase Particle in Cell (MP-PIC) is an Eulerian-Lagrangian numerical method that resolves the particle-particle interactions using the averages mapped from the Lagrangian parcels onto the Eulerian mesh.
+%     \item ...
+%     \item An advantage of the fluidized bed reactor is that due to the raping mixing near isothermal conditions are reached throughout the reactor. 
+% Constant mixing, due to bubbles being formed and rising to and breaking the surface, improves the contact of solid and gas and amplifies heat and mass transfer. 
+
+% \end{itemize}
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.9\linewidth]{sections/images/SMARD_diagram___ 20240821_20240826.png}
+%     \caption[Data source: SMARD]{Data source: "Bundesnetzagentur | SMARD.de" \protect\footnotemark}
+%     \label{fig:placeholder}
+% \end{figure}
+
+% %\footnotetext{\url{https://www.smard.de/en/marktdaten?marketDataAttributes=%7B%22resolution%22:%22hour%22,%22from%22:1724197320620,%22to%22:1724715720619,%22moduleIds%22:%5B1001226,1001225,1004067,1004068,1001228,1004070,5000410,1004066%5D,%22selectedCategory%22:null,%22activeChart%22:true,%22style%22:%22color%22,%22categoriesModuleOrder%22:%7B%7D,%22region%22:%22DE%22%7D}}
+% \footnotetext{\footurl}
+
+
+% \chapter{Introduction}
+% \label{ch:Introduction}
+
+% Climate change is widely recognized as one of the most pressing global challenges of the 21st century. The ongoing increase in greenhouse gas emissions has already resulted in a measurable rise in global average temperatures, accompanied by a growing frequency and intensity of extreme weather events. In response, the international community has committed to limiting global warming through agreements such as the Paris Agreement, which aims to keep the increase in global mean temperature well below 2~\textdegree C above pre-industrial levels, while pursuing efforts to limit it to 1.5~\textdegree C. Achieving these goals requires rapid and sustained reductions in carbon dioxide emissions across all sectors of the economy.
+
+% The energy sector plays a key role in this transformation, as electricity generation remains one of the largest contributors to global CO$_2$ emissions. In Germany, for instance, a substantial share of emissions originates from the combustion of fossil fuels for power production. As a result, national and international policies increasingly focus on replacing coal, oil, and natural gas with renewable energy sources. A prominent example is the \emph{Gesetz zur Reduzierung und zur Beendigung der Kohleverstromung}, which mandates the complete phase-out of coal-fired power generation in Germany by 2038 at the latest. Similar developments can be observed worldwide, highlighting the urgency of establishing sustainable and low-carbon energy systems.
+
+% Renewable energy sources such as wind and solar power are essential for decarbonizing electricity generation; however, their inherent variability presents significant challenges for grid stability and security of supply. Electricity production from renewable sources does not always coincide with demand, making large-scale energy storage solutions indispensable. This challenge is further amplified by the expected increase in electricity demand driven by the electrification of industry, transportation, and heating. Consequently, the development of efficient, scalable, and flexible energy storage technologies is of critical importance.
+
+% In this context, metals have emerged as promising recyclable energy carriers. Among them, iron is of particular interest due to its wide availability, low cost, non-toxicity, and high abundance in the Earth’s crust. Most importantly, iron can be recycled without direct CO$_2$ emissions when its reduction is powered by renewable electricity or green hydrogen. Energy can be stored by reducing iron oxide to metallic iron and later released through controlled oxidation with oxygen from air, producing heat while regenerating iron oxide. This closed material cycle enables carbon-free energy storage, provided that the reduction step relies on renewable energy sources.
+
+% The thermochemical reduction of iron oxides is especially attractive due to the high level of technological maturity achieved through decades of research and industrial experience in iron and steel production. Among the reactor concepts suitable for this process, fluidized bed reactors offer several advantages. Intense particle mixing and continuous gas–solid contact result in near-isothermal operating conditions, high heat and mass transfer rates, and a relatively uniform reaction environment. These characteristics make fluidized bed reactors particularly well suited for gas–solid reactions such as iron oxide reduction.
+
+% Despite these advantages, the complex multiphase flow behavior in fluidized beds presents considerable challenges for reactor design and optimization. Experimental investigations alone are often insufficient to fully resolve the detailed interactions between gas and solid phases, especially under industrially relevant conditions. As a result, numerical simulation has become an indispensable tool for improving the understanding of fluidized bed hydrodynamics and reaction behavior.
+
+% This thesis focuses on the numerical simulation of iron oxide reduction in a fluidized bed reactor using the Multiphase Particle-in-Cell (MP-PIC) method. MP-PIC is an Eulerian–Lagrangian approach in which the gas phase is solved on an Eulerian grid, while the solid phase is represented by computational parcels, each corresponding to a large number of physical particles. Particle–particle interactions are accounted for through averaged quantities mapped onto the Eulerian grid, including models for collisional damping, relaxation, and isotropy. These sub-grid models enable the efficient representation of momentum and energy exchange within the particle phase while maintaining manageable computational costs.
+
+% The objective of this work is to assess the applicability and limitations of the MP-PIC approach for simulating iron oxide reduction in a fluidized bed reactor. Particular emphasis is placed on the influence of particle–particle interaction models on numerical stability and physical realism, as well as on the ability of the simulation to reproduce characteristic fluidization behavior. By improving the understanding of these aspects, this thesis aims to contribute to the development of reliable numerical tools for metal-based energy storage concepts and, ultimately, to the broader transition toward a sustainable, low-carbon energy system.
 
 
 
 
+% \chapter{Introduction}
+% \label{ch:Introduction}
 
+% Climate change represents one of the most pressing global challenges of the 21st century. The continuous increase in global greenhouse gas emissions has already led to a measurable rise in average temperatures, accompanied by more frequent and intense extreme weather events. In response, the international community has committed to limiting global warming through agreements such as the Paris Agreement, which aims to keep the increase in global average temperature well below 2~\textdegree C above pre-industrial levels while pursuing efforts to limit it to 1.5~\textdegree C. Achieving these targets requires rapid and sustained reductions in carbon dioxide emissions across all sectors of the economy.
+
+% The energy sector plays a central role in this transition, as power generation remains one of the largest sources of global CO$_2$ emissions. In Germany, for example, a significant share of emissions originates from the energy sector, primarily due to the combustion of fossil fuels. Consequently, national and international policies increasingly focus on replacing coal, oil, and natural gas with renewable energy sources. A prominent example is the \emph{Gesetz zur Reduzierung und zur Beendigung der Kohleverstromung}, which mandates the complete phase-out of coal-fired power generation in Germany by 2038 at the latest. Similar developments can be observed worldwide, underscoring the urgency of establishing sustainable, low-carbon energy systems.
+
+% While renewable energy sources such as wind and solar power are essential for decarbonizing electricity generation, their inherent variability poses significant challenges for grid stability and energy supply security. Periods of high electricity production do not always coincide with periods of high demand, making large-scale energy storage solutions indispensable. As electricity demand is projected to increase substantially in the coming decades due to electrification of industry, transport, and heating, the development of efficient and scalable energy storage technologies becomes even more critical.
+
+% In this context, metals have gained attention as potential recyclable energy carriers. Among them, iron stands out as a particularly promising candidate. Iron is widely available, inexpensive, non-toxic, and one of the most abundant elements in the Earth’s crust. Most importantly, iron can be recycled without direct CO$_2$ emissions when reduced using renewable electricity or green hydrogen. Energy can be stored by reducing iron oxide to metallic iron, and later released through controlled oxidation of iron with oxygen from air, producing heat while forming iron oxide again. This closed material cycle enables carbon-free energy storage and reuse, provided that the reduction step is powered by renewable energy sources.
+
+% The thermochemical reduction of iron oxides is of particular interest due to the advanced technological maturity achieved through decades of research in iron and steel production. Among the various reactor concepts suitable for this process, the fluidized bed reactor offers several advantages. Due to intense particle mixing and continuous gas–solid contact, fluidized beds provide near-isothermal operating conditions, high heat and mass transfer rates, and uniform reaction environments. These characteristics make fluidized bed reactors especially well suited for gas–solid reactions such as the reduction of iron oxide.
+
+% Despite these advantages, the complex multiphase flow behavior within fluidized beds poses significant challenges for reactor design and optimization. Experimental investigations alone are often insufficient to fully capture the detailed interactions between gas and solid phases, particularly under industrially relevant conditions. Therefore, numerical simulation has become an essential tool for improving the understanding of fluidized bed dynamics and reaction behavior.
+
+% This thesis focuses on the numerical simulation of iron oxide reduction in a fluidized bed reactor using the Multiphase Particle-in-Cell (MP-PIC) method. MP-PIC is an Eulerian–Lagrangian approach in which the gas phase is solved on an Eulerian mesh, while the solid phase is represented by computational parcels that model large numbers of physical particles. Particle–particle interactions are accounted for through averaged quantities mapped onto the Eulerian grid, including collisional damping, relaxation, and isotropy models. These sub-grid models enable the representation of momentum and energy exchange between particles while maintaining computational efficiency.
+
+% The objective of this work is to investigate the applicability and limitations of the MP-PIC approach for simulating iron oxide reduction in a fluidized bed reactor. Particular emphasis is placed on the influence of particle–particle interaction models on numerical stability and physical realism, as well as on the ability of the model to reproduce characteristic fluidization behavior. By improving the understanding of these phenomena, this thesis aims to contribute to the development of reliable simulation tools for metal-based energy storage concepts and, ultimately, to the broader transition toward a sustainable, low-carbon energy system.
 
 
 

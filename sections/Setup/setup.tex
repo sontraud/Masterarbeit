@@ -502,6 +502,8 @@ In the following we conduct a grid sensitivity study by varying the cube side le
 We test the grid with an inlet velocity of $0.001 m/s$. At this velocity we expect to see no fluidization, therefor the particles should drop and settle in a bed.
 We use the close pack volume fraction of $0.65$ and particle diameter of $50 \operatorname{\mu m}$
 to determine that we need about one million particles. %\todo{ist die gneaue Zahl von Interesse?}
+To determine the bed height probes are taken at $1000$ points at $x = 0.075\operatorname{mm}$ (middle of the domain), and on a $20 \times 50$ grid on the domain $ [0\operatorname{mm},10\operatorname{mm}] \times [0\operatorname{mm},50\operatorname{mm}]$.
+In each column the bed height is determined by the highest cell with a fluid volume fraction lower than the maximum packing fraction. We take the mean over all columns for the mean bed height.
 For the coarsest grid we can observe that the simulation becomes unstable, with particles launched through the reactor multiple times, see figure \ref{fig:mesh_study}.
 \begin{figure}[h!]
     \centering

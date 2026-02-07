@@ -295,8 +295,12 @@ The collision damping term and the return-to-isotropy damping term will be expla
 
 \subsubsection{Damping term}
 \label{sec:damping}
-The first term is known as the collision damping term \cite{damp}.
-It is defined similar to a Bhatnagar,
+The first term is known as the collision damping term. 
+Two versions of this damping term exist.
+The first is the equilibrium damping term which we will not focus on here \cite{dampUnimproved} .
+The second is the non-equilibrium term which we will look at in the following \cite{damp}.
+The two terms differ by the collision damping time.
+The damping term is defined similar to a Bhatnagar,
 Gross, and Krook (BGK) collision term 
 \begin{equation}
     \label{eq:colDamp}
