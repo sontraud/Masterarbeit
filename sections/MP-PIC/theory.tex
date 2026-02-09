@@ -986,26 +986,25 @@ We can apply the orthogonality property from equation \eqref{eq:ipOrtho} and the
 We will look more specifically at the interpolation used in \OF later in \ref{sec:OFInterpolation}.
 
 
-\todo{Korrektur weiter ab hier}
 \subsection{Numerical Solution without Damping Terms}
 The interpolation operators introduced in the previous section are used in the \MP method to map particle properties between the Eulerian grid and the particle positions.
-The method can be roughly split into the the following three steps in each time step.
-First the method calculates the provisional particle positions based on the previous velocity and particle positions.
-These positions are used to map the properties like particle volume fraction to the Eulerian grid.
-Then the momentum and continuity equation are solved on the Eulerian map.
-Derivative terms for example for the solid stress are mapped back to the particles and used to calculate the advanced particle positions.
-This completes the completes the time step.
-In the following we will derive each step and look at the implicit approximations used.
+The method can be roughly split into the following three steps in each time step.
+First, the method calculates the provisional particle positions based on the previous velocity and particle positions.
+These positions are used to map the properties, like particle volume fraction, to the Eulerian grid.
+Then, the momentum and continuity equations are solved on the Eulerian map. \todo{eulerian grid or map?}
+Derivative terms, for example for the solid stress, are mapped back to the particles and used to calculate the updated particle positions.
+This completes the time step.
+In the following, we will derive each step and look at the implicit approximations used.
 
-For the numerical solution we use the parcels mentioned above. As per the assumption made in equation \eqref{eq:partConservation}, the number of particles in a volume is conserved in particle phase space. 
-Therefore the parcels have a constant number of particles.
-We assume that a particle's mass and volume is constant.
+For the numerical solution, we use the parcels mentioned above. As per the assumption made in equation \eqref{eq:partConservation}, the number of particles in a volume is conserved in particle phase space. 
+Therefore, the parcels have a constant number of particles.
+We assume that a particle's mass and volume are constant.
 Advanced particle positions are then calculated by
 \begin{equation}
     \label{eq:MPposition}
     \xp^{n+1} = \xp^{n} + \Delta t \up^{n+1}, \ n \in \mathbb{N} \qquad \xp^{0} = \x_0
 \end{equation}
-and the velocity is rearranging by the discretized acceleration \eqref{eq:accel}
+and the velocity is rearranged by the discretized acceleration \eqref{eq:accel}
 % \Todo{Anpassen auf altes Paper}
 \begin{align}
     \dfrac{\up^{n+1} - \up^{n}}{\Delta \tvar} &= \d (\upi^{n+1} -
@@ -1013,13 +1012,13 @@ and the velocity is rearranging by the discretized acceleration \eqref{eq:accel}
     \Leftrightarrow \up^{n+1} &= \dfrac{\up^n + \Delta \tvar \left[ \d S\up^{n+1} - \dfrac{1}{\rp} \nabla \p_p^{n+1} - \dfrac{1}{\rp \pvf} \nabla \scs^{n+1} - \g \right]}{1 + \Delta \tvar \d} .\label{eq:errVel} 
 \end{align}
 
-In the following we will restrict ourselves to the one dimensional case for easier reading. 
+In the following, we will restrict ourselves to the one dimensional case for easier reading. 
 For the gradients we use a differential quotient 
 \begin{equation}
 \label{eq:MPvelocity}
-    \up^{n+1} = \dfrac{\up^n + \Delta \tvar \left[\d \tilde{u_{p}} - \g - \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right]}{1 + \Delta \tvar \d}
+    \up^{n+1} = \dfrac{\up^n + \Delta \tvar \left[\d \tilde{u_{p}} - \g - \dfrac{1}{\rp} \left(\dfrac{\tilde{\p}_{i+1} - \tilde{\p}_i}{\Delta \x} \right)_p - \dfrac{1}{\rp \pvf} \left( \dfrac{\tilde{\ss}_{i+1} - \tilde{\ss}_i}{\Delta \x}\right)_p \right]}{1 + \Delta \tvar \d}.
 \end{equation}
-Variables marked with a tilde $\tilde{\cdot}$ are implicit approximations to the advanced-time step. They as well as the interphase momentum transfer will be defined in the following.
+Variables marked with a tilde $\tilde{\cdot}$ are implicit approximations to the advanced time step. They, as well as the interphase momentum transfer will be defined in the following.
 
 The equations for updating the position \eqref{eq:MPposition} and velocity \eqref{eq:MPvelocity} are used at the end of a time step to calculate the new particle velocities and positions.
 These two equations are the first of eight equations.

@@ -116,8 +116,9 @@ The latter is used in \lstinline|createFields| to set the minimum fluid volume f
 \end{equation*}
 used in equation \eqref{eq:maxAlpha}. If the fluid volume fraction reaches a lower value it is set to $\fvf_{min}$ for stability. This can lead to fluid volume fraction that do not reflect the current number of particles in a cell.
 Particle dynamics are influenced by the Drag force model and particle injection in \lstinline|subModels|. 
-In Sec. \ref{sec:MPLoop} two drag models are discussed: \lstinline|ErgunWenYuDrag| and \lstinline|PlessisMasliyahDrag| which will be evaluated in the next Sec. \ref{sec:paramStudy} as they have an influence on both the fluid and the solid particle phase.
+In sec. \ref{sec:MPLoop} two drag models are discussed: \lstinline|ErgunWenYuDrag| and \lstinline|PlessisMasliyahDrag| which will be evaluated in the next Sec. \ref{sec:paramStudy} as they have an influence on both the fluid and the solid particle phase.
 The particles are either initialized inside the reactor at time step $0$ by \lstinline|manualInjection|, where particle positions are defined in \lstinline|kinematicCloudPositions|, or injected by \lstinline|patchInjection|.
+In the following we only use \lstinline|manualInjection|.
 For the latter we define a patch through which the particles are injected over a set time.
 For both injection models we can set a particle velocity at injection and distribution for the particle diameters.
 With \lstinline|nParticle| we set the number of particles in one parcel, as explained in sec \ref{sec:PartGrouping}.
@@ -178,11 +179,16 @@ Further sub-models which can be turned on instead and are implemented in \OF are
 For the explicit Harris and Crighton model, the parameters are the close packed volume fraction $\pvfcp$ as \lstinline|alphaPacked|, \lstinline|pSolid| as the pressure constant $P_s$, \lstinline|beta| as the exponent $\beta$ and \lstinline|eps| as the small constant limiting used for avoiding singularities.
 Additionally, we can also add a correction limiting method with the parameter \lstinline|e| which is given by Eq. \eqref{eq:correctLimiting}.
 A collision damping model can be applied by setting \lstinline|dampingModel| to \lstinline|relaxation|. 
-In our later simulations it is always set to \lstinline|none| and therefor not applied.
+In our later simulations it is always set to \lstinline|none| and therefor not applied, see sec. \ref{sec:DampResults}.
 
 The return-to-isotropy model is turned on by setting \lstinline|isotropyModel| to \lstinline|stochastic| and turned off by setting it to \lstinline|none|.
 This model uses the radial distribution function $g_0$ defined in Eq. \eqref{eq:rtiSol} which utilizes the close-pack volume fraction \lstinline|alphaPacked|.
-Along with the elasticity factor \lstinline|e|, which differs from the restitution coefficient \lstinline|e| defined above, see $\eta$, both are used to determine the relaxation time $\ss_G$ in Eq. \eqref{eq:DampingTimeG}.
+Along with the elasticity factor \lstinline|e|, which differs from the restitution coefficient \lstinline|e| defined above.
+The elasticity factor is included in
+\begin{equation}
+    \eta = \dfrac{1+e}{2}
+\end{equation}
+which is used along with the close packed particle volume fractions in eq. \eqref{eq:DampingTimeG} for determining the relaxation time.
 The impact of the isotropy model is discussed in Sec. \ref{sec:returnToIsotropyImpact}.
 %The impact of the parameters and the dependence of the simulation on the parameters is discussed in chapter \ref{ch:results}.
 
@@ -480,7 +486,7 @@ In our simulations later we will set the top to \lstinline|escape| to allow part
 
 %\todo[inline]{Für den folgenden Teil hab ich korrekturen von Stephan bekommen. Ein paar Kleingkeiten soll ich noch ändern aber ansonsten ist der Teil für ihn Abgabefertig.}
 
-\section{Grid} \todo{zu kurz}
+\section{Grid Setup}
 The experimental data indicates a maximum mean bed height of approximately $2.5 \operatorname{cm}$. To account for particle fluctuations and bed expansion, we extend  simulation domain to a height of $5 \operatorname{cm}$. The domain width is adapted to the simplified fluidized bed geometry width of $1 \operatorname{cm}$.
 To reduce computation time we effectively model the reactor as 2D by modeling a cuboid with the above described dimensions and a depth of $0.1 \operatorname{cm}$.
 The mesh consists of cubes. 
@@ -590,7 +596,7 @@ In all cases the error of $0.25 \operatorname{mm}$ case is the smallest.
 
 We estimate an order of convergence for each of the mean errors summed over the five seconds
 \begin{equation*}
-    EOC_{\Delta x_1,\Delta x_2} = \dfrac{\log \left( \frac{err_{t=5s, \Delta \x_1}}{err_{t=5s,\Delta \x_2}} \right)}{\log \left( \frac{\Delta x_1}{\Delta x_2} \right)}.
+    EOC_{\Delta x_1,\Delta x_2} = \dfrac{\log \left( \frac{err_{[0s,5s], \Delta \x_1}}{err_{[0s,5s],\Delta \x_2}} \right)}{\log \left( \frac{\Delta x_1}{\Delta x_2} \right)}.
 \end{equation*}
 For the absolute errors the overall errors of convergence and the overall error of the linear fit, calculated using \lstinline|numpy.polyfit|, are identical.
 The time averaged absolute error is depicted in \ref{fig:time_aver_abs}. The slope of the errors is identical in both cases with a linear fit slope of $2.76$ for the absolute $L1$-error
@@ -748,7 +754,7 @@ The final mesh dimensions are $10 \operatorname{mm} \times 0.25 \operatorname{mm
 \end{figure}
 
 \section{Data Collection Simulation}
-The two data sets we want to compare are the mean bed height and the pressure drop.
+In the next chapter we use compare the experimental mean bed height and pressure drop to their simulated counterparts.
 In the \MP method the pressure calculated and output is the kinematic pressure, which we multiply by the fluid density $1.2 \operatorname{kg/m^3}$ to get the static pressure.
 The kinematic pressure is measured in the center of the grid at the top, $P(7.5e-05| 0.005| 0.0497487)$ 
 and the bottom $P(7.5e-05| 0.005| 0.000251256)$ 

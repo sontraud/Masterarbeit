@@ -482,6 +482,10 @@ mathfontname=mathsf]{mhchem}
 
 \newif\ifschonwars
 \schonwarsfalse
+
+\newif\iffloat
+\floattrue
+
 \begin{document}
 
 %% Set PDF metadata
@@ -542,7 +546,6 @@ mathfontname=mathsf]{mhchem}
 %% Add entry to the table of contents for the bibliography
 
 \printbibliography[heading=bibintoc]
-\todo{werden noch aufge\-räumt, aber nicht jetzt..., habt ihr da standards Formatierung?}
 %% ----------------
 %% |   Appendix   |
 %% ----------------
@@ -553,6 +556,7 @@ mathfontname=mathsf]{mhchem}
 %   left=1.5cm,
 %   right=1.5cm
 % }
+\captionsetup[figure]{list=no}
 \captionsetup[subfigure]{
   font=footnotesize,      % or small
   labelfont=footnotesize, % size of "(a)" label
