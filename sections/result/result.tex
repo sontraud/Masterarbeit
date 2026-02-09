@@ -11,13 +11,13 @@ Finally we conclude by discussing limitations of the \MP method.
 
 
 \section{Single Parameter Testing}
+\label{sec:oneParam}
 We start by recalling the explicit Harris and Crighton model
 \begin{equation}
     \scs = \dfrac{P_s \pvf^\beta}{\max [( \pvfcp - \pvf), \varepsilon ( 1- \pvf)]}
 \end{equation}
 with the close pack volume fraction $\pvfcp$, the exponent $\beta$ and the pressure constant $P_s$.
-Here we use a simplified domain consisting of a cuboid with dimensions $0.15 \operatorname{mm} \times 10 \operatorname{mm} \times 50 \operatorname{mm}$ with a grid consisting of $1 \times 20 \times 100$ cells.
-At time step zero about $160000$  are injected. %$165251$
+ %$165251$
 
 
 % \subsection{Influence of the Exponent β} In the reference Goldschmidt case, the stress follows a quadratic dependency (β=2). To analyze the influence of β, we express the particle volume fraction as a fraction of the packing limit: \begin{equation} \alpha_p = \lambda \alpha_{cp} \quad \text{where} \quad \lambda \in [0,1). \end{equation} Substituting this into a simplified form of the solid stress equation yields: \begin{equation} \tau_s \propto \frac{P_s (\lambda \alpha_{cp})^\beta}{\alpha_{cp} - \lambda \alpha_{cp}} = P_s \alpha_{cp}^{\beta -1} \frac{\lambda^\beta}{1-\lambda}. \end{equation} The term λβ dominates the behavior for lower volume fractions. Since λ<1, a smaller exponent β results in a larger value for λβ. Consequently, for lower β, the solid stress τs​ becomes significant at lower volume fractions, resulting in a more expanded bed. As β increases, the "activation" of the stress is delayed until the particles are more densely packed, causing the mean bed height to decrease exponentially, as shown in Figure \ref{fig:meanBedBeta}.
@@ -46,19 +46,24 @@ Due to the higher particle acceleration for lower volume fraction the bed expand
 Plotting the bed height for increasing values of $\beta$ reveals an exponential decay, see fig \ref{fig:meanBedBeta}.
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.55\linewidth]{sections/result/BetaExp/alphaExp.png}
+    \includegraphics[width=0.48\linewidth]{sections/result/bh_beta.eps}
+    \hfill
+    \includegraphics[width = 0.48\linewidth]{sections/result/pd_beta.eps}
     \caption{Exponentially decaying mean bed height for different values of $\beta$. Bed heights exceeding the plotted range are clipped at $50 \operatorname{mm}$.}
     \label{fig:meanBedBeta}
 \end{figure}
-\todo{Plots werden noch an den restlichen Stil angepasst (und die leere Legende entfernt)}
+For a higher bed height the particles are further spread apart leading to a lower pressure at the bottom of the grid. For higher exponents the bed height decrease leading to a more densely packed bed., resulting in an increase in pressure drop before declining again.
+%\todo{Plots werden noch an den restlichen Stil angepasst (und die leere Legende entfernt)}
 
 % \subsection{Influence of the Solid Pressure Constant Ps​} The parameter Ps​ acts as a stiffness constant for the particle bed. Increasing Ps​ linearly scales the particle normal stress. A higher stress magnitude results in stronger inter-particle repulsion, maintaining larger inter-particle spacing and leading to a linear increase in bed height (Figure \ref{fig:meanBedPS}).
-\subsection{Solid pressure constant}
+\subsection{Solid Pressure Constant}
 The solid pressure constant $P_s$ linearly scales the particle normal stress gradient.
-A higher solid pressure constant results in particles being accelerated even for low particle fractions, leading to a linear increase in bed height, see figure \ref{fig:meanBedPS}.
+A higher solid pressure constant results in particles being accelerated even for low particle fractions, leading to a linear increase in bed height, see figure \ref{fig:meanBedPS}. An increase in bed height again leads to a decrease in pressure drop.
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.55\linewidth]{sections/result/PSolidExp/alphaExp.png}
+    \includegraphics[width = 0.48\linewidth]{sections/result/bh_ps.eps}
+    \hfill
+    \includegraphics[width = 0.48\linewidth]{sections/result/pd_ps.eps}
     \caption{Linearly growing mean bed height for different values of $P_s
     $.}
     \label{fig:meanBedPS}
@@ -67,8 +72,8 @@ A higher solid pressure constant results in particles being accelerated even for
 
 
 
-\subsection{Volume fraction close packed}
-The gradient of the particle normal stress diverges as the particle volume fraction approaches close packed. If the close packed volume fraction is set to a lower value, the singularity is reached earlier, causing particles to be accelerated at lower concentrations. This leads to an increased bed height, see figure \ref{fig:meanBedPacked}.
+\subsection{Volume Fraction Close Packed}
+The gradient of the particle normal stress diverges as the particle volume fraction approaches close packed. If the close packed volume fraction is set to a lower value, the singularity is reached earlier, causing particles to be accelerated at lower concentrations. This leads to an increased bed height, see fig. \ref{fig:meanBedPacked} and an increase in pressure drop.
 From experiments \cite{closePack}, we know that random sphere packing generally has a particle volume fraction of $0.63$. An upper limit is given by the Kepler conjecture, which states that sphere packing cannot exceed $ \sim 0.74$. 
 In the \MP method particles are modeled as point masses rather than resolved spheres and therefor geometric constraints are not enforced.
 Consequently, we can increase the close packed volume fraction further than theoretically possible.
@@ -78,16 +83,20 @@ Consequently, we can increase the close packed volume fraction further than theo
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.55\linewidth]{sections/result/alphaPackedExp/alphaExp.png}
+    \includegraphics[width = 0.48 \linewidth]{sections/result/bh_ap.eps}
+    \includegraphics[width = 0.48 \linewidth]{sections/result/pd_ap.eps}
     \caption{Mean bed height for varying values of closed packed volume fractions $\pvfcp$.}
     \label{fig:meanBedPacked}
 \end{figure}
 
 
 \section{Damping Terms}
-\subsection{Results collision damping}
+\subsection{Results Collision Damping}
 \label{sec:DampResults}
 We evaluate the performance of the collision damping term discussed in sec. \ref{sec:damping}, which is switched off in the \lstinline|Goldschmidt| tutorial.
+Because this term was ruled out earlier in this thesis the domain slightly varies from the domain used in the rest of this chapter. We use a cuboid with dimensions $0.15 \operatorname{mm} \times 10 \operatorname{mm} \times 50 \operatorname{mm}$ with a grid consisting of $1 \times 20 \times 100$ cells.
+At time step zero about $160000$  are injected.
+
 We assess the behavior of the collision damping term in a total of $84$ cases:
 \begin{table}[h!]
     \centering
@@ -233,7 +242,7 @@ The final simulation times are detailed in the two tables below for the equilibr
 Out of $84$ cases only two successfully reached the target simulation time of $5$ seconds.
 The remaining cases were aborted prematurely. Consequently the term is not considered in further applications.
 
-\subsection{Results return-to-isotropy}
+\subsection{Results Return-to-Isotropy}
 \label{sec:returnToIsotropyImpact}
 
 The second damping term introduces a stochastic element, by modifying the particle velocities based on a velocity distribution to imitate the scattering from collisions, see sec. \ref{sec:isotropy} and sec. \ref{sec:MPLoop}.
@@ -244,7 +253,7 @@ We calculate a mean value of each probe for each time step and calculate the max
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.49\linewidth]{sections/result/isotropyModel.eps}
+    \includegraphics[width=0.49\linewidth]{sections/result/max_abw.eps}
     %\includegraphics[width = 0.49 \linewidth]{sections/result/mean_abw.eps}
     \includegraphics[width = 0.49 \linewidth]{sections/result/mean_mean_abw.eps}
     \caption{Maximal difference of fluid volume to the mean fluid volume fraction (left) and mean deviation of all cells averaged in each time step (right) in $1000$ points.}
@@ -252,7 +261,7 @@ We calculate a mean value of each probe for each time step and calculate the max
 \end{figure}
 
 After the particles are inserted we see a spike in the mean deviation.
-After the particles have settled into a bed the particles are accelerated by the fluid inlet velocity a second spike appears in the mean deviation and the maximal deviation.
+After the particles have settled into a bed the particles are accelerated by the fluid inlet velocity a second spike appears in the mean deviation and the maximal deviation at $t = 1.1s$.
 The spike in maximal deviation is due to a layer of fluid forming in the particle bed in some of the cases, as depicted in figure \ref{fig:diffIsoPV}.
 This leads to a large local difference in the fluid volume fraction.
 \begin{figure}[h!]
@@ -277,7 +286,7 @@ To ensure reproducibility the subsequent simulations are run with a fixed seed.
 The objective of this section is to fit the \MP model parameters to the experimental fluidized bed data.
 Here we choose the explicit Harris and Crighton model which is governed by three parameters: the particle close pack volume fraction $\pvfcp$, the exponent $\beta$ and the pressure constant $P_s$
 We vary parameters pairwise with the third parameter being held constant at the default value from the \lstinline|Goldschmidt| tutorial.
-The variation of these parameters along with the different submodels used are detailed in table \ref{tab:cases} resutling in a total of $2336$ cases.
+The variation of these parameters along with the different submodels used that are detailed in table \ref{tab:cases} resulting in a total of $2336$ cases.
 
 
  % As all three have different influences on the simulation we always vary two parameters at a time and leave the third as defined in the \lstinline|Goldschmidt| tutorial, see table \ref{tab:cases},
@@ -309,7 +318,7 @@ The variation of these parameters along with the different submodels used are de
 %     \caption{Parameters for pairwise parameter testing with the parameters in each range defined in table \ref{tab:exact_param}.}
 %     \label{tab:cases}
 % \end{table}
-The exact parameters utilized are listed in table \ref{tab:exact_param}.
+% The exact parameters utilized are listed in table \ref{tab:exact_param}.
 % \begin{table}[h!]
 %     \centering
 %     \begin{tabular}{c|c}
@@ -422,7 +431,7 @@ Velocity & \multicolumn{3}{l}{0.015 \; 0.025 \; 0.034 \; 0.042} \\%\bottomrule
 \end{table}
 
 
-We test the packing model parameters with different modeling choices for the drag model and the return-to-isotopy model as listed in table \ref{tab:ParmStudSwitch}.
+% We test the packing model parameters with different modeling choices for the drag model and the return-to-isotopy model as listed in table \ref{tab:ParmStudSwitch}.
 % \begin{table}[h!]
 %     \centering
 %     \begin{tabular}{c|c c c c}
@@ -462,14 +471,6 @@ Fitting parameters is done by minimizing the relative error for the data
         err = \sqrt{\left( \dfrac{\Delta p - \Delta p_{exp}}{\Delta p_{exp}}\right)^2 + \left( \dfrac{h_{bed} - h_{bed,exp}}{h_{bed,exp}} \right)^2}.
 \end{equation}
 
-In the \MP method the pressure calculated and output is the kinematic pressure, which we multiply by the fluid density $1.2 \operatorname{kg/m^3}$ to get the static pressure.
-The kinematic pressure is measured in the center of the grid at the top%, $P(7.5e-05| 0.005| 0.0497487)$ 
-and the bottom %$P(7.5e-05| 0.005| 0.000251256)$ 
-away from the boundary.
-%\Todo{Punkte einfügen}
-The simulated bed height is determined by finding the highest cell with a fluid volume fraction of less than $0.95$.
-Averaging over several columns gives us the mean bed height, which we use for comparison.
-All simulations are run for $3.5s$ and data is gathered from the last two seconds and averaged. \todo{Plot pressure drop über $3.5s$ um zu sehen das sich der nicht mehr wirklich ändert?}
 
 In the following we go over all three cases for the velocity of $0.015 \operatorname{m/s}$ and look at the relative error of the pressure, the bed height and the combined relative error defined in equation \eqref{eq:relError}.
 The results are discussed in sec \ref{sec:case1}, \ref{sec:case2}, \ref{sec:case3}
@@ -838,7 +839,7 @@ Here we discuss the results at inlet velocity $\uf = 0.015 \operatorname{m/s}$. 
 
 % The bed height error (Fig. \ref{fig:BHEWYNone0015}) clearly favors higher exponents, reaching a minimum of 0.04 at β=5.0,αcp​=0.7. Notably, the pressure drop error dominates the combined metric. Consequently, the global minimum for the combined error aligns with the pressure drop optimum at β=4.5 and αcp​=0.7.
 
-\subsubsection{Drag model \lstinline|ErgunWenYuDrag| and isotropy model \lstinline|none|}
+\subsubsection{Drag Model \lstinline|ErgunWenYuDrag| and Isotropy Model \lstinline|none|}
 %\todo{Lieber Tabellen statt so viel Text?}
 We start by using the \lstinline|ErgunWenYuDrag| drag model and turn off the isotropy model.
 The pressure drop error, plotted in figure \ref{fig:C1PDEWYNone0015}, is minimal for an exponent of $\beta = 4.5$ and close pack particle volume fraction $\pvfcp = 0.7$ with a relative error of $0.23$ before spiking for $\beta = 5$. Possible causes of the high relative error for the pressure drop are discussed in sec \ref{sec:discAndRes}.
@@ -854,20 +855,20 @@ Because the relative error depicted in \ref{fig:C1EWYNone0015} from the pressure
 \begin{figure}[h!]
     \centering
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_pres0.015_ErgunWenYuDrag_none.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_pres0.015_ErgunWenYuDrag_none.eps}
         %\caption{Relative error of pressure with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C1PDEWYNone0015}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_height0.015_ErgunWenYuDrag_none.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_height0.015_ErgunWenYuDrag_none.eps}
         %\caption{Relative error of bed height with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C1BHEWYNone0015}
     \end{subfigure}
     \begin{subfigure}[b]{0.32\linewidth}
-    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_both0.015_ErgunWenYuDrag_none.png}
+    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_both0.015_ErgunWenYuDrag_none.eps}
     \caption{}
     \label{fig:C1EWYNone0015}
     \end{subfigure}
@@ -875,7 +876,7 @@ Because the relative error depicted in \ref{fig:C1EWYNone0015} from the pressure
 \end{figure}
 \FloatBarrier
 
-\subsubsection{Drag model \lstinline|ErgunWenYuDrag| and isotropy model \lstinline|stochastic|}
+\subsubsection{Drag Model \lstinline|ErgunWenYuDrag| and Isotropy Model \lstinline|stochastic|}
 Activiating the isotropy model inverts the dependcy upon $\beta$ in the pressure drop error, see figure \ref{fig:C1PDEWYStoch0015}.
 The minimal relative error is shifted toward low values of the exponent at $\beta = 2$ with a minimal error of $0.23$. The close pack volume fraction at the minimal relative error is at $\pvf = 0.65$.
 The pressure drop peaks at $\beta = 3.0$ and $\pvfcp = 0.55$ with a relative error of $0.30$. 
@@ -888,13 +889,13 @@ The parameters of both the highest and lowest relative overall error coincide wi
 % \begin{figure}[h!]
 %     \centering
 %     \begin{subfigure}[b]{0.49 \linewidth}
-%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_pres0.015_ErgunWenYuDrag_stochastic.png}
+%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_pres0.015_ErgunWenYuDrag_stochastic.png}
 %         \caption{Relative error of pressure with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015m/s$.}
 %         \label{fig:C1PDEWYStoch0015}
 %     \end{subfigure}
 %     \hfill
 %     \begin{subfigure}[b]{0.49 \linewidth}
-%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_height0.015_ErgunWenYuDrag_stochastic.png}
+%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_height0.015_ErgunWenYuDrag_stochastic.png}
 %         \caption{Relative error of bed height with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015m/s$.}
 %         \label{fig:C1BHEWYStoch0015}
 %     \end{subfigure}
@@ -902,7 +903,7 @@ The parameters of both the highest and lowest relative overall error coincide wi
 
 % \begin{figure}[h!]
 %     \centering
-%     \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_both0.015_ErgunWenYuDrag_stochastic.png}
+%     \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_both0.015_ErgunWenYuDrag_stochastic.png}
 %     \caption{Combined relative error with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015m/s$, according to equation \eqref{eq:relError}.}
 %     \label{fig:C1EWYStoch0015}
 % \end{figure}
@@ -913,18 +914,18 @@ The parameters of both the highest and lowest relative overall error coincide wi
 \begin{figure}[h!]
     \centering
     \begin{subfigure}[b]{0.32\linewidth}
-        \includegraphics[width =\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_pres0.015_ErgunWenYuDrag_stochastic.png}
+        \includegraphics[width =\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_pres0.015_ErgunWenYuDrag_stochastic.eps}
         \caption{}
         \label{fig:C1PDEWYStoch0015}
     \end{subfigure}
     \begin{subfigure}[b]{0.32\linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_height0.015_ErgunWenYuDrag_stochastic.png}    
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_height0.015_ErgunWenYuDrag_stochastic.eps}    
         \caption{}
         \label{fig:C1BHEWYStoch0015}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.32\linewidth}
-        \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_both0.015_ErgunWenYuDrag_stochastic.png}    
+        \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_both0.015_ErgunWenYuDrag_stochastic.eps}    
     \caption{}
     \label{fig:C1EWYStoch0015}
     \end{subfigure}
@@ -935,7 +936,7 @@ The parameters of both the highest and lowest relative overall error coincide wi
 
 
 
-\subsubsection{Drag model \lstinline|PlessisMasliyahDrag| and isotropy model \lstinline|none|}
+\subsubsection{Drag Model \lstinline|PlessisMasliyahDrag| and Isotropy Model \lstinline|none|}
 
 We switch from the \lstinline|ErgunWenYuDrag| model to the \lstinline|PlessisMasliyahDrag| model without including an isotropy model.
 
@@ -952,21 +953,21 @@ The overall relative error, figure \ref{fig:C1PMNone0015}, shows the same trend 
 \begin{figure}[h!]
     \centering
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_pres0.015_PlessisMasliyahDrag_none.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_pres0.015_PlessisMasliyahDrag_none.eps}
         %\caption{Relative error of pressure with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C1PDPMNone0015}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_height0.015_PlessisMasliyahDrag_none.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_height0.015_PlessisMasliyahDrag_none.eps}
         %\caption{Relative error of bed height with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C1BHPMNone0015}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.32\linewidth}
-    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_both0.015_PlessisMasliyahDrag_none.png}
+    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_both0.015_PlessisMasliyahDrag_none.eps}
     \caption{}
     \label{fig:C1PMNone0015}
     \end{subfigure}
@@ -979,7 +980,7 @@ The overall relative error, figure \ref{fig:C1PMNone0015}, shows the same trend 
 
 % With Isotropy Model (\lstinline|stochastic|) Similar to the previous drag model, enabling stochastic isotropy inverts the pressure drop response. The minimum pressure error (0.24) is found at the lowest exponent (β=1.5). However, the bed height error remains high for low exponents, plateauing at approx. 0.22. Because the bed height error dominates at high β, and the pressure drop error dominates at low β, the combined error surface shows a saddle point. The global minimum is located at β=5.0 and αcp​=0.7 (errrel​≈0.30), indicating that despite the pressure drop improvement at low β, the bed height accuracy dictates the optimal parameter set.
 
-\subsubsection{Drag model \lstinline|PlessisMasliyahDrag| and isotropy model \lstinline|stochastic|}
+\subsubsection{Drag Model \lstinline|PlessisMasliyahDrag| and Isotropy Model \lstinline|stochastic|}
 
 Similar to the isotropy model in the \lstinline|ErgunWenYuDrag| case, the isotropy model in our simulation again inverts the impact of the exponent on the pressure drop in figure \ref{fig:C1PDPMStoch0015}.
 The minimum relative error is at the lowest exponent $\beta = 1.5$ and $\pvfcp = 0.68$ with a relative error of $0.24$.
@@ -997,21 +998,21 @@ The maximal error coincides with the parameters of the pressure drop, as the err
 \begin{figure}[h!]
     \centering
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_pres0.015_PlessisMasliyahDrag_stochastic.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_pres0.015_PlessisMasliyahDrag_stochastic.eps}
         %\caption{Relative error of pressure with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C1PDPMStoch0015}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_height0.015_PlessisMasliyahDrag_stochastic.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_height0.015_PlessisMasliyahDrag_stochastic.eps}
         \caption{}
         %\caption{Relative error of bed height with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015m/s$.}
         \label{fig:C1BHPMStoch0015}
     \end{subfigure}
     \begin{subfigure}{0.32 \linewidth}
     \centering
-    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_both0.015_PlessisMasliyahDrag_stochastic.png}
+    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_both0.015_PlessisMasliyahDrag_stochastic.eps}
     \caption{}
     \end{subfigure}
     \caption{Pressure drop relative error (\ref{fig:C1PDPMStoch0015}), bed height relative error (\ref{fig:C1BHPMStoch0015}) and combined relative error (\ref{fig:C1PMStoch0015}) according to equation \eqref{eq:relError}, with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015m/s$.}
@@ -1029,20 +1030,20 @@ In all cases the minimal relative error occurred at higher close pack particle v
 
 
 
-% \begin{figure}[h!] \centering \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_both0.015_ErgunWenYuDrag_stochastic.png} \caption{Combined relative error for \lstinline|ErgunWenYuDrag| with \lstinline|stochastic| isotropy.} \label{fig:placeholder} \end{figure} \FloatBarrier
+% \begin{figure}[h!] \centering \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_both0.015_ErgunWenYuDrag_stochastic.png} \caption{Combined relative error for \lstinline|ErgunWenYuDrag| with \lstinline|stochastic| isotropy.} \label{fig:placeholder} \end{figure} \FloatBarrier
 
 % \subsubsection{Performance of the \lstinline|PlessisMasliyah| Drag Model}
 
 % Without Isotropy Model (\lstinline|none|) Switching to the \lstinline|PlessisMasliyah| model (without isotropy) yields trends similar to the \lstinline|ErgunWenYu| case, though with generally higher error magnitudes. The pressure drop error is minimized (0.26) at high parameter values (β=4.5,αcp​=0.7). The bed height error is approximately double that of the \lstinline|ErgunWenYu| model, ranging from a minimum of 0.08 (at β=5.0) to a maximum of 0.22. Consequently, the combined error is minimized at β=5.0 and αcp​=0.68, with a global error value of 0.29.
 
-% \FloatBarrier \begin{figure}[h!] \centering \begin{subfigure}[b]{0.49 \linewidth} \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_pres0.015_PlessisMasliyahDrag_none.png} \caption{Pressure drop error.} \end{subfigure} \hfill \begin{subfigure}[b]{0.49 \linewidth} \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_height0.015_PlessisMasliyahDrag_none.png} \caption{Bed height error.} \end{subfigure} \caption{Relative error maps for \lstinline|PlessisMasliyahDrag| without isotropy.} \end{figure}
+% \FloatBarrier \begin{figure}[h!] \centering \begin{subfigure}[b]{0.49 \linewidth} \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_pres0.015_PlessisMasliyahDrag_none.png} \caption{Pressure drop error.} \end{subfigure} \hfill \begin{subfigure}[b]{0.49 \linewidth} \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_height0.015_PlessisMasliyahDrag_none.png} \caption{Bed height error.} \end{subfigure} \caption{Relative error maps for \lstinline|PlessisMasliyahDrag| without isotropy.} \end{figure}
 
-% \begin{figure}[h!] \centering \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_both0.015_PlessisMasliyahDrag_none.png} \caption{Combined relative error for \lstinline|PlessisMasliyahDrag| without isotropy.} \label{fig:placeholder} \end{figure} \FloatBarrier
+% \begin{figure}[h!] \centering \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_both0.015_PlessisMasliyahDrag_none.png} \caption{Combined relative error for \lstinline|PlessisMasliyahDrag| without isotropy.} \label{fig:placeholder} \end{figure} \FloatBarrier
 
 
-% \FloatBarrier \begin{figure}[h!] \centering \begin{subfigure}[b]{0.49 \linewidth} \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_pres0.015_PlessisMasliyahDrag_stochastic.png} \caption{Pressure drop error.} \end{subfigure} \hfill \begin{subfigure}[b]{0.49 \linewidth} \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_height0.015_PlessisMasliyahDrag_stochastic.png} \caption{Bed height error.} \end{subfigure} \caption{Relative error maps for \lstinline|PlessisMasliyahDrag| with \lstinline|stochastic| isotropy.} \end{figure}
+% \FloatBarrier \begin{figure}[h!] \centering \begin{subfigure}[b]{0.49 \linewidth} \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_pres0.015_PlessisMasliyahDrag_stochastic.png} \caption{Pressure drop error.} \end{subfigure} \hfill \begin{subfigure}[b]{0.49 \linewidth} \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_height0.015_PlessisMasliyahDrag_stochastic.png} \caption{Bed height error.} \end{subfigure} \caption{Relative error maps for \lstinline|PlessisMasliyahDrag| with \lstinline|stochastic| isotropy.} \end{figure}
 
-% \begin{figure}[h!] \centering \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Kin/kin_Z_both0.015_PlessisMasliyahDrag_stochastic.png} \caption{Combined relative error for \lstinline|PlessisMasliyahDrag| with \lstinline|stochastic| isotropy.} \label{fig:placeholder} \end{figure} \FloatBarrier
+% \begin{figure}[h!] \centering \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case1Eps/kin_Z_both0.015_PlessisMasliyahDrag_stochastic.png} \caption{Combined relative error for \lstinline|PlessisMasliyahDrag| with \lstinline|stochastic| isotropy.} \label{fig:placeholder} \end{figure} \FloatBarrier
 
 
 % To further investigate the impact of the close-pack particle volume fraction ($\pvfcp$), it is varied alongside the pressure constant $P_s$, while keeping the exponent $\beta$ constant.
@@ -1067,7 +1068,7 @@ We further investigate the impact of the close pack particle volume fraction fur
 Again we focus only look at one inlet velocity $\uf = 0.015 m/s$. The results for the other three velocities can be found in the appendix \todo{Appendix erstellen und referenzieren}.
 
 
-\subsubsection{Drag model \lstinline|ErgunWenYuDrag| and isotropy model \lstinline|none|}
+\subsubsection{Drag Model \lstinline|ErgunWenYuDrag| and Isotropy Model \lstinline|none|}
 We begin with the \lstinline|ErgunWenYuDrag| model and disable the isotropy model.
 Both the pressure drop error in figure \ref{fig:C2PDEWYNone0015} and the bed height error \ref{fig:C2BHEWYNone0015} remain largely unaltered despite the different parameters.
 The difference in errors is less than $0.02$ for the pressure drop and $0.01$ for the bed height, which is significantly less than in Case 1.
@@ -1080,21 +1081,21 @@ Since the pressure drop error is more than double the bed height error it domina
 \begin{figure}[h!]
     \centering
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_pres0.015_ErgunWenYuDrag_none.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_pres0.015_ErgunWenYuDrag_none.eps}
         %\caption{Relative error of pressure with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C2PDEWYNone0015}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_height0.015_ErgunWenYuDrag_none.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_height0.015_ErgunWenYuDrag_none.eps}
         %\caption{Relative error of bed height with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C2BHEWYNone0015}
     \end{subfigure}
     \begin{subfigure}[b]{0.32 \linewidth}
     \centering
-    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_both0.015_ErgunWenYuDrag_none.png}
+    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_both0.015_ErgunWenYuDrag_none.eps}
     \caption{}
     \end{subfigure}
     \caption{Pressure drop relative error (\ref{fig:C2PDEWYNone0015}), bed height relative error (\ref{fig:C2BHEWYNone0015}) and combined relative error (\ref{fig:C2EWYNone0015}) according to equation \eqref{eq:relError}, with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
@@ -1118,7 +1119,7 @@ Since the pressure drop error is more than double the bed height error it domina
 % The locations of the minimum error ($0.25$) and the maximum error ($0.32$) coincide with the extrema of the pressure drop error.
 
 
-\subsubsection{Drag model \lstinline|ErgunWenYuDrag| and isotropy model \lstinline|stochastic|}
+\subsubsection{Drag Model \lstinline|ErgunWenYuDrag| and Isotropy Model \lstinline|stochastic|}
 With the isotropy model enabled the impact of the parameters on the simulation results is more prominent.
 The pressure drop error in figure \ref{fig:C2PDEWYStoch0015} declines for both small and large pressure constants but increases for intermediate values.
 For the pressure constant of $P_s = 10$ depending on the value of the close packed particle volume fraction the error spikes or falls further. The minimal error of $0.23$ occurs at $P_s = 10$ and $\pvfcp = 0.65$ followed by a relative error spike for pressure constants exceeding this value. For larger pressure constants the relative error spikes.
@@ -1135,13 +1136,13 @@ The position of the minium error of $0.25$ and of the maximum error of $0.32$ co
 % \begin{figure}[h!]
 %     \centering
 %     \begin{subfigure}[b]{0.49 \linewidth}
-%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_pres0.015_ErgunWenYuDrag_stochastic.png}
+%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_pres0.015_ErgunWenYuDrag_stochastic.png}
 %         \caption{Relative error of pressure with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015m/s$.}
 %         \label{fig:C2PDEWYStoch0015}
 %     \end{subfigure}
 %     \hfill
 %     \begin{subfigure}[b]{0.49 \linewidth}
-%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_height0.015_ErgunWenYuDrag_stochastic.png}
+%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_height0.015_ErgunWenYuDrag_stochastic.png}
 %         \caption{Relative error of bed height with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015m/s$.}
 %         \label{fig:C2BHEWYStoch0015}
 %     \end{subfigure}
@@ -1149,7 +1150,7 @@ The position of the minium error of $0.25$ and of the maximum error of $0.32$ co
 
 % \begin{figure}[h!]
 %     \centering
-%     \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_both0.015_ErgunWenYuDrag_stochastic.png}
+%     \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_both0.015_ErgunWenYuDrag_stochastic.png}
 %     \caption{Combined relative error with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015m/s$, according to equation \eqref{eq:relError}.}
 %     \label{fig:C2EWYStoch0015}
 % \end{figure}
@@ -1159,21 +1160,21 @@ The position of the minium error of $0.25$ and of the maximum error of $0.32$ co
 \begin{figure}[h!]
     \centering
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_pres0.015_ErgunWenYuDrag_stochastic.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_pres0.015_ErgunWenYuDrag_stochastic.eps}
         %\caption{Relative error of pressure with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C2PDEWYStoch0015}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_height0.015_ErgunWenYuDrag_stochastic.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_height0.015_ErgunWenYuDrag_stochastic.eps}
         %\caption{Relative error of bed height with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C2BHEWYStoch0015}
     \end{subfigure}
     \begin{subfigure}[b]{0.32 \linewidth}
     \centering
-    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_both0.015_ErgunWenYuDrag_stochastic.png}
+    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_both0.015_ErgunWenYuDrag_stochastic.eps}
     \caption{}
     \label{fig:C2EWYStoch0015}
     \end{subfigure}
@@ -1198,7 +1199,7 @@ The position of the minium error of $0.25$ and of the maximum error of $0.32$ co
 % The minimum combined error is $0.35$ at $P_s = 8$ and $\pvfcp = 0.55$.
 % Overall, the error is smaller than that observed for the \lstinline|ErgunWenYuDrag| model.
 
-\subsubsection{Drag model \lstinline|PlessisMasliyahDrag| and isotropy model \lstinline|none|}
+\subsubsection{Drag Model \lstinline|PlessisMasliyahDrag| and Isotropy Model \lstinline|none|}
 Compared to the \lstinline|ErgunWenYuDrag| model, the relative error of the pressure drop increases slightly and the relative bed height error nearly doubles compared to the \lstinline|ErgunWenYuDrag| model.
 
 The relative pressure drop error in figure \ref{fig:C2PDPMNone0015} fluctuates within a small range without exhibiting a clear pattern.
@@ -1216,13 +1217,13 @@ The overall error is smaller than the error we observed for the \lstinline|Ergun
 % \begin{figure}[h!]
 %     \centering
 %     \begin{subfigure}[b]{0.49 \linewidth}
-%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_pres0.015_PlessisMasliyahDrag_none.png}
+%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_pres0.015_PlessisMasliyahDrag_none.png}
 %         \caption{Relative error of pressure with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
 %         \label{fig:C2PDPMNone0015}
 %     \end{subfigure}
 %     \hfill
 %     \begin{subfigure}[b]{0.49 \linewidth}
-%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_height0.015_PlessisMasliyahDrag_none.png}
+%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_height0.015_PlessisMasliyahDrag_none.png}
 %         \caption{Relative error of bed height with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
 %         \label{fig:C2BHPMNone0015}
 %     \end{subfigure}
@@ -1230,7 +1231,7 @@ The overall error is smaller than the error we observed for the \lstinline|Ergun
 
 % \begin{figure}[h!]
 %     \centering
-%     \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_both0.015_PlessisMasliyahDrag_none.png}
+%     \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_both0.015_PlessisMasliyahDrag_none.png}
 %     \caption{Combined relative error with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$, according to equation \eqref{eq:relError}.}
 %     \label{fig:C2PMNone0015}
 % \end{figure}
@@ -1239,21 +1240,21 @@ The overall error is smaller than the error we observed for the \lstinline|Ergun
 \begin{figure}[h!]
     \centering
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_pres0.015_PlessisMasliyahDrag_none.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_pres0.015_PlessisMasliyahDrag_none.eps}
         %\caption{Relative error of pressure with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C2PDPMNone0015}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_height0.015_PlessisMasliyahDrag_none.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_height0.015_PlessisMasliyahDrag_none.eps}
         %\caption{Relative error of bed height with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C2BHPMNone0015}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.32\linewidth}
-    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_both0.015_PlessisMasliyahDrag_none.png}
+    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_both0.015_PlessisMasliyahDrag_none.eps}
     \caption{}
     \label{fig:C2PMNone0015}
     \end{subfigure}
@@ -1273,7 +1274,45 @@ The overall error is smaller than the error we observed for the \lstinline|Ergun
 % The minimal error of $0.33$ occurs at $P_s = 10$ and $\pvfcp = 0.63$.
 % A maximal error of $0.36$ is observed at $P_s = 10$ and $\pvfcp = 0.55$.
 
-\subsubsection{Drag model \lstinline|PlessisMasliyahDrag| and isotropy model \lstinline|stochastic|}
+\subsubsection{Drag Model \lstinline|PlessisMasliyahDrag| and Isotropy Model \lstinline|stochastic|}
+% 0
+% 1
+% 1.5
+% 6.0
+% 0.24202333689226926
+% 7
+% 0
+% 5.0
+% 5.0
+% 0.29715021285073046
+% 0.015_PlessisMasliyahDrag_stochastic.eps
+% The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+% 7
+% 0
+% 5.0
+% 5.0
+% 0.05747535922099523
+% 2
+% 0
+% 2.5
+% 5.0
+% 0.22535922099513117
+% 0.015_PlessisMasliyahDrag_stochastic.eps
+% The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+% 7
+% 1
+% 5.0
+% 6.0
+% 0.2987373694313865
+% 2
+% 4
+% 2.5
+% 9.0
+% 0.36320369762096916
+% 0.015_PlessisMasliyahDrag_stochastic.eps
+
+
+
 
 Switching the isotropy model back on the error once again increases the range of the pressure drop error, see figure \ref{fig:C2PDPMStoch0015}.
 The pressure drop error fluctuates without a clear pattern. The minimum error of  $0.49$ is attained at $P_s = 8$ and $\pvfcp = 0.63$ and the minimum of $0.29$ at $P_s = 10$ and $\pvfcp = 0.55$.
@@ -1291,12 +1330,12 @@ We observe a maximal error of $0.36$ at $P_s = 10$ and $\pvfcp = 0.55$.
 % \begin{figure}[h!]
 %     \centering
 %     \begin{subfigure}[b]{0.49 \linewidth}
-%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_pres0.015_PlessisMasliyahDrag_stochastic.png}
+%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_pres0.015_PlessisMasliyahDrag_stochastic.png}
 %         \caption{Relative error of pressure with drag model \lstinline|PlessisMasliyahDrag|, isotropy model  \lstinline|stochastic| and inlet velocity $0.015m/s$.}
 %         \label{fig:C2PDPMStoch0015}
 %     \end{subfigure}
 %     \begin{subfigure}[b]{0.49 \linewidth}
-%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_height0.015_PlessisMasliyahDrag_stochastic.png}
+%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_height0.015_PlessisMasliyahDrag_stochastic.png}
 %         \caption{Relative error of bed height with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015m/s$.}
 %         \label{fig:C2BHPMStoch0015}
 %     \end{subfigure}
@@ -1304,7 +1343,7 @@ We observe a maximal error of $0.36$ at $P_s = 10$ and $\pvfcp = 0.55$.
 
 % \begin{figure}[h!]
 %     \centering
-%     \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_both0.015_PlessisMasliyahDrag_stochastic.png}
+%     \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_both0.015_PlessisMasliyahDrag_stochastic.png}
 %     \caption{Combined relative error with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015m/s$, according to equation \eqref{eq:relError}.}
 %     \label{fig:C2PMStoch0015}
 % \end{figure}
@@ -1313,21 +1352,21 @@ We observe a maximal error of $0.36$ at $P_s = 10$ and $\pvfcp = 0.55$.
 \begin{figure}[h!]
     \centering
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_pres0.015_PlessisMasliyahDrag_stochastic.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_pres0.015_PlessisMasliyahDrag_stochastic.eps}
         %\caption{Relative error of pressure with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C2PDPMStoch0015}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_height0.015_PlessisMasliyahDrag_stochastic.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_height0.015_PlessisMasliyahDrag_stochastic.eps}
         \caption{}
         %\caption{Relative error of bed height with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015m/s$.}
         \label{fig:C2BHPMStoch0015}
     \end{subfigure}
     \begin{subfigure}{0.32 \linewidth}
     \centering
-    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_both0.015_PlessisMasliyahDrag_stochastic.png}
+    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_both0.015_PlessisMasliyahDrag_stochastic.eps}
     \caption{}
     \label{fig:C2PMStoch0015}
     \end{subfigure}
@@ -1353,18 +1392,18 @@ While the impact of the parameters is more prominent in \lstinline|PlessisMasliy
 % \begin{figure}[h!]
 %     \centering
 %     \begin{subfigure}[b]{0.49 \linewidth}
-%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_pres0.015_PlessisMasliyahDrag_stochastic.png}
+%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_pres0.015_PlessisMasliyahDrag_stochastic.png}
 %         \caption{Relative error of pressure with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015\,\mathrm{m/s}$.}
 %     \end{subfigure}
 %     \begin{subfigure}[b]{0.49 \linewidth}
-%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_height0.015_PlessisMasliyahDrag_stochastic.png}
+%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_height0.015_PlessisMasliyahDrag_stochastic.png}
 %         \caption{Relative error of bed height with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015\,\mathrm{m/s}$.}
 %     \end{subfigure}
 % \end{figure}
 
 % \begin{figure}[h!]
 %     \centering
-%     \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Kin/kin_Z_both0.015_PlessisMasliyahDrag_stochastic.png}
+%     \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case2Eps/kin_Z_both0.015_PlessisMasliyahDrag_stochastic.png}
 %     \caption{Combined relative error with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.015\,\mathrm{m/s}$, according to equation \eqref{eq:relError}.}
 %     \label{fig:res_case2_plessis_stoch}
 % \end{figure}
@@ -1402,7 +1441,7 @@ While the impact of the parameters is more prominent in \lstinline|PlessisMasliy
 In the remaining parameter combination by varying the exponent $\beta$ and the pressure constant $P_s$, with a constant close packed particle volume fraction of $\pvfcp = 0.65$.
 The inlet velocity is set to $\uf = 0.015 \operatorname{m/s}$ here. Investigations for the remaining velocities can be found at \todo{Apendixxxxxxxxxx}.
 
-\subsubsection{Drag model \lstinline|ErgunWenYuDrag| and isotropy model \lstinline|none|}
+\subsubsection{Drag Model \lstinline|ErgunWenYuDrag| and Isotropy Model \lstinline|none|}
 
 We begin with the \lstinline|ErgunWenYuDrag| model with the isotropy model disabled.
 The pressure drop in figure \ref{fig:C3PDEWYNone0015} spikes for a high exponent combined with a low pressure constant. At $\beta = 5$ and $P_s = 5$, the relative error reaches the maximum of $0.31$.
@@ -1410,17 +1449,16 @@ This is followed by a sharp decline with a minimum relative error at $\beta = 4.
 The relative error increases for lower exponents and higher pressure constants.
 
 The relative error of the bed height in figure \ref{fig:C3BHEWYNone0015} plateaus for lower exponents and higher pressure constants. 
-The maximum is located on this plateau at $\beta = 3$ and $P_s = 8$ with a value of $0.19$.
-The plateau then drops off toward the minimum of $0.08$ at $P_s = 5$ and $\beta = 5$.
+The maximum is located on this plateau at $\beta = 3$ and $P_s = 8$ with a value of $0.12$.
+The plateau then drops off toward the minimum of $0.02$ at $P_s = 5$ and $\beta = 5$.
 Compared to the previous case, the parameters increase the range of the relative error.
 
-Combining the two errors in figure \ref{fig:C3EWYNone0015} results in a maximum error of  $0.34$  at $\beta = 2$ and $P_s = 9$. 
-The relative error drops sharply for lower exponents and pressure constants.
+Combining the two errors in figure \ref{fig:C3EWYNone0015} the relative error drops sharply for lower exponents and pressure constants.
 The minimum relative error of $0.29$ is reached at $\beta = 4.5$ and $P_s = 5$.
-However, for $\beta = 5$ and $P_s = 5$ the error spikes again.
+However, for $\beta = 5$ and $P_s = 5$ the error spikes again to a maximum error $0.31$.
 \ifcode
 \begin{lstlisting}
-    6
+6
 5
 4.5
 10.0
@@ -1430,29 +1468,31 @@ However, for $\beta = 5$ and $P_s = 5$ the error spikes again.
 5.0
 5.0
 0.307017811336452
-0.015_ErgunWenYuDrag_none.png
+0.015_ErgunWenYuDrag_none.eps
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
 7
 0
 5.0
 5.0
-0.08143407304523503
+0.017062997268733036
 3
 3
 3.0
 8.0
-0.18651156917831999
-0.015_ErgunWenYuDrag_none.png
-6
+0.1158858805367534
+0.015_ErgunWenYuDrag_none.eps
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+5
 0
-4.5
+4.0
 5.0
-0.2917035307552794
-1
-4
-2.0
-9.0
-0.3364036991892013
-0.015_ErgunWenYuDrag_none.png
+0.2684711897022645
+7
+0
+5.0
+5.0
+0.30749159720814817
+0.015_ErgunWenYuDrag_none.eps
 
 \end{lstlisting}
 \fi
@@ -1460,13 +1500,13 @@ However, for $\beta = 5$ and $P_s = 5$ the error spikes again.
 % \begin{figure}[h!]
 %     \centering
 %     \begin{subfigure}[b]{0.49 \linewidth}
-%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Kin/kin_Z_pres0.015_ErgunWenYuDrag_none.png}
+%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Eps/kin_Z_pres0.015_ErgunWenYuDrag_none.png}
 %         \caption{Relative error of pressure with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
 %         \label{fig:C3PDEWYNone0015}
 %     \end{subfigure}
 %     \hfill
 %     \begin{subfigure}[b]{0.49 \linewidth}
-%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Kin/kin_Z_height0.015_ErgunWenYuDrag_none.png}
+%         \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Eps/kin_Z_height0.015_ErgunWenYuDrag_none.png}
 %         \caption{Relative error of bed height with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
 %         \label{fig:C3BHEWYNone0015}
 %     \end{subfigure}
@@ -1474,7 +1514,7 @@ However, for $\beta = 5$ and $P_s = 5$ the error spikes again.
 
 % \begin{figure}[h!]
 %     \centering
-%     \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Kin/kin_Z_both0.015_ErgunWenYuDrag_none.png}
+%     \includegraphics[width=0.5\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Eps/kin_Z_both0.015_ErgunWenYuDrag_none.png}
 %     \caption{Combined relative error with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$, according to equation \eqref{eq:relError}.}
 %     \label{fig:C3EWYNone0015}
 % \end{figure}
@@ -1483,21 +1523,21 @@ However, for $\beta = 5$ and $P_s = 5$ the error spikes again.
 \begin{figure}[h!]
     \centering
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Kin/kin_Z_pres0.015_ErgunWenYuDrag_none.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Eps/kin_Z_pres0.015_ErgunWenYuDrag_none.eps}
         %\caption{Relative error of pressure with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C3PDEWYNone0015}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Kin/kin_Z_height0.015_ErgunWenYuDrag_none.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Eps/kin_Z_height0.015_ErgunWenYuDrag_none.eps}
         %\caption{Relative error of bed height with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C3BHEWYNone0015}
     \end{subfigure}
     \begin{subfigure}[b]{0.32 \linewidth}
     \centering
-    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Kin/kin_Z_both0.015_ErgunWenYuDrag_none.png}
+    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Eps/kin_Z_both0.015_ErgunWenYuDrag_none.eps}
     \caption{}
     \label{fig:C3EWYNone0015}
     \end{subfigure}
@@ -1527,7 +1567,43 @@ However, for $\beta = 5$ and $P_s = 5$ the error spikes again.
 % The lowest error ($0.29$) is located at the downward spike at $\beta = 2$ and $P_s = 10$.
 
 
-\subsubsection{Drag model \lstinline|ErgunWenYu| and isotropy model \lstinline|stochastic|}
+\subsubsection{Drag Model \lstinline|ErgunWenYu| and Isotropy Model \lstinline|stochastic|}
+% 1
+% 5
+% 2.0
+% 10.0
+% 0.2262068209333094
+% 7
+% 0
+% 5.0
+% 5.0
+% 0.3394784947177058
+% 0.015_ErgunWenYuDrag_stochastic.eps
+% The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+% 7
+% 0
+% 5.0
+% 5.0
+% 0.01735987412421335
+% 1
+% 4
+% 2.0
+% 9.0
+% 0.11607142857142862
+% 0.015_ErgunWenYuDrag_stochastic.eps
+% The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+% 1
+% 5
+% 2.0
+% 10.0
+% 0.2542481118265513
+% 7
+% 0
+% 5.0
+% 5.0
+% 0.33992206990045226
+
+
 
 Including the isotropy model back into our simulations, the pressure drop in figure \ref{fig:C3PDEWYStoch0015} error plateaus for intermediate parameter values.
 The relative error for small exponents combined with large pressure constants plunges, with a minimum of $0.23$ at $\beta = 2$ and $P_s = 10$.
@@ -1535,14 +1611,15 @@ On the opposite end of the parameters the relative error spikes to $0.34$ at $\b
 
 
 The relative error of the bed height in figure \ref{fig:C3BHEWYStoch0015} shows a similar behavior to the simulation without a damping model.
-The plateau for lower exponents and pressure constants contains the maximum of $0.18$ at $\beta = 2$ and $P_s = 9$.
-The error decreases for higher exponents and lower pressure constants, with a minimum relative error of $0.08$ at $\beta = 5$ and $P_s = 5$.
+The plateau for lower exponents and pressure constants contains the maximum of $0.12$ at $\beta = 2$ and $P_s = 9$.
+The error decreases for higher exponents and lower pressure constants, with a minimum relative error of $0.02$ at $\beta = 5$ and $P_s = 5$.
+
 
 The downward trend of the bed height error for higher exponents and lower pressure constants is also visible in the combined relative error in figure \ref{fig:C3EWYStoch0015}.
 Both spikes we observed in the pressure drop relative error are also visible in the overall error.
 The previously observed plateau was replaced by a plane with a downward trend for larger exponents.
-The largest error is located at the upward spike, with an error of $0.35$ at $P_s = 5$ and $\beta = 5$.
-The lowest error is located at the downward spike, with a relative error of $0.29$ at $\beta = 2$ and $P_s = 10$.
+The largest error is located at the upward spike, with an error of $0.34$ at $P_s = 5$ and $\beta = 5$.
+The lowest error is located at the downward spike, with a relative error of $0.25$ at $\beta = 2$ and $P_s = 10$.
 
 
 \ifcode
@@ -1586,21 +1663,21 @@ The lowest error is located at the downward spike, with a relative error of $0.2
 \begin{figure}[h!]
     \centering
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Kin/kin_Z_pres0.015_ErgunWenYuDrag_stochastic.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Eps/kin_Z_pres0.015_ErgunWenYuDrag_stochastic.eps}
         %\caption{Relative error of pressure with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C3PDEWYStoch0015}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Kin/kin_Z_height0.015_ErgunWenYuDrag_stochastic.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Eps/kin_Z_height0.015_ErgunWenYuDrag_stochastic.eps}
         %\caption{Relative error of bed height with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C3BHEWYStoch0015}
     \end{subfigure}
     \begin{subfigure}[b]{0.32 \linewidth}
     \centering
-    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Kin/kin_Z_both0.015_ErgunWenYuDrag_stochastic.png}
+    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Eps/kin_Z_both0.015_ErgunWenYuDrag_stochastic.eps}
     \caption{}
     \label{fig:C3EWYStoch0015}
     \end{subfigure}
@@ -1633,17 +1710,53 @@ The isotropy model has no significant effect on the relative error of the bed he
 % The minimum error of $0.32$ is located just before the spike at $\beta = 5$ and $P_s = 9$.
 
 
-\subsubsection{Drag model \lstinline|PlessisMasliyahDrag| and isotropy model \lstinline|none|}
+\subsubsection{Drag Model \lstinline|PlessisMasliyahDrag| and Isotropy Model \lstinline|none|}
+
+% 5
+% 0
+% 4.0
+% 5.0
+% 0.26053141002337027
+% 7
+% 0
+% 5.0
+% 5.0
+% 0.3313403179915781
+% 0.015_PlessisMasliyahDrag_none.eps
+% The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+% 7
+% 0
+% 5.0
+% 5.0
+% 0.06467462296639356
+% 3
+% 3
+% 3.0
+% 8.0
+% 0.22057208170051062
+% 0.015_PlessisMasliyahDrag_none.eps
+% The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+% 7
+% 4
+% 5.0
+% 9.0
+% 0.2921461678150458
+% 1
+% 2
+% 2.0
+% 7.0
+% 0.36198676673171915
+% 0.015_PlessisMasliyahDrag_none.eps
 
 We transition to the \lstinline|PlessisMasliyahDrag| model. 
 The previously observed spike in pressure drop error for large exponents and small pressure constants persists with a relative error of $0.33$ found at $\beta = 5$ and $P_s = 5$, as seen in figure \ref{fig:C3PDPMNone0015}.
 As we observed before with the \lstinline|ErgunWenYuDrag| model without an isotropy model the minimal error of $0.26$ is adjacent to the maximal error at $\beta = 4$ and $P_s = 5$. The relative error increases slightly for smaller exponents and larger pressure constants.
 
-The relative error of the bed height in figure \ref{fig:C3BHPMNone0015} shows a similar trend to the previous cases, with a plateau forming for large pressure constants and small exponents. Although the trend is similar, the relative error is nearly double the value of the \lstinline|ErgunWenYuDrag| model. The plateau contains the maximum relative error of $0.30$ at $\beta = 3$ and $P_s = 8$. The relative error drops off for larger exponents and smaller pressure constants. The minimal relative error is located at $P_s = 5$ and $\beta = 5$ with a minimal error of $0.13$.
+The relative error of the bed height in figure \ref{fig:C3BHPMNone0015} shows a similar trend to the previous cases, with a plateau forming for large pressure constants and small exponents. Although the trend is similar, the relative error is nearly double the value of the \lstinline|ErgunWenYuDrag| model. The plateau contains the maximum relative error of $0.22$ at $\beta = 3$ and $P_s = 8$. The relative error drops off for larger exponents and smaller pressure constants. The minimal relative error is located at $P_s = 5$ and $\beta = 5$ with a minimal error of $0.06$.
 
 The overall relative error in figure \ref{fig:C3PMNone0015} behaves similarly to the bed height error, with the spike of the pressure drop error included for the largest exponents and smallest pressure constants.
-The maximum error is located at the top of the plateau where the bed height error is large, with an error of $0.41$ being located at $\beta = 2$ and $P_s = 7$.
-The minimum error of $0.32$ is located just before the spike at $\beta = 5$ and $P_s = 9$.
+The maximum error is located at the top of the plateau where the bed height error is large, with an error of $0.36$ being located at $\beta = 2$ and $P_s = 7$.
+The minimum error of $0.29$ is located just before the spike at $\beta = 5$ and $P_s = 9$.
 
 \ifcode
 \begin{lstlisting}
@@ -1687,21 +1800,21 @@ The minimum error of $0.32$ is located just before the spike at $\beta = 5$ and 
 \begin{figure}[h!]
     \centering
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Kin/kin_Z_pres0.015_PlessisMasliyahDrag_none.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Eps/kin_Z_pres0.015_PlessisMasliyahDrag_none.eps}
         %\caption{Relative error of pressure with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C3PDPMNone0015}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Kin/kin_Z_height0.015_PlessisMasliyahDrag_none.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Eps/kin_Z_height0.015_PlessisMasliyahDrag_none.eps}
         %\caption{Relative error of bed height with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C3BHPMNone0015}
     \end{subfigure}
     \begin{subfigure}[b]{0.32 \linewidth}
     \centering
-    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Kin/kin_Z_both0.015_PlessisMasliyahDrag_none.png}
+    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Eps/kin_Z_both0.015_PlessisMasliyahDrag_none.eps}
     \caption{}
     \label{fig:C3PMNone0015}
     \end{subfigure}
@@ -1722,7 +1835,7 @@ The minimum error of $0.32$ is located just before the spike at $\beta = 5$ and 
 % The overall relative error is a combination of both behaviors. We once again observe the decline of the bed height for larger exponents and smaller pressure constants. The minimum is located at $\beta = 5$ and $P_s = 6$.
 % The maximum error is on the plateau at $\beta = 2.5$ and $P_s = 9$ with an error of $0.41$.
 
-\subsubsection{Drag model \lstinline|PlessisMasliyahDrag| and isotropy model \lstinline|stochastic|}
+\subsubsection{Drag Model \lstinline|PlessisMasliyahDrag| and Isotropy Model \lstinline|stochastic|}
 
 Finally, we reinclude the isotropy model.
 The pressure drop error in figure \ref{fig:C3PDPMStoch0015} decreases slightly but exhibits more fluctuations.
@@ -1730,11 +1843,11 @@ The relative error tends to increase for larger exponents, with the peak located
 At the smallest exponent of $\beta = 1.5$, the minimum is located at $P_s = 6$ with a value of $0.24$.
 
 The behavior of the bed height in figure \ref{fig:C3BHPMStoch0015} is largely unchanged by the isotropy model.
-The maximal error of $0.30$ is located on the plateau, that forms for lower exponents, at $\beta = 2.5$ and $P_s = 5$.
-For larger exponents, the bed height error declines again. The minimum is located at $P_s =5$ and $\beta = 5$ with a value of $0.12$.
+The maximal error of $0.23$ is located on the plateau, that forms for lower exponents, at $\beta = 2.5$ and $P_s = 5$.
+For larger exponents, the bed height error declines again. The minimum is located at $P_s =5$ and $\beta = 5$ with a value of $0.06$.
 
-The overall relative error in figure \ref{fig:C3PMStoch0015} is a combination of both behaviors. Again we see the decline of the bed height for larger exponents and smaller pressure constants. The minimum is located at $\beta = 5$ and $P_s = 6$.
-The plateau previously seen in the bed height now fluctuates due the pressure drop error. The maximum error is at $\beta = 2.5$ and $P_s = 9$ with an error of $0.41$.
+The overall relative error in figure \ref{fig:C3PMStoch0015} is a combination of both behaviors. Again we see the decline of the bed height for larger exponents and smaller pressure constants. The minimum of $0.30$ is located at $\beta = 5$ and $P_s = 6$.
+The plateau previously seen in the bed height now fluctuates due the pressure drop error. The maximum error is at $\beta = 2.5$ and $P_s = 9$ with an error of $0.36$.
 
 \ifcode
 \begin{lstlisting}
@@ -1777,21 +1890,21 @@ The plateau previously seen in the bed height now fluctuates due the pressure dr
 \begin{figure}[h!]
     \centering
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Kin/kin_Z_pres0.015_PlessisMasliyahDrag_stochastic.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Eps/kin_Z_pres0.015_PlessisMasliyahDrag_stochastic.eps}
         %\caption{Relative error of pressure with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C3PDPMStoch0015}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.32 \linewidth}
-        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Kin/kin_Z_height0.015_PlessisMasliyahDrag_stochastic.png}
+        \includegraphics[width = \linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Eps/kin_Z_height0.015_PlessisMasliyahDrag_stochastic.eps}
         %\caption{Relative error of bed height with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.015m/s$.}
         \caption{}
         \label{fig:C3BHPMStoch0015}
     \end{subfigure}
     \begin{subfigure}[b]{0.32 \linewidth}
     \centering
-    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Kin/kin_Z_both0.015_PlessisMasliyahDrag_stochastic.png}
+    \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/result/Case3Eps/kin_Z_both0.015_PlessisMasliyahDrag_stochastic.eps}
     \caption{}
     \label{fig:C3PMStoch0015}
     \end{subfigure}
@@ -1804,7 +1917,10 @@ The bed height is minimized for larger exponents and smaller pressure constants.
 The trend of the  \lstinline|ErgunWenYuDrag| model combined with the \lstinline|stochastic| isotropy model is opposite to those of the other three runs. For the first the overall relative error is smallest if the exponent is small and the pressure constant is large opposed to the latter where the trend is opposite.
 
 
-
+Overall the following trends are visible: 
+The \lstinline|ErgunWenYuDrag| model consistently outperforms the \lstinline|PlessisMasliyahDrag| model.
+The \lstinline|PlessisMasliyahDrag| model overestimates the mean bed height, leading to almost double the relative error and consequently to a higher combined relative error.
+Often the minima of the pressure drop and the bed height are attained at opposite parameter values, e.g. or higher exponents the relative bed height error decreases but the relative pressure drop error increases, therefore the parameter study does not yielding a clear result.
 % Overall, the \lstinline|PlessisMasliyahDrag| model consistently yielded a higher relative error.
 % The bed height error is minimized for larger exponents and smaller pressure constants.
 
@@ -1856,7 +1972,23 @@ The trend of the  \lstinline|ErgunWenYuDrag| model combined with the \lstinline|
 \subsection{Discussion and Results}
 \label{sec:discAndRes}
 
-We summarize the findings of the parameter study in the following table \ref{tab:minPar}, by listing the parameters that resulted in the minimal relative error in each case.
+We summarize the findings of the parameter study in the following tables by listing the parameters that resulted in the minimal relative error in each case as well as figure \ref{fig:bhpdPlot}, which shows all gathered bed heights and pressure drops in comparison to the provided experimental data.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.48\linewidth]{sections/result/bh_range_lab.eps}
+    \includegraphics[width = 0.48\linewidth]{sections/result/pd_range.eps}
+    \caption{Bed height (left) and pressure drop (right) with the experimental values and the results from the different drag and isotropy models.}
+    \label{fig:bhpdPlot}
+\end{figure}
+Overall the bed height increases for larger fluid inlet velocities, with all four models showing similar minimal bed heights but the \lstinline|PlessisMasliyahDrag| model increasing in range. 
+Evaluating both drag models for different fluid volume fractions, as done in fig. \ref{fig:drag_mod}, we can see that the \lstinline|PlessisMasliyahDrag| rang grows faster for higher fluid volume fractions compared to the \lstinline|ErgunWenYuDrag| model. Therefore in the \lstinline|PlessisMasliyahDrag| model particles are accelerated more for lower particle volume fractions.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\linewidth]{sections/result/drag_models.eps}
+    \caption{Drag models Ergun Wen Yu from eq. \eqref{eq:EWYDrag} and Plessis Masliyah from eq. \ref{eq:PMDrag} using a relative velocity $u_{rel} = 0.002 \operatorname{m/s}$ and a particle diameter of $d_p = 0.000055\operatorname{m}$.}
+    \label{fig:drag_mod}
+\end{figure}
+
 \setlength{\tabcolsep}{10pt} 
 % \renewcommand{\arraystretch}{1.25} % Default value: 1
 % \begin{table}[h!]
@@ -1896,13 +2028,18 @@ We summarize the findings of the parameter study in the following table \ref{tab
         \midrule
         \multirow{3}{*}{Case 3} & $P_s = 10$ & $P_s = 6$ & $P_s = 10$ & $P_s = 5$ \\
                                 & $\beta = 2$ & $\beta = 5$ & $\beta = 2$ & $\beta = 4.5$ \\
-                                & $err_{min} = 0.29$ & $err_{min} = 0.32$ & $err_{min} = 0.29$ & $err_{min} = 0.29$ \\
+                                & $err_{min} = 0.29$ & $err_{min} = 0.32$ & $err_{min} = 0.25$ & $err_{min} = 0.29$ \\
         \bottomrule
     \end{tabular}
     \caption{Overview of parameters yielding the minimal relative error for $\uf  = 0.015 \operatorname{m/s}$.}
-    \label{tab:minPar}
+    \label{tab:minPar0015}
 \end{table}
 
+For the lowest velocity of $\uf = 0.015 \operatorname{m/s}$, the minimal error is always achieved with the \lstinline|ErgunWenYuDrag| model with isotropy model \lstinline|stochastic| and coinciding parameters for all three cases of $\beta = 2$, $\pvfcp = 0.65$ and $P_s = 10$, see tab. \ref{tab:minPar0015}. Recalling the parameters of the \lstinline|Goldschmidt| case from earlier in sec. \ref{sec:goldschmidt} the parameters match exactly.
+From figure \ref{fig:bhpdPlot} we can see that for the \lstinline|ErgunWenYuDrag| model the experimental bed height is within the range for both isotopy models. The closest simulation setup being the \lstinline|ErgunWenYuDrag| model with the isotropy model \lstinline|stochastic| and parameters $\pvfcp = 0.65s$, $P_s = 5$ and $\beta = 5$  having only a difference of $0.002cm$.
+The still high combined error is due to the large pressure drop error.
+From the figure we can see that the range of \lstinline|ErgunWenYuDrag| model with isotropy model \lstinline|stochastic| comes closest to the experimental pressure drop but still has a difference of $32 \operatorname{Pa}$. The parameters used, $\pvfcp = 0.65$, $P_s = 10$ and $\beta = 2$, differ in the exponent used. 
+This is to be expected as we saw in sec. \ref{sec:oneParam} that the bed height declines for higher exponents but the pressure drop inclines.
 
 
 \begin{table}[h!]
@@ -1923,15 +2060,24 @@ We summarize the findings of the parameter study in the following table \ref{tab
                                 & $\pvfcp = 0.7$ & $\pvfcp = 0.7$ & $\pvfcp = 0.7$ & $\pvfcp = 0.7$ \\
                                 & $err_{min} = 0.35$ & $err_{min} = 0.41$ & $err_{min} =0.31 $ & $err_{min} =0.29 $ \\
         \midrule
-        \multirow{3}{*}{Case 3} & $P_s = 8$ & $P_s = 8$ & $P_s = 10$ & $P_s = 8$ \\
-                                & $\beta = 4$ & $\beta = 3.5$ & $\beta =4 $ & $\beta =3.5 $ \\
-                                & $err_{min} = 0.34$ & $err_{min} = 0.34$ & $err_{min} = 0.29$ & $err_{min} = 0.32$ \\
+        \multirow{3}{*}{Case 3} & $P_s = 8$ & $P_s = 8$ & $P_s = 8$ & $P_s = 8$ \\
+                                & $\beta = 4$ & $\beta = 3.5$ & $\beta =3.5 $ & $\beta =3.5 $ \\
+                                & $err_{min} = 0.31$ & $err_{min} = 0.29$ & $err_{min} = 0.25$ & $err_{min} = 0.27$ \\
         \bottomrule
     \end{tabular}
     \caption{Overview of parameters yielding the minimal relative error for velocity $\uf = 0.025 \operatorname{m/s}$.}
-    \label{tab:minPar}
+    \label{tab:minPar0025}
 \end{table}
 
+For a velocity of $\uf = 0.025 \operatorname{m/s}$ we again observe from tab. \ref{tab:minPar0025} that the \lstinline|ErgunWenYuDrag| model outperforms the \lstinline|PlessisMasliyahDrag| model, with the minimal error around and exponent of $3.5$ to $4$ and a higher close pack volume fraction above $0.63$ and a pressure constant that varies between $5$ and $8$.
+Although the \lstinline|ErgunWenYuDrag| models shows lower combined relative errors, in fig. \ref{fig:bhpdPlot} the \lstinline|PlessisMasliyahDrag| model shows a higher range of values for both the bed height and the pressure drop.
+
+
+Once again, we can achieve the bed height up to a small error of $0.005 \operatorname{m}$ with the \lstinline|ErgunWenYuDrag| model and isotropy model \lstinline|stochastic|
+with $P_s = 6$, $\beta = 4.5$ and $\pvfcp = 0.65$, with bed heights lower than the experimental bed height reached.
+The pressure drop again exceeds the value provided by experiments.
+The figures in app. \ref{sec:AppParamStud} show that for both drag models and for both isotropy models the relative errors decline for opposite values of the exponent.
+The minimal pressure drop further supports this with a minimal deviation from the experimental pressure drop of $29Pa$. The figures in app. \ref{sec:AppParamStud} show that for both drag models and for both isotropy models the relative errors decline for opposite values of the exponent. This is reflected in the minimal deviation which occurs at $\beta = 1.5$, $P_s = 10$ and $\pvfcp = 0.55$.
 
 
 \begin{table}[h!]
@@ -1952,14 +2098,19 @@ We summarize the findings of the parameter study in the following table \ref{tab
                                 & $\pvfcp = 0.7$ & $\pvfcp = 0.7$ & $\pvfcp =0.7 $ & $\pvfcp = 0.7$ \\
                                 & $err_{min} = 0.32$ & $err_{min} = 0.31$ & $err_{min} =0.25 $ & $err_{min} = 0.25$ \\
         \midrule
-        \multirow{3}{*}{Case 3} & $P_s = 9$ & $P_s = 10$ & $P_s = 8$ & $P_s = 5$ \\
-                                & $\beta = 4$ & $\beta = 4$ & $\beta = 3$ & $\beta = 4.5$ \\
-                                & $err_{min} = 0.34$ & $err_{min} = 0.34 $ & $err_{min} = 0.31$ & $err_{min} = 0.32$ \\
+        \multirow{3}{*}{Case 3} & $P_s = 9$ & $P_s = 10$ & $P_s = 8$ & $P_s = 9$ \\
+                                & $\beta = 4$ & $\beta = 4$ & $\beta = 3$ & $\beta = 3.5$ \\
+                                & $err_{min} = 0.30$ & $err_{min} = 0.30 $ & $err_{min} = 0.25$ & $err_{min} = 0.27$ \\
         \bottomrule
     \end{tabular}
     \caption{Overview of parameters yielding the minimal relative error for velocity $\uf = 0.034 \operatorname{m/s}$.}
-    \label{tab:minPar}
+    \label{tab:minPar0034}
 \end{table}
+
+For a further velocity increase to $\uf = 0.034 \operatorname{m/s}$ the \lstinline|ErgunWenYuDrag| models bed heights exceed those of the experimental bed height. This time the closest to the experimental bed height is the \lstinline|PlessisMasliyahDrag| with an increased distance of $0.027 \operatorname{cm}$ compared to the previous velocities.
+The range experimental pressure drop increased slightly compared to the previous velocity although the lowest simulated pressure drops stayed roughly the same. Because for the increase in pressure drop from the experimental data the minimal distance to the pressure drop decreased to $21\operatorname{Pa}$.
+Again the exponents for the two minima are on opposite ends with $\beta = 5$ for the minimal bed height and $\beta = 2.5$ for the minimal pressure drop which confers with the result from the single parameter testing.
+The overall minimal error in tab. \ref{tab:minPar0034} occurs for the \lstinline|ErgunWenYuDrag| model with a relative error of $0.24$. Overall a medium exponent of $\beta = 3.5$, a higher particle volume fraction of $\pvfcp = 0.63, 0.7$ and a medium to low pressure constant of $P_s= 5, 8$ seem to yield the best overall result.
 
 
 
@@ -1987,35 +2138,54 @@ We summarize the findings of the parameter study in the following table \ref{tab
         \bottomrule
     \end{tabular}
     \caption{Overview of parameters yielding the minimal relative error for velocity $\uf = 0.042$.}
-    \label{tab:minPar}
+    \label{tab:minPar0042}
 \end{table}
+For the highest inlet velocity of $\uf = 0.042 \operatorname{m/s}$ the experimental pressure drop grows further but the bed height declines. 
+The simulated bed height grows but the simulated pressure drop declines slightly.
+Therefor the minimal bed height error grows to $0.17 \operatorname{cm}$ but the pressure drop error decreases to $17 \operatorname{Pa}$. We observe the same trends as for the previous three cases with higher exponents, in this case $\beta = 5$ leading to minimal bed heights and lower exponents, in this case $\beta = 2.5$ leading to a minimal pressure drop error.
+The overall error is lowest for intermediate exponents, as we can see in tab. \ref{tab:minPar0042}. The parameter study for this velocity seems to result smaller error for higher particle volume fractions and lower pressure constants.
 
 
-As we observed in the previous section, the \lstinline|ErgunWenYuDrag| model consistently outperforms the \lstinline|PlessisMasliyahDrag| model.
-The \lstinline|PlessisMasliyahDrag| model overestimates the mean bed height, leading to almost double the relative error and consequently to a higher combined relative error.
-Both the simulated pressure drop and the bed height exceed the values observed in the experimental reference data.
+%Both the simulated pressure drop and the bed height exceed the values observed in the experimental reference data.
 
 The parameter and model choice that consistently yields the lowest relative error is the \lstinline|ErgunWenYuDrag| model with the isotropy model \lstinline|stochastic|.
-Notably, in this setup the minimizing parameters are identical for all three cases, namely $\beta = 2$, $\pvfcp = 0.65$, $P_s = 10$. These values coincide with the parameters of the standard \lstinline|Goldschmidt| case. %\todo{Das macht irgendwie die Simulationen die ich noch laufen lassen wollte redundant :( (Aber trotzdem juhuu ein Ergebniss)}
-
+%Notably, in this setup the minimizing parameters are identical for all three cases, namely $\beta = 2$, $\pvfcp = 0.65$, $P_s = 10$. These values coincide with the parameters of the standard \lstinline|Goldschmidt| case. %\todo{Das macht irgendwie die Simulationen die ich noch laufen lassen wollte redundant :( (Aber trotzdem juhuu ein Ergebniss)}
 For cases with isotropy model \lstinline|none| relative error trends are to a large extent similar. Therefor in Case 1 both were minimal for large exponents and high close packed volume fractions and in Case 3 for large exponents and small pressure constants.
 For the isotopy model \lstinline|stochastic| similar trends can not be observed. 
 It remains unclear whether the results of the simulations with isotropy model \lstinline|stochastic| would show the same trends if a different seed were used.
 
-The relative error of the pressure drop often ranged no more than $0.04$ in our parameter study, indicating little possibility for improvement.
+The behavior of the errors for the parameters largely coincide with the behavior of the single parameter testing in sec. \ref{sec:oneParam}. In combination with a high exponent the bed height mostly declines for either small pressure constants or large particle volume fractions.
+The pressure drop on the other hand did no show clear trends. in the single parameter testing we saw that the bed height and the pressure drop have opposite trends, therefore the pressure drop is high when the bed height is low and vice versa. In fig. \ref{fig:bhpdPlot} we saw that both the bed height and the pressure drop typically exceed the experimental data, therefore minimizing both errors often proves difficult.
+
+%The relative error of the pressure drop often ranged no more than $0.04$ in our parameter study, indicating little possibility for improvement.
 This high relative pressure drop error may result from discrepancies in the measurement locations between the simulation and the physical experiment.
 Figure \ref{fig:expPressMeasurePlace} shows a sketch of the experimental setup.
+
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.33\linewidth, trim = {2cm 10cm 6cm 2cm},clip]{sections/result/Reaktorplanung.png}
-    \caption{Setup of the experiments used to collect reference data. Note that the position of the pressure sensor is well beneath the mesh.}
+\begin{tikzpicture}
+    \node[anchor=center] (img) at (-1,2) {\includegraphics[width=0.33\linewidth, trim = {2cm 10cm 6cm 2cm},clip]{sections/result/Reaktorplanung.png}};
+    % Arrow to bottom-left of the image
+    %\node[anchor = center] (img2) at (8,2) {\includegraphics[width = 0.5\linewidth]{sections/Setup/grid_size_zoomed.png}};
+    %\draw[color=kit-red!60, very thick](0.25,1) circle (0.3);
+    %\draw[color=kit-red!60, very thick](-1,1) circle (0.2cm);
+    \draw[->, color = kit-red, ultra thick, opacity = 0.75] (-3,1.4) -- (-1.25,1.4);
+    \draw[->, color = kit-green, ultra thick, opacity = 0.75] (-3,0.55) -- (-1.25,0.55);
+%\clip (2,1)  circle (0.9cm) ;    
+    %\draw[line width = 5pt, red] ($(img.south west)+(4.1cm,2.8cm)$) -- ($(img.north west)+(2.1cm,-3cm)$) -- ($(img.north east) + (-4.6cm, -3cm)$) -- ($(img.south east)+ (-4.6cm, 5.8cm)$) --cycle;
+    %\draw[->, line width=10pt, red] ($(img2.west)$) --($(img.east)$) ;
+    %\node (cap) at ($(img.south east)+(-2cm,+0.5cm)$) {\small From: \cite{malte}};
+  \end{tikzpicture}        
+
+    
+    \caption{Setup of the experiments used to collect reference data, provided along with the data. The red arrow (top) indicates the bottom position at which the pressure was measured during simulations. The green arrow (bottom) indicate the position of the pressure sensor that is well beneath the mesh.}
     \label{fig:expPressMeasurePlace}
 \end{figure}
 
 In the experiments, the pressure at the bottom of the bed was measured beneath the mesh.
 However, we did not include this region in the computational domain. Preliminary simulations including a mesh, modeled by a porous baffle, showed unphysical interactions between the baffle and the particles and were therefor not included in this study.
-In the simulation, we therefor revert to evaluating the bottom pressure right on top of the inlet, which would be just 
-\todo{Sprache von sketch ignorieren oder bearbeiten? (Fig 5.30)}
+In the simulation, we therefor revert to evaluating the bottom pressure on top of the inlet, which would be just 
+%\todo{Sprache von sketch ignorieren oder bearbeiten? (Fig 5.30)}
 above the mesh in the experiments.
 Although the simulation and experiments do not yield a coinciding results, it remains unclear whether the \MP method is inaccurately predicting the pressure drop from above the mesh to the top of the reactor.
 
@@ -2023,6 +2193,8 @@ The bed height was captured more accurately by the simulation.
 However, the bed height data accuracy is subject to uncertainty. Especially at higher inlet velocities, dust settles along the tube walls, making the bed surface difficult to distinguish.
 On top of that instabilities in the provided videos and additional noise potentially skewed the measurements.
 The algorithm used to determine the bed height can also output contentious bed heights, as for example in figure
+
+
 
 \begin{figure}[h!]
     \centering
@@ -2059,7 +2231,7 @@ The algorithm used to determine the bed height can also output contentious bed h
 
 
 
-\section{Limitation of the \MP method}
+\section{Limitation of the \MP Method}
 \begin{footcitedquote}[{will, manager of \OF, \url{https://bugs.openfoam.org/view.php?id=3165}}]
     You have not described a bug. MPPIC modeling has its limitations, and if your simulation is failing because of them then your usage is in error.  
 \end{footcitedquote}
@@ -2092,5 +2264,5 @@ The particle moves from the right hand side of the simulation to the left hand s
 
 
 
-\todo[inline]{Was fehlt? Bzw was könnte man noch so (schönes) machen: Grafik mit gemittelter Betthöhe und Pressure drop damit man sieht das beides größer ist als die experimentellen daten. Hoch qualitative Bild vergleich analyse damit man sieht das die Simulationen nicht mal annähernd das richtige Verhalten haben (so von Partikel erheben sich von dem Bett/ Bläschen formen sich). Eine schöne lange Simulation mit den Goldschmidt Daten und etwas Erlärung zum Goldschmidt Fall.}
+%\todo[inline]{Was fehlt? Bzw was könnte man noch so (schönes) machen: Grafik mit gemittelter Betthöhe und Pressure drop damit man sieht das beides größer ist als die experimentellen daten. Hoch qualitative Bild vergleich analyse damit man sieht das die Simulationen nicht mal annähernd das richtige Verhalten haben (so von Partikel erheben sich von dem Bett/ Bläschen formen sich). Eine schöne lange Simulation mit den Goldschmidt Daten und etwas Erlärung zum Goldschmidt Fall.}
 

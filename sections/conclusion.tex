@@ -1,14 +1,26 @@
 \clearpage
 \chapter{Conclusion and Outlook}
-In this thesis we looked at the \MP method 
 
-The overall trend of the pressure drop is the same but the \MP method overshoots the experimental pressure drop.
+In this thesis we looked at the \MP method, the theoretical foundations and the implementation in \OFns.
+The \MP method allows simulations of fluidized beds without resolving particle-particle interactions.
+We discussed the different submodels and their effect on the simulation.
+We demonstrated that for different seeds the isotropy model can lead to layers of fluid forming inside the particle bed. The mean deviation is small but grows over time. 
+The collision damping term in currently not stable in \OF and was therefor excluded from the following investigations.
+We conducted a parameter study where we compared simulated mean bed heights and pressure drops to experimental data for four fluid inlet velocities.
+The combined minimal relative error of both the bed height and the pressure drop for the four velocities was between $0.24$ and $0.26$.
+We showed a good agreement for simulated bed height and experimental bed height for optimized parameters with a minimal relative error of $0.00094$ for the lowest velocity and $0.096$ for the highest velocity.
+A lesser agreement was shown for the pressure drop where with a minimum error of $0.11$ for the highest velocity and $0.23$ for the lowest velocity.
+Data for the pressure drop was gathered at different spots for the simulation compared to the experiments. Because it is unclear how this effects the data we can not conclude whether the \MP method accurately predicts the pressure drop in a fluidized bed reactor.
+For both the bed height and the pressure drop the simulated values usually exceeded those of the experimental data.
+For an increase in fluid velocity the particle bed expands resulting in a lower pressure loss. Because the simulation overpredicts both values minimizing the overall relative error does not minimize the individual errors.
 
 
+In our parameter study we focused on the explicit Harris and Crighton model, but further studies using the implicit Harris and Crighton model as well as the Lun solid stress model could give different results.
 
-\begin{itemize}
-    \item third damping term
-    \item Chimera implementation
-    \item damping term to dissipate energy
-    \item Parameter study with implicit packing model and Lun packing model
-\end{itemize}
+Since its introduction in 2001 the \MP method has been further extended and developed. 
+Some of the presented submodels have been implemented in \OFns, such as the return-to-isotropy model.
+Further submodels that improve the \MP method have been proposed but are currently not implemented.
+This includes a third damping term, called the blended acceleration term, which accounts for the relative motion between particles of different sizes and densities \cite{thirdDamp}.
+Because the packing model depends on the averaged values from the Eulerian grid the mesh has to be chosen to be coarse. A more accurate flow field would require a finer mesh. A chimera approach has been developed that overlaps two meshes and maps the volume fraction from the coarse mesh to the finer mesh and the velocity back \cite{chimera}.
+
+In further works, to model the iron reduction in a fluidized bed reactor energy and species equations need to be included in the solver. 

@@ -1,7 +1,7 @@
 \pagebreak
 \chapter{MP-PIC: Multiphase Particle-in-Cell Method}
 \label{ch:MPPIC}
-In this chapter, we discuss the theoretical background of the \MP (Multi‑Phase Particle‑In‑Cell) method. We look at the governing equations and how they are solved and at the modeling approaches, especially at the methods used for the particles.
+In this chapter, we discuss the theoretical background of the \MP (Multi‑Phase Particle‑In‑Cell) method. We look at the governing equations and how they are solved and at the modeling approaches, especially the methods used for the particles.
 Subsequently, the first numerical implementation of the \MP method is discussed, following the formulation originally presented by O'Rourke and Snider in \cite{MPPICFirst}.
  
 % an overview of approaches used for modeling gas-solid multiphase flows. Then we will look at one in detail, the \MP method, the governing equation and how they are solved numerically. 
@@ -9,22 +9,22 @@ Subsequently, the first numerical implementation of the \MP method is discussed,
 
 %TODO: von wo aus anfangen? Euler/Euler bzw. Euler/Lagrange Modelle erklären?
 
-\section{Governing equations}
-In the \MP method, the fluid phase is described using an Eulerian, therefore continuous framework, whereas the particle phase is represented using a Lagrangian, therefor discrete, approach. 
-For the fluid phase mass and momentum equations are solved. 
-For a reactive solver we would need to also solve species and energy equations.
+\section{Governing Equations}
+In the \MP method, the fluid phase is described using an Eulerian, therefore continuous, framework, whereas the particle phase is represented using a Lagrangian, therefore discrete, approach. 
+For the fluid phase, mass and momentum equations are solved. 
+For a reactive solver we would also need to solve species and energy equations.
 The particle phase is governed by the Liouville equation for the distribution function of particle positions, velocities and sizes.
-For the particle behavior we look at the first and second moment of the Liouville equation.
-Obtained particle properties are projected on to an Eulerian grid, where they are used to compute the solid stress tensor.
-The stress tensor models particle-particle interactions and in addition to further Eulerian properties we use them to advance the particle positions.
-In this section we will look at the governing equation for both phases as well as the interpolation operators that couple them and the numerical solution.
+For the particle behavior we look at the first and second moments of the Liouville equation.
+Obtained particle properties are projected onto an Eulerian grid, where they are used to compute the solid stress tensor.
+The stress tensor models particle-particle interactions and, in addition to further Eulerian properties, we use them to advance the particle positions. \todo{wird der stress tensor für translation verwendet?}
+In this section we will look at the governing equations for both phases, as well as the interpolation operators that couple them and the numerical solution.
 \subsection{Fluid Phase}
 The fluid phase, in our case gas, is modeled through an Eulerian approach for incompressible flows.
 The gas phase is governed by the conservation equations for mass
 \begin{equation}
     \dfrac{\partial (\fvf \rf)}{\partial \tvar} + \nabla \cdot (\fvf \rf \uf) = 0,
 \end{equation}
-and momentum
+and for momentum
 \begin{equation}
     \label{eq:momEul}
     \dfrac{\partial (\fvf \rf \uf)}{\partial \tvar} + \nabla \cdot (\fvf \rf \uf \uf) = - \nabla \p -\nabla \cdot (\fvf \fst)  - \boldsymbol{F} + \fvf \rf \g.
@@ -36,9 +36,9 @@ In the momentum term
 %\Todo{Stimmen die Vorzeichen?}
 %\Todo{Wie viel soll hier zu Herleitung EL?}
 %To achieve multiphase coupling, we will later insert a source term. \Todo{Probably}. 
-we have $t$ as time, $\p$ as fluid pressure and $\fst$ as the fluid stress tensor. $\F$ is the interphase momentum transfer, which will be discussed in the following subsection. 
+we have $t$ as the time, $\p$ as the fluid pressure and $\fst$ as the fluid stress tensor. $\F$ is the interphase momentum transfer, which will be discussed in the following subsection. 
 For both equations we assume that we have no interphase mass transfer.
-The fluid stress tensor was omitted from the equations in the original series of papers that presented the method \cite{MPPICFirst}, \cite{MP2d},\cite{MPInterpolation}, therefore setting it to zero
+The fluid stress tensor was omitted from the equations in the original series of papers that presented the method \cite{MPPICFirst}, \cite{MP2d},\cite{MPInterpolation}, therefore it was set to zero
 \begin{equation}
 \label{eq:FlStTeZero}
     \fst = 0,
@@ -50,17 +50,17 @@ In later papers \cite{chimera},the fluid stress tensor is defined by the Newtoni
     \fst = - \fv \left( \nabla \uf + ( \nabla \uf)^T \right) + \dfrac{2}{3} \fv ( \nabla \cdot \uf),
 \end{equation}
 see \cite{mathMPPIC}.
-We also assume that we have an ideal gas, which we will use later in the implicit approximations. Therefore the pressure can be related to the fluid density by
+We also assume that we have an ideal gas, which we will use later in the implicit approximations. Therefore, the pressure can be related to the fluid density by
 \begin{equation}
 \label{eq:gasDensReal}
     \dfrac{\p}{\rf^\gamma} = constant.
 \end{equation}
 
 \subsection{Solid Phase}
-The solid phase is treated as both a continuous phase as well as a discrete phase in the \MP method.
+The solid phase is treated as both a continuous phase and a discrete phase in the \MP method.
 The behavior of the particles is governed by the Liouville equation for the particle probability distribution function.
 We look at the distribution of the velocities among a sufficient number of particles in a domain $\Omega \subset \R^3$, with velocity points in the velocity space $\Pi \subset \R^3$. 
-The number density of particles in a volume $\x \in \Omega$, with a velocity $\u \in \Pi$, mass $\m$ at time $\tvar$ is given by the particle probability distribution function
+The number density of particles at position $\x \in \Omega$, with velocity $\u \in \Pi$, mass $\m$ at time $\tvar$ is given by the particle probability distribution function \todo{hier geht es doch um eine position x aus der domain oder? oder doch ein teilvolumen, dann solltest du es zurück ändern und den rest anders schreiben}
 \begin{equation}
     \pd : \Omega \times \Pi \times I \times \R \to \R^+, \qquad (\x, \u, \tvar, \m) \mapsto \pd (\x , \u , \tvar, \m).  
 \end{equation}
@@ -71,20 +71,20 @@ The number density of particles in a volume $\x \in \Omega$, with a velocity $\u
 
 
 %Assuming that the particle Volume and particle density are constant, the particle distribution function quantifies the average number of particles having velocity $\up$ at $\xp$ with particle mass $\m$ at time $\tvar$.
-The particle density function gives the probable average number of particles per unit volume $\Np$ with a velocity in the interval $(\Vp, \Vp + \Delta \Vp)$ and mass in the interval $(\M, \M + \Delta \M)$ when integrating over the velocity and mass
+The particle density function gives the probable average number of particles per unit volume $\Np$ with velocity in the interval $(\Vp, \Vp + \Delta \Vp)$ and mass in the interval $(\M, \M + \Delta \M)$ when integrating over the velocity and mass
 %\Todo{Ahhhh why is it called distribution and not density}
 \begin{equation}
     \Np = \int_{\M}^{\M+\Delta \M} \int_{\Vp}^{\Vp + \Delta \Vp} \pd d \up d \m. 
 \end{equation} 
-For a small volume this can be approximated by
+For a small volume, this can be approximated by
 \begin{equation}
-    \Np \approx \pd (\xp , \Vp , \tvar, \M) \cdot \Delta \Vp \cdot \Delta M.
+    \Np \approx \pd (\xp , \Vp , \tvar, \M) \cdot \Delta \Vp \cdot \Delta \M.
 \end{equation}
 The definition of the probability particle density function is of a probabilistic nature.
-The probable number of particles in the given volume the number of particles with a velocity in and a mass of $\m$ at time $\tvar$ is not necessarily contained since fluctuations can occur but is the average number of particles when the time $dt$ is smoothed out.
-In the following we will assume that $\pd$ is not negative, finite, continuous and goes to zero as the velocity becomes infinite.
+The probable number of particles in the given volume the number of particles with a velocity in and a mass of $\m$ at time $\tvar$ is not necessarily contained since fluctuations can occur but is the average number of particles when the time $dt$ is smoothed out. \todo{ganzen satz überdenken, ich kann leider nicht ganz raten was ich hier korrigieren soll}
+In the following, we will assume that $\pd$ is non-negative, finite, continuous and goes to zero as the velocity becomes infinite.
 
-The solids volume fraction is then given by taking particles of all mass and velocities
+The solids volume fraction is then given by integrating over particles of all masses and velocities
 \begin{equation}
     \label{eq:svf}
     \pvf = \MultiIntegral{2} \pd \dfrac{\m}{\rp} d \m d \up.
@@ -95,13 +95,13 @@ The solids volume fraction is then given by taking particles of all mass and vel
 % \end{equation}
 With the sum of the fluid volume fraction and the particle volume fraction being equal to one.
 
-We assume that the total number of particles near $\xp$ with velocity $\up$ in any volume is conserved. Therefor we have
+We assume that the total number of particles near $\xp$ with velocity $\up$ in any volume is conserved. Therefore, we have
 \begin{equation}
 \label{eq:partConservation}
     \dfrac{d}{dt} \MultiIntegral{2} \pd d \up d \xp = 0.
 \end{equation}
 %By applying the Leipniz integral rule and, using that the volume over which we integrate is arbitrary, we transform the equation above into the Liouville equation.
-Using that the this hold for all volumes we can transform the equation above into what the authors refer to as a Liouville equation
+Using that this holds for all volumes, we can transform the equation above into what the authors refer to as the Liouville equation
 %\todo[inline,color=kit-blue!60]{Die Liouville Gleichung ist eigentlich für die Hamiltonische Mechanik definiert und müsste Divergenz frei und Konservativ sein. Ist sie halt hier nicht..., aber who cares?}
 \begin{align}
     \dfrac{\partial \pd}{\partial \tvar} + \dfrac{\partial}{\partial \xp} \left( \pd \dfrac{d \xp}{d \tvar} \right)+ \dfrac{\partial}{\partial \up} \left( \pd \dfrac{d \up}{d \tvar} \right) = 0 \\
@@ -119,9 +119,9 @@ The equations are given by
     \Ap = \dfrac{d \up}{d \tvar} &=\d(\uf - \up) - \dfrac{1}{\rp} \nabla \p - \dfrac{1}{\pvf \rp} \nabla \scs + \g.
 \end{align}
 %Op particle volume
-Here $\uf$ is the flow fluid velocity, $\d(d_p,\up, \xp,\tvar)$ is the drag function, discussed in Sec. \ref{sec:MPDrag}, $\scs(\xp, \tvar)$ is the solids contact stress, discussed in Eq. \ref{eq:solidStress} and $\p$ is the mean flow fluid thermodynamic pressure and $d_p$ is the particle diameter.
+Here $\uf$ is the flow fluid velocity, $\d(d_p,\up, \xp,\tvar)$ is the drag function, discussed in Sec. \ref{sec:MPDrag}, $\scs(\xp, \tvar)$ is the solids contact stress, discussed in Eq. \ref{eq:solidStress} and $\p$ is the mean flow fluid thermodynamic pressure and $d_p$ is the particle diameter. \todo{flow fluid oder fluid flow? (2x in diesem satz)}
 We account for the effects of collisions by the spatial gradient of the solid stress. 
-Adding collision terms on the right hand side of the Liouville Eq. \eqref{eq:Liouville} we can model the behavior of particles after a collision more locally
+Adding collision terms on the right-hand side of the Liouville Eq. \eqref{eq:Liouville} we can model the behavior of particles after a collision more locally
 \begin{equation}
     \label{eq:LiouCollide}
     \dfrac{\partial \pd}{\partial \tvar} + \dfrac{\partial (\pd \up)}{\partial \xp} + \dfrac{\partial (\pd \Ap)}{\partial \up} = \left( \dfrac{\partial \pd}{\partial 
@@ -130,8 +130,8 @@ Adding collision terms on the right hand side of the Liouville Eq. \eqref{eq:Lio
 see \cite{damp}, \cite{isotropy}.
 We will cover these damping terms later in this chapter, see Sec. \ref{sec:damping}.
 
-To derive the interphase momentum transfer function we take the moments from the Liouville equation \eqref{eq:Liouville}.
-We multiply the equation by $\m$ and integrate over the mass and velocity. This yields a connection between the field properties and the interaction between the two phases called the particle conservation equation
+To derive the interphase momentum transfer function, we take the moments from the Liouville equation \eqref{eq:Liouville}.
+We multiply the equation by $\m$ and integrate over the mass and velocity. This yields a connection between the field properties and the interaction between the two phases, called the particle conservation equation
 \begin{equation}
 \begin{aligned}
     \MultiIntegral{2} \m \left( \dfrac{\partial \pd}{\partial \tvar} + \nabla \cdot (\pd \up) + \nabla_{\up} \cdot (\pd \Ap)\right) d \up d \m = 0 \\
@@ -140,7 +140,7 @@ We multiply the equation by $\m$ and integrate over the mass and velocity. This 
     \stackrel{\eqref{eq:svf}}{\Leftrightarrow} \dfrac{\partial (\pvf \rp )}{\partial t} + \nabla \cdot (\pvf \rp \overline{\up}) = 0    
 \end{aligned}    
 \end{equation}
-with the third term, the acceleration term, being zero by using integration by parts and $\pd \to 0$ for $\lvert \up \rvert \to \infty$.
+with the third term, the acceleration term, being zero by using integration by parts and because $\pd \to 0$ for $\lvert \up \rvert \to \infty$.
 The term for the mean particle velocity is given by
 \begin{equation}
     \overline{\up} = \dfrac{1}{\rp \pvf}\MultiIntegral{2} \pd \m \up d\m d \up.
@@ -171,7 +171,7 @@ and
 \begin{equation}
     \MultiIntegral{2} \m \up \up \pd d \up d \m = \rp \overline{\up} \overline{\up} + \MultiIntegral{2} \m (\up - \overline{\up}) ( \up - \overline{\up}) \pd d \up d \m.
 \end{equation}
-By replacing the corresponding terms in equation \eqref{eq:mom2Begin} and multiplying by $\pvf \rp$ we then have the particle momentum equation
+By replacing the corresponding terms in equation \eqref{eq:mom2Begin} and multiplying by $\pvf \rp$ we then obtain the particle momentum equation
 \begin{equation}
     \begin{aligned}
 \label{eq:secondMomentum}
@@ -182,15 +182,15 @@ By replacing the corresponding terms in equation \eqref{eq:mom2Begin} and multip
     \dfrac{\partial ( \pvf \rp \overline{\up})}{\partial t} &+ \nabla_{\xp} \cdot (\pvf \rp \overline{\up} \overline{\up} ) + \nabla \scs + \pvf \nabla \p \\ &= \pvf \rp \g + \MultiIntegral{2} \pd \m \d (\uf - \up) d \m d\up - \nabla \cdot \left[ \MultiIntegral{2} \pd \m (\up - \overline{\up}) (\up - \overline{\up}) d \m d \up \right].
     \end{aligned}
 \end{equation}
-The last term on the right hand side in the equation mimics the kinematic stress from the particle velocity fluctuations, similar to Reynold stress. The last terms on both the left and right hand side of the equation depend on both phases and therefor contribute to the interphase momentum transfer function, which models the particle force per unit volume on the fluid phase
+The last term on the right-hand side in the equation mimics the kinematic stress from the particle velocity fluctuations, similar to Reynolds stress. The last term on both the left and right hand side of the equation depends on both phases and therefore contributes to the interphase momentum transfer function, which models the particle force per unit volume on the fluid phase
 %\Todo{Second momentum term}
 \begin{equation}
     \label{eq:InterMomTrans}
     \F = \MultiIntegral{2} \pd \m [\d (\uf - \up) - \dfrac{1}{\rp} \nabla \p] d\m d\up.
 \end{equation}
-We can split the integral up into two terms. The first represents the momentum exchange due to aerodynamic drag.
+We can split the integral into two terms. The first represents the momentum exchange due to aerodynamic drag.
 %For more detailed models we can use particle density and volume instead of mass.
-In the gas momentum equation \eqref{eq:momEul} the pressure gradient is multiplied by the gas volume fraction. This term arises from the second term in \eqref{eq:InterMomTrans}, as shown by the following calculation.
+In the gas momentum equation \eqref{eq:momEul}, the pressure gradient is multiplied by the gas volume fraction. This term arises from the second term in \eqref{eq:InterMomTrans}, as shown by the following calculation.
 We know that for the volume fraction
 \begin{equation}
     \fvf + \pvf = 1 \qquad \nabla p - \fvf \nabla p = \pvf \nabla p
@@ -200,8 +200,8 @@ From equation \eqref{eq:svf} we have
 \begin{equation}
     \fvf \nabla p =  \int \int \pd \m \dfrac{1}{\rp} \nabla \p d\m d\up
 \end{equation}
-which is included in equation \eqref{eq:InterMomTrans} in the interface momentum transfer function. 
-By setting both terms against one another only $\pvf \nabla p$ remains in the equation \eqref{eq:InterMomTrans}.
+which is included in equation \eqref{eq:InterMomTrans} as part of the interface momentum transfer function. 
+By equating both terms with one another, only $\pvf \nabla p$ remains in equation \eqref{eq:InterMomTrans}.
 
 % In later versions, the \MP method was extended to two-dimensional problems and a scheme for three-dimensional models was introduced. 
 % On top of that a collision term was added on the right hand side of the Liouville equation. 
@@ -215,11 +215,11 @@ Investigation of flow through fixed beds has led to several empirical models to 
 
 
 Several different models have been suggested for the \MP method. 
-In the paper that first presented the method \cite{MPPICFirst} the interphase drag model was used 
+In the paper that first presented the method \cite{MPPICFirst}, the interphase drag model
 \begin{align*}
     D_p = C_D\dfrac{3}{8} \dfrac{\rf}{\rp} \dfrac{\lvert \uf - \up \rvert}{r_p}
 \end{align*}
-with the Drag constant
+was used with the drag constant
 \begin{align*}
     C_d = \dfrac{24}{\operatorname{Re}_p} \left( \fvf^{-2.65}+ \dfrac{\operatorname{Re}_p^{2/3}}{6} \fvf^{-1.78} \right)
 \end{align*}
@@ -227,7 +227,7 @@ with the Drag constant
 \operatorname{Re}_p = \dfrac{2 \rf \lvert \uf - \up \rvert r_p}{\fv}
 \end{align*}
 and the particle radius $r_p$.
-For high porosity rates, above $\phi \geq 0.8$, the model was extended by Wen-Yu \cite{WenYu}
+For high porosity values above $\phi \geq 0.8$, the model was extended by Wen-Yu \cite{WenYu}
 \begin{align*}
     C_d =
     \begin{cases}
@@ -239,41 +239,41 @@ For high porosity rates, above $\phi \geq 0.8$, the model was extended by Wen-Yu
 Details on the models can bed found in \cite{ErgunWenYu}. The drag terms used in the \OF implementation extend the previous model. They are discussed in Sec. \ref{sec:MPLoop}.
 % the particle Reynolds number
 
-\subsection{Particle-particle interaction modelling}
-To model the behavior of particles in a dense region we use an inter-particle stress.
-The gradient of the particle stress $\scs$ is included in the governing equations of the particles
-Specifically in the acceleration of the particles Eq. \ref{eq:accel}, and accelerated particles away from close packed regions to prevent over-packing.
-Here, in Sec \ref{sec:particleNormalStress}, we talk about two particle normal stress models: the Harris and Crighton model and the Lun model.
-Submodels that resolve particle-particle interactions further are the collision damping term in Sec. \ref{sec:damping} that relaxes the particle velocities towards the mass-averaged velocity
-and the return-to-isotropy term in Sec. \ref{sec:isotropy} that relaxes the velocity distribution towards a Gaussian velocity distribution.
+\subsection{Particle-Particle Interaction Modeling}
+To model the behavior of particles in a dense region, we use an inter-particle stress.
+The gradient of the particle stress $\scs$ is included in the governing equations of the particles, specifically in the acceleration of the particles Eq. \ref{eq:accel}, and it accelerates particles away from close-packed regions to prevent over-packing. \todo{überprüfen ob der inhalt in dem satz so passt}
+Here, in Sec. \ref{sec:particleNormalStress}, we discuss two particle normal stress models: the Harris and Crighton model and the Lun model.
+Submodels that resolve particle-particle interactions further are the collision damping term in Sec. \ref{sec:damping}, which relaxes the particle velocities towards the mass-averaged velocity
+and the return-to-isotropy term in Sec. \ref{sec:isotropy}, which relaxes the velocity distribution towards a Gaussian velocity distribution.
+
 
 \subsubsection{Particle Normal Stress Model}
 \label{sec:particleNormalStress}
-In the \MP method the collision between particles are approximated by an isotropic interparticle stress. 
+In the \MP method, the collisions between particles are approximated by an isotropic inter-particle stress. 
 Harris and Crighton proposed a model that only depends on the particle volume fraction and the particle volume fraction at close pack $\pvfcp$
 \begin{equation}
     \label{eq:solidStress}
     \scs = P_s \dfrac{\pvf}{\pvfcp - \pvf},
 \end{equation}
 see \cite{HarrisCrighton}.
-Particles approaching a close packing or in a closely packed cell are accelerated as to prevent over-packing.
+Particles approaching close packing, or in a closely packed cell, are accelerated to prevent over-packing.
 The term was later extended \cite{MPInterpolation} to include an exponent $\beta$
 \begin{equation*}
     \scs = \dfrac{P_s \pvf^\beta}{\max [( \pvfcp - \pvf), \varepsilon ( 1- \pvf)]}
 \end{equation*}
 and a small constant $\varepsilon$ to remove the singularity at close pack.
-Based on experimental data it is recommended to keep the exponent in the range $2 \leq \beta \leq 5$ \cite{betaRange}.
+Based on experimental data, it is recommended to keep the exponent in the range $2 \leq \beta \leq 5$ \cite{betaRange}.
 % To observe how the Harris and Crighton model works we can look at particle behavior in three different scenarios near close pack, due to the restriction for $\beta$.
 % In the first case the particle is rapidly approaching a packed bed. The particle normal stress would increase and the particle would be decelerated. In the 
 In the paper proposing the original method, the Harris-Crighton model is applied to every particle. 
 This can lead to non-physical results.
-For example we can consider a particle that is moving away from a packed region, e.g. a packed bed. Due to the change in solid stress the particle would be accelerated further away from the packed bed which can be physically unrealistic.
+For example, we can consider a particle that is moving away from a packed region, e.g. a packed bed. Due to the change in solid stress, the particle would be accelerated further away from the packed bed, which is physically unrealistic.
 To mitigate this issue, the particle normal stress is only applied to some particles, based on the mean velocity of the surrounding particles, as proposed by \cite{MPInterpolation}.
 A modified version of this method is implemented in \OF and explained in Sec. \ref{sec:MPLoop}.
 
-Looking again at the Harris-Crighton model we note that the particle normal stress does not take into account the particle’s velocity and size.
-A more complex model that incorporates these was proposed by Lun \cite{Lun}.
-Here the particle normal stress is defined as
+Looking again at the Harris-Crighton model, we note that the particle normal stress does not take into account the particle’s velocity and size.
+A more complex model that incorporates these effects was proposed by Lun \cite{Lun}.
+Here, the particle normal stress is defined as
 \begin{equation*}
     \scs = (\pvf \overline{\rp} + \pvf^2 \overline{\rp} (1 + \gamma) g_0) \Theta
 \end{equation*}
@@ -281,24 +281,24 @@ with the restitution coefficient $\gamma$ and the average particle density $\ove
 \begin{equation*}
     g_0 = \dfrac{3}{5} \left( 1- \left( \dfrac{\pvf}{\pvfcp} \right)^{1/3} \right)^{-1}.
 \end{equation*}
-In the parameter study in chapter \ref{ch:results} we only use the Harris and Crighton model.
+In the parameter study in ch. \ref{ch:results} we only use the Harris and Crighton model.
 
-Following the one dimensional paper the \MP method was extended to two dimensions \cite{MP2d} and later to three dimensions \cite{MPInterpolation}.
-Collision terms were introduced on the right hand side of the Liouville equation. The first one is called collision damping \cite{damp} and dampens the particle velocity by relaxing it toward the mass-averaged particle velocity, while the second term is called return-to-isotropy \cite{isotropy} which represents the scattering from collisons and relaxes the particle velocities toward a Gaussian distribution.
-These terms improve upon the \MP method by modeling particle collisions locally as opposed to spatial gradients of the particle gradient.
+Superseding the paper introducing the one-dimensional approach, the \MP method was extended to two dimensions \cite{MP2d} and later to three dimensions \cite{MPInterpolation}.
+Collision terms were introduced on the right-hand side of the Liouville equation. The first one is called collision damping \cite{damp} and damps the particle velocity by relaxing it toward the mass-averaged particle velocity, while the second term is called return-to-isotropy \cite{isotropy}, which represents the scattering from collisions and relaxes the particle velocities toward a Gaussian distribution.
+These terms improve upon the \MP method by modeling particle collisions locally as opposed to using spatial gradients of the particle gradient.
 \begin{equation}
     \left( \frac{\partial \pd}{\partial \tvar} \right)_{coll} = \underbrace{\dfrac{\pdd - \pd}{\sd}}_{\text{daming term}} + \underbrace{\dfrac{\pdi - \pd}{\si}}_{\text{return-to-isotropy}}.
 \end{equation}
-A third damping term has been presented by O'Rourke and Snider called blended acceleration \cite{thirdDamp}. The damping term is not implemented in \OF and will not be discussed further here.
+A third damping term has been presented by O'Rourke and Snider, called blended acceleration \cite{thirdDamp}. The damping term is not implemented in \OF and will not be discussed further here.
 The collision damping term and the return-to-isotropy damping term will be explained in the following. 
 %\todo{dritten collision term noch erwähnen?}
 
-\subsubsection{Damping term}
+\subsubsection{Damping Term}
 \label{sec:damping}
 The first term is known as the collision damping term. 
 Two versions of this damping term exist.
-The first is the equilibrium damping term which we will not focus on here \cite{dampUnimproved} .
-The second is the non-equilibrium term which we will look at in the following \cite{damp}.
+The first is the equilibrium damping term, which we will not focus on here \cite{dampUnimproved} .
+The second is the non-equilibrium term, which we will look at in the following \cite{damp}.
 The two terms differ by the collision damping time.
 The damping term is defined similar to a Bhatnagar,
 Gross, and Krook (BGK) collision term 
@@ -322,7 +322,7 @@ The collision damping time $\sd$
 \label{eq:DampingTimeD}
 \dfrac{1}{\sd} = \dfrac{8 \sqrt{2}}{3 \pi} \dfrac{\pvf}{r_{32}^3} \dfrac{\MultiIntegral{2} f (r+ r_{32})^4 (\up - \overline{\up})^2 d \m d \up}{\MultiIntegral{2} f (r + r_{32})^2 \sqrt{(\up - \overline{\up})^2}d \m d \up} g_0(\pvf) \eta (1-\eta)
 \end{equation}
-can be physically interpreted as the average time between collision.
+can be physically interpreted as the average time between collisions.
 Here we have $\eta$ as the material restitution coefficient, $r_{32}$ as the particle Sauter mean radius
 \begin{equation*}
     r_{32} = \dfrac{\int \pd r^3 d\m d \up}{\int \pd r^2 d\m d\up}.
@@ -338,26 +338,26 @@ The probability function is low in a dilute case but high when the particle pack
 %\Todo{$\up$ mess fixen}
 %\Todo{BGK Term genau erklären?}
 
-To apply the damping term we first solve it regarding only collision effects
+To apply the damping term, we first solve it considering only collision effects
 \begin{equation*}
     \dfrac{\partial \pd}{\partial \tvar} = \dfrac{\pd_D -\pd}{\sd}.
 \end{equation*}
-For a constant relaxation time $\sd$ the analytical solution to the damping term is given by
+For a constant relaxation time $\sd$, the analytical solution to the damping term is given by
 \begin{equation}
     \label{eq:BGKanalytical}
     \pd = e^{-\frac{\tvar}{\sd}} \pd^n + \left(1-e^{- \frac{t}{\sd}} \right) \pd_{D}.
 \end{equation}
-which we can quickly verify by partially deriving the equation above
+which we can quickly verify by partially differentiating the equation above
 \begin{equation}
     \dfrac{\partial \pd}{\partial \tvar} = - \dfrac{1}{\sd} e^{- \frac{t}{\sd}} \pd_n + \dfrac{1}{\sd} e^{- \frac{t}{\sd}} \pd_D = \dfrac{\pd_D - \pd}{\sd}.
 \end{equation}
 
-The implementation of the collision damping term is discussed in section \ref{sec:DiscCollDamp}.
+The implementation of the collision damping term is discussed in sec. \ref{sec:DiscCollDamp}.
 
 
 \subsubsection{Return-to-Isotropy}
 \label{sec:isotropy}
-The second damping term, called return-to-isotropy, relaxes the velocities to a equilibrium velocity distribution. The equilibrium distribution is a particle distribution function with a Gaussian velocity distribution
+The second damping term, called return-to-isotropy, relaxes the velocities to an equilibrium velocity distribution. The equilibrium distribution is a particle distribution function with a Gaussian velocity distribution
 \begin{equation*}
     \pd_G(\xp,\up,\m,\tvar) = N(\xp,\m,\tvar) G(\up;\overline{\up}, \sigma^2(\m))
 \end{equation*}
@@ -374,50 +374,49 @@ The Gaussian velocity distribution is centered around the mean velocity from Eq.
 % \begin{equation*}
 %     \overline{\up} = \dfrac{\MultiIntegral{2} \pd \m \up d \m d \up}{\MultiIntegral{2}\pd \m d \m d \up}.
 % \end{equation*}
-We assume that both PDFs $\pd$ and $\pd_F$ have the same variance. The variance of $\pd_F$ is given my $\sigma^2(m)$ which is then equal to the mass-weighted variance normalized
+We assume that both PDFs $\pd$ and $\pd_F$ have the same variance. The variance of $\pd_F$ is given by $\sigma^2(m)$, which is then equal to the normalized mass-weighted variance
 \begin{equation*}
 \sigma^2(m) = \dfrac{\overline{\m}}{\m} \sigma^2, \qquad \overline{\m} = \dfrac{\rp \pvf}{\int N d \m} \qquad \sigma^2 = \dfrac{\MultiIntegral{2} \pd \m (\up - \overline{\up})^2 d \m d \up}{\MultiIntegral{2} \pd \m d \m d \up}.
 \end{equation*}
-To determine whether a particle collides, we use the return-to-isotropy relaxation time
+To determine whether a particle undergoes a collision, we use the return-to-isotropy relaxation time
 \begin{equation}
 \label{eq:DampingTimeG}
 \dfrac{1}{\ss_G} = \dfrac{8 \sqrt{2}}{5 \pi} \dfrac{\pvf}{r_{32}^3} \dfrac{\MultiIntegral{2} f (r+ r_{32})^4 (\up - \overline{\up})^2 d \m d \up}{\MultiIntegral{2} f (r + r_{32})^2 \sqrt{(\up - \overline{\up})^2}d \m d \up} g_0(\pvf) \eta (2-\eta)
 \end{equation}
 %\todo{Ich glaube das subscript $G$ steht für Granular da die relaxation time von der Granular temperature abhängt.}
-that approximates the average time until the next collision. The Sauter mean radius $r_{32}$ and the radial distribution function $g_0$ are defined as above.
-The return-to-isotropy is derived in the Appendix of \cite{isotropy} and is obtained by comparing the particle momentum shear viscosity to the shear viscosity of continuum-fluid models.
+which approximates the average time until the next collision. The Sauter mean radius $r_{32}$ and the radial distribution function $g_0$ are defined as above.
+The return-to-isotropy term is derived in the Appendix of \cite{isotropy} and is obtained by comparing the particle momentum shear viscosity to the shear viscosity of continuum-fluid models.
 We split the collision of the particles from the rest of the particle properties, thus solving
 \begin{equation}
     \dfrac{\partial \pd}{\partial \tvar} = \dfrac{\pd_G - \pd}{\ss_G} \qquad \Rightarrow \qquad \pd= \underbrace{\pd_0 e^{\frac{-\tvar}{\ss_G}}}_{\text{No collision}} + \underbrace{\pd_G \left[ 1 - e^{- \frac{\tvar}{\ss_G}} \right]}_{\text{Collision}}
     \label{eq:rtiSol}
 \end{equation}
 % introduced by ..., which couples the probability 
-with $\pd_0$ the distribution at time $t=0$.
-The physical representation of this is that for the first term no collision has taken place at time $[0,t]$ which happens with a probability of $\operatorname{exp}(-\tvar / \ss_G)$, while a collision has taken place with the probability of $1 - \operatorname{exp}(-\tvar / \ss_G)$.
+with $\pd_0$, the distribution at time $t=0$.
+This physically represents a model where, for the first term no collision has taken place at time $[0,t]$ which happens with a probability of $\operatorname{exp}(-\tvar / \ss_G)$, while a collision has taken place with the probability of $1 - \operatorname{exp}(-\tvar / \ss_G)$. \todo{ist model hier das richtige wort?}
 
 %probability of finding another particle at contact scales inversely with the remaining free space, which vanishes linearly as θθ approaches θcpθcp. In other words, as the system gets denser, collisions and contacts become more frequent, and in a simple mean–field picture this frequency diverges like 1/(θcp−θ)1/(θcp−θ)
 
 
-
 \color{black}
-\section{Numerical implementation and discretizations}
-Now that we have discussed the governing equations and the underlying models we look at how we can solve them numerically.
-In this chapter we focus on the original implementation done for a one-dimensional cartesian coordinate system. 
-Using the old velocities we update the particle positions. 
-The provisional particle is used to calculate a provisional particle fraction. 
-We discretize the mass and momentum conservation as well as the two moments from the Liouville equation. 
+\section{Numerical Implementation and Discretizations}
+Now that we have discussed the governing equations and the underlying models, we look at how we can solve them numerically.
+In this chapter, we focus on the original implementation done for a one-dimensional Cartesian coordinate system. 
+Using the old velocities, we update the particle positions. 
+The provisional particle position is used to calculate a provisional particle fraction. 
+We discretize the mass and momentum conservation, as well as the two moments from the Liouville equation. 
 Subsequently, we rearrange the equations until they only depend  on grid properties and solve them iteratively.
 We map these properties to the particles and use them to calculate the new particle positions.
 
 
-For the continuous phase, we discretize the mass and momentum conservation and combine these with the discretized first and second moment from the Liouville equation and use the acceleration equation to update the particle positions. 
+For the continuous phase, we discretize the mass and momentum conservation and combine these with the discretized first and second moments from the Liouville equation and use the acceleration equation to update the particle positions. 
 We iterate until we have reached our last time step.
 
 \subsection{Parcel Grouping}
 \label{sec:PartGrouping}
-To reduce the number of particles we need to track we can group particles with similar characteristics. The number of particles in a parcel is given by the statistical weight of the parcel \wp.
-The parcels each contain \wp \ particles with identical particle mass $\mp$, velocity $\up$ and position $\xp$. 
-The sketch below illustrates the grouping of particles. The sketches on the left and in the middle are for illustration purposes only. In the \MP method the particles are represented through point masses, infinitesimal small points with properties assigned to them.
+To reduce the number of particles we need to track, we can group particles with similar characteristics. The number of particles in a parcel is given by the statistical weight of the parcel \wp.
+The parcels each contain \wp particles with identical particle mass $\mp$, velocity $\up$ and position $\xp$. 
+The sketch below illustrates the grouping of particles. The sketches on the left and in the middle are for illustration purposes only. In the \MP method, the particles are represented through point masses, infinitesimal small points with properties assigned to them.
 \FloatBarrier
 \begin{figure}[h!]
 \centering
@@ -490,16 +489,16 @@ The sketch below illustrates the grouping of particles. The sketches on the left
 \draw[-{Latex[length=1.2mm]}] (8.5,0.5) -- ++(0,0.2);
 \draw[-{Latex[length=1.2mm]}] (8.5,0.5) -- ++(0.2,0);
 \end{tikzpicture}
-\caption{Grouping particles on the left to parcels on the right with $\wp = 3$. On the right particles as "point mass" as used in the Lagragian framework. The two sketches on the left are for illustrational purposes for how grouping works and do not represent the particles used for calculation.}
+\caption{Grouping particles on the left to parcels on the right with $\wp = 3$. On the right particles are shown as "point masses" as used in the Lagrangian framework. The two sketches on the left are for illustraive purposes to show how grouping works and do not represent the particles used for calculation.}
 \end{figure}
 \FloatBarrier
 
 
 \subsection{Interpolation Operators}
-In the \MP method the solid phase is partially treated as a continuous phase to reduce computing time.
+In the \MP method, the solid phase is partially treated as a continuous phase to reduce computing time.
 Different properties of the solid phase, for example the volume fraction $\pvf$ are mapped to and from the Eulerian grid.
 The interpolation operators, which are defined for one dimension in \cite{MPPICFirst} were extended first to two dimensions \cite{MP2d} and then to three dimensions in \cite{MPInterpolation}.
-The \MP method uses a staggered grid with momentum properties, for example velocity, interpolated from the cell faces to the particles while scalar properties, like the volume fraction are interpolated from the cell centers.
+The \MP method uses a staggered grid with momentum properties, for example velocity, interpolated from the cell faces to the particles while scalar properties, like the volume fraction, are interpolated from the cell centers.
 For a particle located at $\xp$ we define an interpolation operator for the cell center of cell $i$ for the $x$-component $\xpx$ as
 \begin{equation}
     \ip_i^\x (\xp) = \begin{cases}
@@ -507,8 +506,8 @@ For a particle located at $\xp$ we define an interpolation operator for the cell
         1 & \xpx = \x_{i}.
     \end{cases}
 \end{equation}
-The interpolation operator for the $x$-coordinate is independent of the $y$ and $z$ coordinate.
-For this section we use a linear interpolation operator
+The interpolation operator for the $x$-coordinate is independent of the $y$ and $z$ coordinates.
+For this section, we use a linear interpolation operator
 \begin{equation}
     \ip_{i}^\x = \dfrac{\x_{i+1}- \xpx}{\x_{i+1} - \x_i} \quad \x_{i} < \xpx < \x_{i+1}
 \end{equation}
@@ -549,7 +548,8 @@ which can be seen in the following figure \ref{fig:linearInt2d}, but other highe
 \caption{Linear interpolation operator. On the right $\ip_i$ on the right $\ip_{i-1}$, $\ip_{i}$, $\ip_{i+1}$.}
     \label{fig:linearInt2d}
 \end{figure}
-In one dimension the interpolation is only supported by two cell centers while in two dimensions we use the four surrounding nodes, see Fig \ref{fig:finter3DLinear}. 
+\todo{figure caption 2x on the right, ich bin aber nicht 100\% sicher was du mit der caption sagen willst, vllt bissl ausführlicher}
+In one dimension, the interpolation is only supported by two cell centers while in two dimensions we use the four surrounding nodes, see Fig \ref{fig:finter3DLinear}. 
 
 
 %\Todo{Add 2d}
@@ -692,15 +692,15 @@ The interpolation operator satisfies
 \begin{equation*}
     \sum_{\xi} \ip_\xi^\x (\x_p) =1 \qquad \forall particles, cells
 \end{equation*}
-when summing over all Eulerian cells this holds for $\ip$.
-For the linear case this can be observed in the sketch above.
+when summing over all Eulerian cells, this holds for $\ip$.
+For the linear case, this can be observed in the sketch above.
 
-In the two dimensional case the grid properties are mapped to the particle by using the four enclosing cell centers, see figure \ref{fig:finter3DLinear}. 
-Interpolating a quantity $Q$ from the Eulerian grid to the particle position we use
+In the two-dimensional case, the grid properties are mapped to the particle by using the four enclosing cell centers, see fig. \ref{fig:finter3DLinear}. 
+Interpolating a quantity $Q$ from the Eulerian grid to the particle position, we use
 \begin{equation*}
     Q_p = \ip_{i,j} (\xp) Q_{i,j} + \ip_{i+1,j} (\xp) Q_{i+1,j}+ \ip_{i,j+1} (\xp) Q_{i,j+1}+ \ip_{i+1,j+1} (\xp) Q_{i+1,j+1}
 \end{equation*}
-with the two dimensional interpolation operator being formed by the product of the two one dimensional operators
+with the two-dimensional interpolation operator being formed by the product of the two one-dimensional operators
 \begin{equation*}
     \ip_{i,j} = \ip_i^\x \ip_j^y.
 \end{equation*}
@@ -720,12 +720,12 @@ with the operators $\ip^y$ and $\ip^z$ analogue to $\ip^z$ and the interpolation
     \pvf = \MultiIntegral{2} \pd \dfrac{\m}{\rp} d \m d \up.
 \end{equation}
 
-For example the discrete particle volume fraction is defined via the interpolation
+For example, the discrete particle volume fraction is defined via the interpolation
 \begin{equation*}
     \pvf_{p_{i,j,k}} = \dfrac{1}{V_{i,j,k}} \sum_{\kappa } N_{p,\kappa} V_{p_{i,j,k}} \ip_{i,j,k} (\x_{p_\kappa}),
 \end{equation*}
 with the particle volume $V$.
-The product of interpolation operators for a grid property $\gp$ where the property is mapped to a particle location and the to the grid is defined as
+The product of interpolation operators for a grid property $\gp$, where the property is mapped to a particle location and to the grid, is defined as
 \begin{equation*}
     \ip_\zeta (\xp) \sum_{\xi}^8 \ip_\xi (\xp) \gp_\xi = \sum_{\xi}^{8} \ip_\zeta.
 \end{equation*}
@@ -742,7 +742,7 @@ The product of two interpolation operators for cells is defined as
 % \begin{equation*}
 %     \nabla \gp_p = \sum_{\xi =1}^{N} \nabla \ip_\xi (\xp) \gp_\xi + \sum_{\xi =1}^{N} \ip_\xi ( \xp) (\nabla \gp)_{\xi}.
 % \end{equation*}
-For the one dimensional case we can calculate the spatial derivative of the linear interpolation operator with the help of the cell-face interpolation function. For an equidistant grid we have a top hat function
+For the one-dimensional case, we can calculate the spatial derivative of the linear interpolation operator with the help of the cell-face interpolation function. For an equidistant grid, we have a top-hat function
 \begin{equation*}
     \ifg_{i+1/2} = \begin{cases}
         1 & \text{if }   \x_i \leq \x_p < \x_{i+1} \\
@@ -940,16 +940,16 @@ The choice of values for the interpolation of cell face values depicted in Fig. 
     \end{subfigure}
     %\caption{Interpolation with face values.}
 \end{figure}
-Once again we use the top hat functions we defined earlier.
-For the two-neighbor interpolation we use the velocity $u$ in $\x$ direction and the velocity $v$ in $y$ direction. As the name suggests we use the two neighboring velocities, see figure ~\ref{fig:intTwoNeigh}. We use two top hat functions for the $\x$-face velocity
+Once again, we use the top-hat functions we defined earlier.
+For the two-neighbor interpolation, we use the velocity $u$ in $\x$ direction and the velocity $v$ in $y$ direction. As the name suggests, we use the two neighboring velocities, see fig. ~\ref{fig:intTwoNeigh}. We use two top-hat functions for the $\x$-face velocity
 \begin{align}
     \ip_{i+1/2,j}^{T} &= \ifg_{i+1/2} \ifg_j \\
     \u_{g,p} &= \ip_{i+1/2,j}^{T} (\xp) \u_{i+1/2,j} +  \ip_{i+1/2,j+1}^{TS} (\xp) \u_{i+1/2,j+1} \\
     v_{g,p} &= \ip_{i,j+1/2}^{T} (\xp) \u_{i,j+1/2} +  \ip_{i+1,j+1/2}^{TS} (\xp) \u_{i+1,j+1/2}.
 \end{align}
 
-The second option is to use face bilinear interpolation as shown in figure \subref{fig:bilinearInt}. Compared to the closest neighbor interpolation we now double the cell faces used to four per direction. 
-For both the $x$ and the $y$ direction we use the encompassing faces for the interpolation operators
+The second option is to use face bilinear interpolation as shown in figure \subref{fig:bilinearInt}. Compared to the closest neighbor interpolation, we now double the cell faces used to four per direction. 
+For both the $x$ and the $y$ direction, we use the encompassing faces for the interpolation operators
 \begin{equation*}
     \ip_{i+1/2,j}^S = \ip^x_{i+1/2} \ip^y_{j} \qquad \ip_{i,j+1/2}^S = \ip^x_i \ip^y_{j+1/2}
 \end{equation*}
@@ -966,12 +966,12 @@ The grid property $\gp$ mapped to the particle location $\xp$ is
 \begin{equation*}
     \nabla \gp_p = \sum_{\xi =1}^{N} \nabla \ip_{\xi}(\xp) \gp_{\xi} + \sum_{\xi = 1}^N \ip_{\xi} ( \xp) (\nabla \gp)_\xi = \sum_{\xi =1}^N \ip_{\xi} ( \xp) (\nabla \gp)_\xi.
 \end{equation*}
-Here the particle position is fixed leading to the second equality.
-Furthermore can also map the gradient of a grid property $\gp$ to and from the particle
+Here, the particle position is fixed, leading to the second equality.
+Furthermore can also map the gradient of a grid property $\gp$ to and from the particle \todo{den satz verstehe ich nicht}
 \begin{equation*}
     \nabla \ip_\zeta (\xp) \cdot \sum_{\xi =1}^8 \ip_\xi ( \xp ) \nabla \gp_\xi = \sum_{i=1}^8 \nabla \ip_\zeta ( \xp ) \cdot [\ip_\xi (\xp) \nabla \gp_\xi].
 \end{equation*}
-To simplify the equation we first look a the product of an interpolation operator with the gradient of an interpolation operator
+To simplify the equation, we first look at the product of an interpolation operator with the gradient of an interpolation operator
 \begin{equation*}
     \sum_\xi \ip_\xi \nabla \ip_\zeta = \sum_\xi \ip_{x_\zeta} \ip_{y_\zeta} \ip_{z_\zeta} \begin{pmatrix}
         \frac{\partial \ip_{x_\xi}}{\partial x} \ip_{y_\xi} \ip_{z_\xi} \\
@@ -986,7 +986,8 @@ We can apply the orthogonality property from equation \eqref{eq:ipOrtho} and the
 We will look more specifically at the interpolation used in \OF later in \ref{sec:OFInterpolation}.
 
 
-\subsection{Numerical Solution without damping terms}
+\todo{Korrektur weiter ab hier}
+\subsection{Numerical Solution without Damping Terms}
 The interpolation operators introduced in the previous section are used in the \MP method to map particle properties between the Eulerian grid and the particle positions.
 The method can be roughly split into the the following three steps in each time step.
 First the method calculates the provisional particle positions based on the previous velocity and particle positions.
@@ -1383,7 +1384,7 @@ In the remaining part of this chapter we will look at the numerical discretizati
 %numerical method implicit concerning pressure, velocity and volume fraction
 %model to 
 %\color{gray}
-\subsection{Discretizations of collision damping term}
+\subsection{Discretizations of Collision Damping Term}
 \label{sec:DiscCollDamp}
 From the previous section \ref{sec:damping}  we know that the damping particle density can be expressed as
 \begin{equation*}
@@ -1438,7 +1439,7 @@ Approximating \eqref{eq:constDamp} with $e^{-x} \approx 1/(1+x)$ and using it to
 %\todo{Hier ist sehr viel abgekürzt, da wir den eh nicht verwenden.}
 
 
-\subsection{Disctrization of the return-to-isotropy term}
+\subsection{Disctrization of the Return-to-Isotropy Term}
 
 The second damping term is treated similarly to the damping term.
 We look at the numerical implementation according to \cite{isotropy}.

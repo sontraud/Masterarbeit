@@ -19,7 +19,7 @@
 %% -------------------
 %% | Example content |
 %% -------------------
-\section{Fluid-Phase Momentum equation}
+\section{Fluid-Phase Momentum Equation}
 \label{sec:appendix:fluidPhaseMomentum}
 First we derive the discretized fluid-phase momentum equation. 
 We recall the particle velocity
@@ -77,12 +77,13 @@ Lastly we look at the terms for the advanced-time gas velocity and using the the
 %% | / Example content |
 %% ---------------------
 \small
-\section{Parameter study}
+\section{Parameter Study}
+\label{sec:AppParamStud}
 
 
 \subsection{Case 1: $\beta$ and $\pvfcp$}
 
-\subsubsection{Drag model \lstinline|ErgunWenYuDrag| and isotropy model \lstinline|none|}
+\subsubsection{Drag Model \lstinline|ErgunWenYuDrag| and Isotropy Model \lstinline|none|}
 \FloatBarrier
 \begin{figure}[h!]
     \centering
@@ -161,7 +162,7 @@ Lastly we look at the terms for the advanced-time gas velocity and using the the
     %\label{fig:C3EWYNone0015}
 \end{figure}
 \FloatBarrier
-\subsubsection{Drag model \lstinline|ErgunWenYu| and isotropy model \lstinline|stochastic|}
+\subsubsection{Drag Model \lstinline|ErgunWenYu| and Isotropy Model \lstinline|stochastic|}
 \FloatBarrier
 \begin{figure}[h!]
     \centering
@@ -240,7 +241,7 @@ Lastly we look at the terms for the advanced-time gas velocity and using the the
     %\label{fig:C3EWYNone0042}
 \end{figure}
 \FloatBarrier
-\subsubsection{Drag model \lstinline|PlessisMasliyahDrag| and isotropy model \lstinline|none|}
+\subsubsection{Drag Model \lstinline|PlessisMasliyahDrag| and Isotropy Model \lstinline|none|}
 \FloatBarrier
 \begin{figure}[h!]
     \centering
@@ -311,7 +312,7 @@ Lastly we look at the terms for the advanced-time gas velocity and using the the
 \end{figure}
 \FloatBarrier
 
-\subsubsection{Drag model \lstinline|PlessisMasliyahDrag| and isotropy model \lstinline|stochastic|}
+\subsubsection{Drag Model \lstinline|PlessisMasliyahDrag| and Isotropy Model \lstinline|stochastic|}
 \FloatBarrier
 \begin{figure}[h!]
     \centering
@@ -383,9 +384,9 @@ Lastly we look at the terms for the advanced-time gas velocity and using the the
 \FloatBarrier
 
 
-\subsection{Case 2: $\pvfcp$ and $\beta$}
+\subsection{Case 2: $P_s$ and $\pvfcp$}
 
-\subsubsection{Drag model \lstinline|ErgunWenYuDrag| and isotropy model \lstinline|none|}
+\subsubsection{Drag Model \lstinline|ErgunWenYuDrag| and Isotropy Model \lstinline|none|}
 \FloatBarrier
 \begin{figure}[h!]
     \centering
@@ -458,7 +459,7 @@ Lastly we look at the terms for the advanced-time gas velocity and using the the
     \centering
     \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/Appendix/vel0042/Case2/kin_Z_both0.042_ErgunWenYuDrag_none.eps}
     \caption{}
-    \label{fig:C2EWYNone0025}
+    \label{fig:C2EWYNone0042}
     \end{subfigure}
     \caption{Pressure drop relative error (\ref{fig:C2PDEWYNone0042}), bed height relative error (\ref{fig:C2BHEWYNone0042}) and combined relative error (\ref{fig:C2EWYNone0042}) according to equation \eqref{eq:relError}, with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.042m/s$.}
     %\label{fig:C3EWYNone0015}
@@ -467,7 +468,7 @@ Lastly we look at the terms for the advanced-time gas velocity and using the the
 
 
 
-\subsubsection{Drag model \lstinline|ErgunWenYu| and isotropy model \lstinline|stochastic|}
+\subsubsection{Drag Model \lstinline|ErgunWenYu| and Isotropy Model \lstinline|stochastic|}
 
 \FloatBarrier
 \begin{figure}[h!]
@@ -547,7 +548,7 @@ Lastly we look at the terms for the advanced-time gas velocity and using the the
 \end{figure}
 \FloatBarrier
 
-\subsubsection{Drag model \lstinline|PlessisMasliyahDrag| and isotropy model \lstinline|none|}
+\subsubsection{Drag Model \lstinline|PlessisMasliyahDrag| and Isotropy Model \lstinline|none|}
 \FloatBarrier
 \begin{figure}[h!]
     \centering
@@ -618,7 +619,7 @@ Lastly we look at the terms for the advanced-time gas velocity and using the the
 \end{figure}
 \FloatBarrier
 
-\subsubsection{Drag model \lstinline|PlessisMasliyahDrag| and isotropy model \lstinline|stochastic|}
+\subsubsection{Drag Model \lstinline|PlessisMasliyahDrag| and Isotropy Model \lstinline|stochastic|}
 \FloatBarrier
 \begin{figure}[h!]
     \centering
@@ -660,7 +661,7 @@ Lastly we look at the terms for the advanced-time gas velocity and using the the
     \centering
     \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/Appendix/vel0034/Case2/kin_Z_both0.034_PlessisMasliyahDrag_stochastic.eps}
     \caption{}
-    \label{fig:C2PMStoch0025}
+    \label{fig:C2PMStoch0034}
     \end{subfigure}
     \caption{Pressure drop relative error (\ref{fig:C2PDPMStoch0034}), bed height relative error (\ref{fig:C2BHPMStoch0034}) and combined relative error (\ref{fig:C2PMStoch0034}) according to equation \eqref{eq:relError}, with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.034m/s$.}
 \end{figure}
@@ -691,7 +692,7 @@ Lastly we look at the terms for the advanced-time gas velocity and using the the
 
 \subsection{Case 3: $\beta$ and $P_s$}
 
-\subsubsection{Drag model \lstinline|ErgunWenYuDrag| and isotropy model \lstinline|none|}
+\subsubsection{Drag Model \lstinline|ErgunWenYuDrag| and Isotropy Model \lstinline|none|}
 \FloatBarrier
 \begin{figure}[h!]
     \centering
@@ -740,7 +741,7 @@ Lastly we look at the terms for the advanced-time gas velocity and using the the
     \caption{}
     \label{fig:C3EWYNone0034}
     \end{subfigure}
-    \caption{Pressure drop relative error (\ref{fig:C1PDEWYNone0034}), bed height relative error (\ref{fig:C1BHEWYNone0034}) and combined relative error (\ref{fig:C1EWYNone0034}) according to equation \eqref{eq:relError}, with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.034m/s$.}
+    \caption{Pressure drop relative error (\ref{fig:C3PDEWYNone0034}), bed height relative error (\ref{fig:C3BHEWYNone0034}) and combined relative error (\ref{fig:C3EWYNone0034}) according to equation \eqref{eq:relError}, with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.034m/s$.}
     %\label{fig:C3EWYNone0015}
 \end{figure}
 \FloatBarrier
@@ -764,14 +765,14 @@ Lastly we look at the terms for the advanced-time gas velocity and using the the
     \centering
     \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/Appendix/vel0042/Case3/kin_Z_both0.042_ErgunWenYuDrag_none.eps}
     \caption{}
-    \label{fig:C3EWYNone0025}
+    \label{fig:C3EWYNone0042}
     \end{subfigure}
     \caption{Pressure drop relative error (\ref{fig:C3PDEWYNone0042}), bed height relative error (\ref{fig:C3BHEWYNone0042}) and combined relative error (\ref{fig:C3EWYNone0042}) according to equation \eqref{eq:relError}, with drag model \lstinline|ErgunWenYuDrag|, isotropy model \lstinline|none| and inlet velocity $0.042m/s$.}
     %\label{fig:C3EWYNone0015}
 \end{figure}
 \FloatBarrier
 
-\subsubsection{Drag model \lstinline|ErgunWenYu| and isotropy model \lstinline|stochastic|}
+\subsubsection{Drag Model \lstinline|ErgunWenYu| and Isotropy Model \lstinline|stochastic|}
 \FloatBarrier
 \begin{figure}[h!]
     \centering
@@ -850,7 +851,9 @@ Lastly we look at the terms for the advanced-time gas velocity and using the the
     %\label{fig:C3EWYNone0042}
 \end{figure}
 \FloatBarrier
-\subsubsection{Drag model \lstinline|PlessisMasliyahDrag| and isotropy model \lstinline|none|}
+
+
+\subsubsection{Drag Model \lstinline|PlessisMasliyahDrag| and Isotropy Model \lstinline|none|}
 \FloatBarrier
 \begin{figure}[h!]
     \centering
@@ -871,7 +874,7 @@ Lastly we look at the terms for the advanced-time gas velocity and using the the
     \caption{}
     \label{fig:C3PMNone0025}
     \end{subfigure}
-    \caption{Pressure drop relative error (\ref{fig:Crelative3PDPMNone0025}), bed height relative error (\ref{fig:C3BHPMNone0025}) and combined relative error (\ref{fig:C3PMNone0025}) according to equation \eqref{eq:relError}, with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|none| and inlet velocity $0.025m/s$.}
+    \caption{Pressure drop relative error (\ref{fig:C3PDPMNone0025}), bed height relative error (\ref{fig:C3BHPMNone0025}) and combined relative error (\ref{fig:C3PMNone0025}) according to equation \eqref{eq:relError}, with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|none| and inlet velocity $0.025m/s$.}
 \end{figure}
 \FloatBarrier
 \FloatBarrier
@@ -921,7 +924,7 @@ Lastly we look at the terms for the advanced-time gas velocity and using the the
 \end{figure}
 \FloatBarrier
 
-\subsubsection{Drag model \lstinline|PlessisMasliyahDrag| and isotropy model \lstinline|stochastic|}
+\subsubsection{Drag Model \lstinline|PlessisMasliyahDrag| and Isotropy Model \lstinline|stochastic|}
 \FloatBarrier
 \begin{figure}[h!]
     \centering
@@ -963,7 +966,7 @@ Lastly we look at the terms for the advanced-time gas velocity and using the the
     \centering
     \includegraphics[width=\linewidth, trim = {3.5cm 0 3.5cm 0}, clip]{sections/Appendix/vel0034/Case3/kin_Z_both0.034_PlessisMasliyahDrag_stochastic.eps}
     \caption{}
-    \label{fig:C3PMStoch0025}
+    \label{fig:C3PMStoch0034}
     \end{subfigure}
     \caption{Pressure drop relative error (\ref{fig:C3PDPMStoch0034}), bed height relative error (\ref{fig:C3BHPMStoch0034}) and combined relative error (\ref{fig:C3PMStoch0034}) according to equation \eqref{eq:relError}, with drag model \lstinline|PlessisMasliyahDrag|, isotropy model \lstinline|stochastic| and inlet velocity $0.034m/s$.}
 \end{figure}

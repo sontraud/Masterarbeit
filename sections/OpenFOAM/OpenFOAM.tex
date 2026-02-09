@@ -52,7 +52,7 @@ In the \lstinline|constant| directory we specify physical properties. Contained 
 
 In the time directories, not shown in the figure, the data of the specified fields in output during the simulation. In our case these are among other outputs the fluid velocity, fluid volume fraction, pressure and the \lstinline|lagrangian| folder which includes output about the velocity and position of the particles.
 
-\section{\MP method in OpenFOAM}
+\section{\MP Method in OpenFOAM}
 Although the \MP method was presented in the mid 90s \cite{MPPICFirst} and extended to a three dimensional method in 2001 \cite{MPInterpolation}, it was implemented in \OF in 2014 \cite{OFMPIntro}.
 The solver in \OF is called \lstinline|MPPICFoam| and can be executed by running the likewise named command.
 The solver is part of the \lstinline|DPMFoam| family. \lstinline|DPMFoam| uses the same equations for the Eulerian phase but resolves particle collisions. \lstinline|MPPICFoam| is located under the same directory: \lstinline|applications/solvers/lagrangian/| \lstinline|DPMFoam/MPPICFoam|. 
@@ -113,7 +113,7 @@ In \OF the two phases are split into the Lagragian loop (evolve kinematic cloud)
 In the following we will go into detail for each step.
 The implementation of the \MP method in \OF is partially explained in \cite{reportMPPIC}, \cite{chimera} and \cite{ImplemInter}. The former focuses more on the current \MP implementation, while the latter two extend the current implementation to include a chimera mesh or respectively coarse particles.
 
-\subsection{Create Fields}
+\subsection{Create Fields} \todo{diese Überschrift ist zu kurz / nicht aussagekräftig}
 In the file \lstinline|createFields.H| the fields used later are defined and initialized. 
 In the \MP method we first initialize the Eulerian fields, therefor the velocity, kinematic pressure, face flux, turbulence, density and kinematic viscosity, and the fluid volume fraction, which is initialized as zero and calculated at the end of \lstinline|createFields.H|.
 Afterward, the particles are inserted as a kinematic cloud. 
@@ -480,33 +480,35 @@ Because the results discussed in Sec. \ref{sec:DampResults} also do not show pro
 
 
 In the previous section we defined the advanced time velocity in equation \eqref{eq:errVel} as
-\begin{equation*}
+\begin{equation}
     \up^{n+1} = \dfrac{\up^n + \Delta \tvar \left[ \d \up^{n+1} - \dfrac{1}{\rp} \nabla \p_p^{n+1} - \dfrac{1}{\rp \pvf} \nabla \scs^{n+1} - \g \right]}{1 + \Delta \tvar \d} .
-\end{equation*}
+\end{equation}
 
 
 Several drag terms are implemented in \OF which includes the Plessis-Masliyah drag model \cite{Plessis}
-\begin{equation*}
-    \d = (A \pvf + B \operatorname{Re}_p) \dfrac{\pvf \mu_f}{\fvf^2 d^2} \qquad \operatorname{Re}_p = \dfrac{\rf \lvert \u_{rel} \rvert d}{\mu_f}
-\end{equation*}
+\begin{equation}
+\label{eq:PMDrag}
+    \d = (A \pvf +B \operatorname{Re}_p) \dfrac{\pvf \mu_f}{\fvf^2 d_p^2} \qquad \operatorname{Re}_p = \dfrac{\rf \lvert \u_{rel} \rvert d_p}{\mu_f}
+\end{equation}
 with coefficients $A$ and $B$ chosen as
-\begin{equation*}
+\begin{equation}
     A = \dfrac{26.8 \fvf^2}{\pvf^{2/3}(1-\pvf^{1/3})(1-\fvf^{2/3})} \qquad B = \dfrac{\fvf^2}{(1-\pvf^{2/3})^2}
-\end{equation*}
+\end{equation}
 and the Ergun-Wen-Yu model \cite{ErgunWenYu}
-\begin{align*}
+\begin{align}
+\label{eq:EWYDrag}
     \d &= \begin{cases}
-        \dfrac{3 (1-\fvf) \mu_f \fvf \operatorname{Re}_p}{d_p^2} C_D \fvf^{-2.65} & \text{if } \fvf \geq 0.8 \\
+        \dfrac{3 (1-\fvf) \mu_f \fvf \operatorname{Re}_p}{4 d_p^2} C_D \fvf^{-2.65} & \text{if } \fvf \geq 0.8 \\
         \left(150 \dfrac{1-\fvf}{\fvf} + 1.75 \operatorname{Re}_p \right) \dfrac{(1-\fvf) \mu_f}{d_p^2} & \text{if } \fvf < 0.8
     \end{cases}
-\end{align*}
+\end{align}
 with
-\begin{align*}
+\begin{align}
     C_D &= \begin{cases}
         24 \left(1+0.15 \operatorname{Re}_p^{0.687}\right) & \text{if } \operatorname{Re}_p < 1000 \\
         0.44 & \text{if } \operatorname{Re}_p \geq 1000
     \end{cases}
-\end{align*}
+\end{align}
 which uses the Ergun expression for fluid volume fractions below $0.8$ .
 Other drag models like the Wen-Yu model only give a good approximation up to a particle volume fraction of $0.2$ and therefor not considered here.
 
@@ -1599,7 +1601,7 @@ void Foam::KinematicCloud<CloudType>::postEvolve
 \fi
 
 This concludes the evolving of the cloud. The new particle positions are now used for the Eulerian grid calculation.
-\subsection{Interpolation and building source terms}
+\subsection{Interpolation and Building Source Terms}
 \label{sec:OFInterpolation}
 %\todo[color=kit-blue!60]{Zu Inter\-polation würde ich keinen Code mehr hinzufügen}
 \ifcode
@@ -1879,7 +1881,7 @@ Lastly we set the source terms in \lstinline|cloudSU| to zero, thereby only usin
 %SU explicit part, Sp implicit part second part to get per volume
 
 
-\subsection{Continous Phase, \texttt{PIMPLE} loop}
+\subsection{Continous Phase, \texttt{PIMPLE} Loop}
 For the continuous phase, we use the \lstinline|PIMPLE| algorithm for coupling the momentum conservation equation and the poisson pressure equation.
 The name as well as the algorithm is a combination of the \lstinline|PISO| (Pressure Implicit with Splitting of Operator) algorithm with the \lstinline|SIMPLE| (Semi-Implicit Method for Pressure-Linked Equations) algorithm.
 All three are explained in "Notes on Computational Fluid Dynamics" \cite{cdfNotes}.

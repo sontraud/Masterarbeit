@@ -143,7 +143,7 @@
 \setkomafont{title}{\huge\sffamily\bfseries}
 \setkomafont{subtitle}{\normalfont\large}
 
-\uppertitleback{Karlsruher Institut für Technologie\\ Fakultät für Informatik\\ Postfach 6980\\ 76128 Karlsruhe}
+\uppertitleback{Karlsruher Institut für Technologie\\ Fakultät für Mathematik \\ Kollegiengebäude Mathematik 20.30\\ Englerstr. 2 \\ 76131 Karlsruhe}
 
 %% variables for title page
 \newcommand{\theinstitute}{\ifcurrentbaselanguage{English}
@@ -180,7 +180,7 @@
 \newcommand{\settitle}{%
 \publishers{%
 \large
-\ifcurrentbaselanguage{English}{At the KIT Department of Informatics}%
+\ifcurrentbaselanguage{English}{At the KIT Department of Mathematics}%
 {An der KIT-Fakultät für Informatik}\\
 \theinstitute\\[2em]
 \begin{tabular}{l l}

@@ -11,4 +11,20 @@
 %% Version 1.6, 2024-06-07
 
 \Abstract
-English abstract.
+The efficiency of energy storage via a metal carrier largely depens on the 
+For the reduction recent experiments have used a fluidized bed reactor. 
+The fluid dynamics, particle motion and particle-particle interactions inside a fluidized bed are complex.
+One approach to better understand the flow and behavior inside a reactor is to use numerical simulations.
+Resolving each particle-particle interaction would result in a computationally expensive method.
+We therefore revert to modelling interactions based on packing models and damping models.
+We discuss the fluidization regimes and that we want to stay above the minimum fluidization velocity and below the terminal velocity so gas can pass through the particles efficiently but particles do not leave the reactor.
+Then we looked in detail into the \MP as it was first presented in ch. \ref{ch:MPPIC} along with submodels used.
+We discussed the packing model which prevents over-packing by accelerating particles when particles are near close pack.
+The discretization was based on a simple finite differencing scheme, which is applied to the governing equations of the fluid and the particle phase.
+We reformulated the particle properties used to only depend on the values of the Eulerian mesh and ended up with four equations: the discretized continuity and momentum equations for both the fluid and the solid phase, which were solved using provisional particle positions.
+Next we discussed the implementation in \OF which differs from the previously described method.
+The particles are tracked explicitly, we therefor do not use the moments from the Liouville equation that we derived in the governing equations, but we can see terms accounting for the kinematic stress. We discuss how the submodels, including the particle normal stress and the isotropy model, is calculated and how the fluid equations are solved on an Eulerian grid via a \lstinline|PIMPLE| algorithm.
+We discuss data provided by the "Division of Combustion Technology" and process the data for comparison with the simulation and estimate an order of convergence for the bed height based on the grid size.
+Based on the convergence and the computation time, we choose a grid size that we use for the parameter study in which we vary the isotropy and drag submodel as well as the parameters for the explicit Harris and Crighton packing model. 
+We conduct a parametric study test where at first we vary the parameters individually before we vary pairs of parameters.
+We observe that the bed height and the pressure drop is overestimated by the \MP method and varying the parameters has an opposite effect on the pressure drop and the bed height. 

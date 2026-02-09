@@ -1,47 +1,46 @@
 \chapter{Introduction}
 \label{ch:Introduction}
 Climate change is widely recognized as one of the most pressing global challenges of the 21st century \cite{climateChangeHealth}. %The ongoing increase in greenhouse gas emissions has already resulted in a measurable rise in global average temperatures, accompanied by a growing frequency and intensity of extreme weather events. 
-According to the Intergovernmental Panel on Climate Change (IPCC) report 
-the effects of climate change are not limited to single regions but instead concern every region. \cite{IntergovernmentalPanelonClimateChange}.
-At $2°C$ global warming heat waves will more often reach a critical tolerance for agriculture and health.
-Limiting climate change is possible through rapid and sustained reductions in emissions of greenhouse gases such as carbon dioxide.
-In response to this pressing problem, agreements have been fostered in which the international community commits itself to limit global warming, such as the Paris Agreement, which aims to keep the increase in global mean temperature well below $2$~\textdegree C while pursuing efforts to limit it to $1.5$~\textdegree C.
+According to the Intergovernmental Panel on Climate Change (IPCC) report, 
+the effects of climate change are not limited to single regions, but instead concern every region. \cite{IntergovernmentalPanelonClimateChange}.
+At $2$\textdegree $C$ global warming, heat waves will more often reach a critical tolerance for agriculture and health.
+Limiting climate change is possible through rapid and sustained reductions in the emissions of greenhouse gases such as carbon dioxide.
+In response to this pressing problem, agreements in which the international community commits itself to limiting global warming, such as the Paris Agreement, have been fostered. They aim to keep the increase in global mean temperature well below $2$~\textdegree C while pursuing efforts to limit it to $1.5$~\textdegree C.
 %Achieving these goals requires rapid and sustained reductions in carbon dioxide emissions across all sectors.
 
-In 2023 the power sector, which for example includes electricity production, was the largest global contributor to greenhouse gas emissions at 15.1 GtCO2e \cite{emmisionDueToPowerGeneration}.
+In 2023, the power sector, which includes, for example, electricity production, was the largest global contributor to greenhouse gas emissions at 15.1 GtCO$_2$e \cite{emmisionDueToPowerGeneration}.
 Therefore the power sector plays a key role in the transformation toward lowering CO$_2$ emissions.
-As a result nations have begun to implement policies that focus on replacing coal, oil and natural gas with renewable energy soures.
-Germany, for instance, has passed the "Gesetz zur Reduzierung und zur Beendigung der Kohleverstromung" which mandates the phase-out of coal-fired power generation by at latest 2038.
+As a result, nations have begun to implement policies that focus on replacing coal, oil and natural gas with renewable energy sources.
+Germany, for instance, has passed the "Gesetz zur Reduzierung und zur Beendigung der Kohleverstromung" which mandates the phase-out of coal-fired power generation by no later than 2038.
 
-This challenge is amplified by the expected increase in electricity demand of $40\%$ by 2035 which presents an acceleration to the pace of growth compared to the past decade \cite{energyDemand}.
-Renewable energy sources are essential for decarbonizing electricity generation but their fluctuation presents significant challenges for grid stability and supply security as the supply and demand often do not coincide.
-As a result efficient large scale energy storage are becoming crucial.
+This challenge is amplified by the expected increase in electricity demand of $40\%$ by 2035, which presents an acceleration in the pace of growth compared to the past decade \cite{energyDemand}.
+Renewable energy sources are essential for decarbonizing electricity generation, but their fluctuation presents significant challenges for grid stability and supply security as supply and demand often do not coincide.
+As a result, efficient large scale energy storage systems are becoming crucial.
 
 In this context, metals are a promising recyclable energy carrier as they have a high energy density.
-Among them, iron is of interest due to its wide availability, low cost and non-toxicity and.
-Iron can be recycled in a carbon-free cycle as depicted in Fig. \ref{fig:ironReductionOxidationCycle}.
+Among them, iron is of interest due to its wide availability, low cost and non-toxicity and iron can be recycled in a carbon-free cycle as depicted in Fig. \ref{fig:ironReductionOxidationCycle}.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.55\linewidth]{sections/Schematic-of-an-iron-reduction-oxidation-cycle-for-a-CO-2-free-energy-supply-Adapted.png}
-    \caption{From \cite{ironClean}.}
+    \caption{Carbon free energy cycle. Figure from \cite{ironClean}.}
     \label{fig:ironReductionOxidationCycle}
 \end{figure}
-For a closed cycle carbon-free energy storage iron oxide is reduced by renewable electricity or green hydrogen.
-Energy can be stored with little loss and can later be released through combustion (oxidation), producing heat while regenerating iron oxide. Overall the estimated efficiency of this cycle is about $21 \%$ \cite{metalEfficiency}.
+For a closed cycle carbon-free energy storage, iron oxide is reduced by renewable electricity or green hydrogen.
+Energy can be stored with little loss and can later be released through combustion (oxidation), producing heat while regenerating iron oxide. Overall, the estimated efficiency of this cycle is about $21 \%$ \cite{metalEfficiency}.
 
-The overall efficiency of the cycle depends strongly on both the reduction and the oxidation step. 
-Among other reactors capable of reducing iron oxide a fluidized bed reactor offers several advantages.
-In a fluidized bed reactor solid particles, in our case iron oxide, are placed on a porous plate and suspended by gas flowing in from below. This ensures particles are rapidly mixed, leading to close to isothermal conditions in the reactor. The heat and mass transfer between gas and particles are high due to the intense particle mixing and continuous gas/solid contact \cite{advantageFBR}.
+The overall efficiency of the cycle depends strongly on both the reduction and the oxidation steps. 
+Among other reactors capable of reducing iron oxide, a fluidized bed reactor offers several advantages.
+In a fluidized bed reactor solid particles, in our case iron oxide, are placed on a porous plate and suspended by a gas flowing in from below. This ensures that the particles are rapidly mixed, leading to near-isothermal conditions in the reactor. The heat and mass transfer between gas and particles are high due to the intense particle mixing and continuous gas/solid contact \cite{advantageFBR}.
 
 %These characteristics make fluidized bed reactors particularly well suited for gas–solid reactions such as iron oxide reduction.
-Scaling up fluidized bed reactors for industrial scale applications can present a time-consuming and difficult process \cite{scaleProb}.
-For the optimization of a fluidized bed reactor an understanding of the flow behavior inside the reactor is necessary.
-This thesis focuses on the modelling of a fluidized bed reactor using the Multiphase Particle-In-Cell (\MP) method.
+Scaling up fluidized bed reactors for industrial scale applications can be a time-consuming and difficult process \cite{scaleProb}.
+For the optimization of a fluidized bed reactor, an understanding of the flow behavior inside the reactor is necessary.
+This thesis focuses on the modeling of a fluidized bed reactor using the Multiphase Particle-In-Cell (\MPns) method.
 The \MP method is a hybrid approach that treats solid particles as both discrete particles and as a continuum. 
-Properties are mapped back and forth and used to model particle-particle interactions instead of resolving them through several submodels such as packing models, damping models and isotropy models thereby leading to lower computational costs.
+Properties are mapped back and forth and used to model particle-particle interactions instead of resolving them through several submodels, such as packing models, damping models and isotropy models, thereby leading to lower computational costs.
 
-We begin this master thesis by establishing fundamentals about the fluidized bed reactors and multiphase modelling in ch. \ref{ch:background}. Subsequently, we detail the \MP method as it was first presented in one dimension along with different submodels in ch. \ref{ch:MPPIC}. We discuss the implementation of the \MP method in \OF in ch. \ref{ch:OpenFOAM}.
-Finally to discuss the applicability and limitations of the \MP method we setup a simulation in ch. \ref{ch:simSetup} which we use to conduct a parameter study in ch. \ref{ch:results}.
+We begin this master thesis by establishing fundamentals of fluidized bed reactors and multiphase modelling in ch. \ref{ch:background}. Subsequently, we detail the \MP method as it was first presented in one dimension along with different submodels in ch. \ref{ch:MPPIC}. We discuss the implementation of the \MP method in \OF in ch. \ref{ch:OpenFOAM}.
+Finally, to discuss the applicability and limitations of the \MP method, we set up a simulation in ch. \ref{ch:simSetup}, which we use to conduct a parameter study in ch. \ref{ch:results}.
 
 
 

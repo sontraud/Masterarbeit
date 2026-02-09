@@ -1,5 +1,5 @@
 \newpage
-\chapter{\MP method parameters, Parameter Study setup and Reference Data}
+\chapter{\MP Method Parameters, Parameter Study Setup and Reference Data}
 \label{ch:simSetup}
 
 Before we can apply the \MP method we discuss how to set up a case.
@@ -15,7 +15,7 @@ For the computational grid we look at the estimated error of convergence for dif
 
 
 
-\section{Simplified fluidized bed reactor}
+\section{Simplified Fluidized Bed Reactor}
 For better comparison experimental data provided was gathered in a cylindrical tube with a porous mesh at the bottom.
 The bed consists of glass beads of a diameter of $40 \operatorname{\mu m}$ to $70 \operatorname{\mu m}$, chosen to be similar to the iron particles in \cite{Malte}.
 The size distribution was unknown at the time of simulation and therefor assumed to be uniformly distributed.
@@ -55,7 +55,7 @@ For the simulation we calculate the needed particles for a bed height of $h_{bed
 %   \end{tikzpicture}
 % \end{figure}
 
-\section{Processing provided experimental data}
+\section{Processing Provided Experimental Data}
 \label{sec:bedHeightBest}
 The provided data consists of two data sets. 
 The first data set is a collection of videos that show the glass beads at different inlet velocities which we will use in the following to gather a bed height.
@@ -104,7 +104,7 @@ Both the pressure drop and the experimental bed height start to grow more for a 
 
 
 
-\section{\OF \MP method modelling parameters}
+\section{\OF \MP Method Modelling Parameters}
 The particles are modeled as a kinematic cloud with properties set in \lstinline|kinematicCloudProperties|.
 This section details the parameters and models that can be adjusted.
 
@@ -414,6 +414,7 @@ cloudFunctions
 % \end{figure}
 
 \section{\lstinline|Goldschmidt| Case}
+\label{sec:goldschmidt}
 A tutorial for the \MP method in \OF is given by the \lstinline|Goldschmidt| tutorial, which is based on experiments and data collected by Mathijs Goldschmidt \cite{standardGoldschmidt}.
 The case is pseudo two-dimensional with a domain of $15 \operatorname{mm} \times 150 \operatorname{mm} \times 450 \operatorname{mm}$ and a grid of $1 \times 15 \times 45$ cells.
 The case here was used as a starting point for simulations and was then modified to fit the experimental setup.
@@ -479,7 +480,7 @@ In our simulations later we will set the top to \lstinline|escape| to allow part
 
 %\todo[inline]{Für den folgenden Teil hab ich korrekturen von Stephan bekommen. Ein paar Kleingkeiten soll ich noch ändern aber ansonsten ist der Teil für ihn Abgabefertig.}
 
-\section{Grid}
+\section{Grid} \todo{zu kurz}
 The experimental data indicates a maximum mean bed height of approximately $2.5 \operatorname{cm}$. To account for particle fluctuations and bed expansion, we extend  simulation domain to a height of $5 \operatorname{cm}$. The domain width is adapted to the simplified fluidized bed geometry width of $1 \operatorname{cm}$.
 To reduce computation time we effectively model the reactor as 2D by modeling a cuboid with the above described dimensions and a depth of $0.1 \operatorname{cm}$.
 The mesh consists of cubes. 
@@ -746,7 +747,16 @@ The final mesh dimensions are $10 \operatorname{mm} \times 0.25 \operatorname{mm
     \label{fig:grid}
 \end{figure}
 
-
+\section{Data Collection Simulation}
+The two data sets we want to compare are the mean bed height and the pressure drop.
+In the \MP method the pressure calculated and output is the kinematic pressure, which we multiply by the fluid density $1.2 \operatorname{kg/m^3}$ to get the static pressure.
+The kinematic pressure is measured in the center of the grid at the top, $P(7.5e-05| 0.005| 0.0497487)$ 
+and the bottom $P(7.5e-05| 0.005| 0.000251256)$ 
+away from the boundary.
+%\Todo{Punkte einfügen}
+The simulated bed height is determined by finding the highest cell with a fluid volume fraction of less than $0.95$.
+Averaging over several columns gives us the mean bed height, which we use for comparison.
+All simulations in the following chapter, except those explicitly mentioned, are run for $3.5s$ and data is gathered from the last two seconds and averaged.
 %\Todo{Noch ein Bild}
 
 % \begin{table}[h!]

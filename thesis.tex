@@ -19,14 +19,17 @@
 
 
 \newcommand{\MP}{\texttt{MP-PIC }}
+\newcommand{\MPns}{\texttt{MP-PIC}}
 \newcommand{\DP}{\texttt{DPMFoam }}
+\newcommand{\DPns}{\texttt{DPMFoam}}
 \newcommand{\OF}{\texttt{OpenFOAM }}
-\newcommand{\R}{\mathbb{R}}
+\newcommand{\OFns}{\texttt{OpenFOAM}}
 \newcommand{\PIMP}{\texttt{PIMPLE }}
+\newcommand{\PIMPns}{\texttt{PIMPLE}}
+\newcommand{\R}{\mathbb{R}}
 %% ---------------------------------
 %% | Information about the thesis  |
 %% ---------------------------------
-
 %% Name of the author
 \author{Sontraud Wolf}
 
@@ -37,11 +40,11 @@
 \thesistype{Master's Thesis/Bachelor's Thesis}
 
 %% Change the institute here, ``KASTEL'' is default
-% \myinstitute{Institute for \dots}
+\myinstitute{Institute for Applied and Numerical Mathematics \\ in cooperation with the Engler-Bunte-Institut}
 
 %% You can put a logo in the ``logos'' directory and include it here
 %% instead of the SDQ logo
-% \grouplogo{myfile}
+\grouplogo{logosss}
 %% Alternatively, you can disable the group logo
 % \nogrouplogo
 
@@ -485,12 +488,12 @@ mathfontname=mathsf]{mhchem}
 \setpdf
 
 %% Set the title
-%\maketitle
+\maketitle
 
 %% The Preamble begins here
-%\frontmatter
+\frontmatter
 
-%\input{sections/declaration.tex}
+\input{sections/declaration.tex}
 
 \setcounter{page}{1}
 \pagenumbering{roman}
@@ -507,15 +510,15 @@ mathfontname=mathsf]{mhchem}
 %% The text is included from the following files:
 %% - sections/abstract
 
-%\includeabstract
+\includeabstract
 
 %% ------------------------
 %% |   Table of Contents  |
 %% ------------------------
-%\tableofcontents
+\tableofcontents
 
-%\listoffigures
-%\listoftables
+\listoffigures
+\listoftables
 
 %% -----------------
 %% |   Main part   |
@@ -529,7 +532,7 @@ mathfontname=mathsf]{mhchem}
 \input{sections/OpenFOAM/OpenFOAM.tex}
 \input{sections/Setup/setup}
 \input{sections/result/result}
-%\input{sections/conclusion}
+\input{sections/conclusion}
 
 %\input{sections/sources/sources.tex}
 %% --------------------
