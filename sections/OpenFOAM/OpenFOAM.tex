@@ -1,12 +1,12 @@
-\chapter{OpenFOAM}
+\chapter{\OF}
 \label{ch:OpenFOAM}
-In the previous chapter we looked at the \MP method as first proposed by original authors.
-Since the goal of this master thesis is to use the \MP method from \OF we will now take a closer look at how it is currently implemented.
-The \OF version used in this master thesis is \texttt{v2412} which is freely available under the GNU General Public License.
+In the previous chapter, we looked at the \MP method as first proposed by original authors.
+Since the goal of this master thesis is to use the \MP method from \OFns, we will now take a closer look at how it is currently implemented.
+The \OF version used in this master thesis is \texttt{v2412}, which is freely available under the GNU General Public License.
 
-\section{Introduction to OpenFOAM}
-\texttt{OpenFOAM}, short for Open Source Field Operation and Manipulation, is a \lstinline|C++| based toolbox for continuum mechanics problems, including computational fluid dynamics. Here we use \lstinline|v2412| which is available on the \OF \footnote{\url{https://www.openfoam.com/}} website.
-Provided in \OF are pre-processing tools, e.g. for meshing, solvers, e.g. the \lstinline|MPPICFoam| and post-processing tools which we will use later in the results chapter. Apart from \OF we use \lstinline|Paraview| \footnote{\url{https://www.paraview.org/}} for visualization and \lstinline|miniconda3| \footnote{\url{https://www.anaconda.com/docs/getting-started/miniconda/main}} scripts for evaluation of data.
+\section{Introduction to \OF}
+\OFns, short for Open Source Field Operation and Manipulation, is a \lstinline|C++| based toolbox for continuum mechanics problems, including computational fluid dynamics. Here, we use \lstinline|v2412|, which is available on the \OF website\footnote{\url{https://www.openfoam.com/}}.
+Provided in \OF are pre-processing tools, e.g. for meshing, solvers, e.g. the \lstinline|MPPICFoam| and post-processing tools, which we will use later in the results chapter. Apart from \OFns, we use \lstinline|Paraview| \footnote{\url{https://www.paraview.org/}} for visualization and \lstinline|miniconda3| \footnote{\url{https://www.anaconda.com/docs/getting-started/miniconda/main}} scripts for evaluation of data.
 
 A typical \MP \OF case is constructed as seen in figure \ref{fig:fileStruc}. 
 % \begin{figure}
@@ -44,31 +44,31 @@ A typical \MP \OF case is constructed as seen in figure \ref{fig:fileStruc}.
 \label{fig:fileStruc}
 \end{figure}
 
-In the \lstinline|0| directory we define the initial conditions and boundary conditions, in this case for the fluid velocity and the kinematic pressure.
+In the \lstinline|0| directory, we define the initial conditions and boundary conditions, in this case for the fluid velocity and the kinematic pressure.
 
-In the \lstinline|system| directory we set the parameters for solving. In \lstinline|controlDict| run parameters are defined including the time step, start and end times as well as post-processing procedures. In \lstinline|fvSchemes| we set the discretization schemes used and in \lstinline|fvSolution| we specify the solvers and their respective tolerances. In \lstinline|blockMeshDict| we set up our geometry.
+In the \lstinline|system| directory, we set the parameters for used for solving. In \lstinline|controlDict| run parameters are defined, including the time step, start and end times, as well as post-processing procedures. In \lstinline|fvSchemes| we set the discretization schemes used and in \lstinline|fvSolution|, we specify the solvers and their respective tolerances. In \lstinline|blockMeshDict|, we set up our geometry.
 
-In the \lstinline|constant| directory we specify physical properties. Contained in the subdirectory \lstinline|polyMesh| is the information about the mesh for our simulation. In \lstinline|kinematicCloudProperties| we define the properties of the Lagrangian phase including the models and constants used for the injection of the particles, the particle normal stress model and the damping terms.
+In the \lstinline|constant| directory, we specify physical properties. Contained in the subdirectory \lstinline|polyMesh| is the information about the mesh for our simulation. In \lstinline|kinematicCloudProperties|, we define the properties of the Lagrangian phase, including the models and constants used for the injection of the particles, the particle normal stress model and the damping terms.
 
-In the time directories, not shown in the figure, the data of the specified fields in output during the simulation. In our case these are among other outputs the fluid velocity, fluid volume fraction, pressure and the \lstinline|lagrangian| folder which includes output about the velocity and position of the particles.
+In the time directories, not shown in the figure, the data of the specified fields is output during the simulation. In our case, these are, among other outputs, the fluid velocity, fluid volume fraction, pressure and the \lstinline|lagrangian| folder, which includes output about the velocity and position of the particles.
 
-\section{\MP Method in OpenFOAM}
-Although the \MP method was presented in the mid 90s \cite{MPPICFirst} and extended to a three dimensional method in 2001 \cite{MPInterpolation}, it was implemented in \OF in 2014 \cite{OFMPIntro}.
-The solver in \OF is called \lstinline|MPPICFoam| and can be executed by running the likewise named command.
-The solver is part of the \lstinline|DPMFoam| family. \lstinline|DPMFoam| uses the same equations for the Eulerian phase but resolves particle collisions. \lstinline|MPPICFoam| is located under the same directory: \lstinline|applications/solvers/lagrangian/| \lstinline|DPMFoam/MPPICFoam|. 
+\section{\MP Method in \OF}
+Although the \MP method was presented in the mid 90s \cite{MPPICFirst} and extended to a three-dimensional method in 2001 \cite{MPInterpolation}, it was implemented in \OF in 2014 \cite{OFMPIntro}.
+The solver in \OF is called \lstinline|MPPICFoam| and can be executed by running the likewise-named command.
+The solver is part of the \lstinline|DPMFoam| family. \lstinline|DPMFoam| uses the same equations for the Eulerian phase, but resolves particle collisions. \lstinline|MPPICFoam| is located under the same directory: \lstinline|applications/solvers/lagrangian/| \lstinline|DPMFoam/MPPICFoam|. 
 The \MP method is an incompressible transient solver that calls upon the \lstinline|Lagrangian| framework to solve for the particle trajectories. 
 For the Eulerian phase, we recall the governing equations from the previous chapter: mass conservation and momentum conservation
-\begin{align*}
+\begin{align}
     \dfrac{\partial (\fvf \rf)}{\partial \tvar} + \nabla \cdot (\fvf \rf \uf) &= 0, \\
     \dfrac{\partial (\fvf \rf \uf)}{\partial \tvar} + \nabla \cdot (\fvf \rf \uf \uf) &= - \nabla \p -\nabla \cdot (\fvf \fst)  - \F + \fvf \rf \g .
-\end{align*}
+\end{align}
 
-For the discrete phase we previously looked at the particle continuity equation and at the particle momentum equation.
-These are not solved directly in the \MP implementation in \OF since the Lagragian class is explicitly tracking particles.
-Both of these terms are necessary to see where the  kinematic stress and the interphase momentum transport arise. For both of these models are implemented in \OF that account for their contribution to the particle velocity.
+For the discrete phase, we previously looked at the particle continuity equation and the particle momentum equation.
+These are not solved directly in the \MP implementation in \OFns, since the Lagrangian class is explicitly tracking particles.
+Both of these terms are necessary to see where the  kinematic stress and the interphase momentum transport arise. For both of these, models are implemented in \OF that account for their contribution to the particle velocity.
 
 
-The \MP method in \OF is executed in the \lstinline|MPPICFoam.C| file can be roughly structured in the following diagram \ref{fig:FCMPPIC}.
+The \MP method in \OFns, as executed in the \lstinline|MPPICFoam.C| file, can be roughly structured as in the following diagram \ref{fig:FCMPPIC}.
 
 \begin{figure}[h!]
 \centering
@@ -80,7 +80,7 @@ The \MP method in \OF is executed in the \lstinline|MPPICFoam.C| file can be rou
         \tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
         \tikzstyle{arrow} = [thick,->,>=stealth]
         \node (start) [startstop] {\parbox{5cm}{\centering Create Fields \\
-        create Mesh, initialize Fields apply Boundary conditions}};
+        create Mesh, initialize Fields, apply Boundary conditions}};
         %\node (createMesh) [decision, right of=start,xshift = 6cm] {\texttt{createFields.H}};
         \node (in1) [process, below of=start] {Still run time?};
         \node (endTime) [startstop, right of=in1, xshift = 3cm] {Stop};
@@ -109,15 +109,15 @@ The \MP method in \OF is executed in the \lstinline|MPPICFoam.C| file can be rou
     \caption{Flow chart showing the implementation of the \MP method.}
     \label{fig:FCMPPIC}
 \end{figure}
-In \OF the two phases are split into the Lagragian loop (evolve kinematic cloud) and the Eulerian loop (\texttt{PIMPLE}). The steps in-between connect the two phases.
-In the following we will go into detail for each step.
-The implementation of the \MP method in \OF is partially explained in \cite{reportMPPIC}, \cite{chimera} and \cite{ImplemInter}. The former focuses more on the current \MP implementation, while the latter two extend the current implementation to include a chimera mesh or respectively coarse particles.
+In \OFns, the two phases are split into the Lagrangian loop (evolve kinematic cloud) and the Eulerian loop (\texttt{PIMPLE}). The steps in-between connect the two phases.
+In the following, we will go into detail for each step.
+The implementation of the \MP method in \OF is partially explained in \cite{reportMPPIC}, \cite{chimera} and \cite{ImplemInter}. The former focuses more on the current \MP implementation, while the latter two extend the current implementation to include a chimera mesh or, respectively, coarse particles.
 
-\subsection{Create Fields} \todo{diese Überschrift ist zu kurz / nicht aussagekräftig}
-In the file \lstinline|createFields.H| the fields used later are defined and initialized. 
-In the \MP method we first initialize the Eulerian fields, therefor the velocity, kinematic pressure, face flux, turbulence, density and kinematic viscosity, and the fluid volume fraction, which is initialized as zero and calculated at the end of \lstinline|createFields.H|.
+\subsection{Create Fields}
+In the file \lstinline|createFields.H|, the fields used later are defined and initialized. 
+In the \MP method, we first initialize the Eulerian fields, therefore the velocity, kinematic pressure, face flux, turbulence, density and kinematic viscosity and the fluid volume fraction, which is initialized as zero and calculated at the end of \lstinline|createFields.H|.
 Afterward, the particles are inserted as a kinematic cloud. 
-A kinematic Cloud consists of spherical particles with a constant density with each particle being tracked individually or in a parcel.
+A kinematic cloud consists of spherical particles with a constant density, with each particle being tracked individually or in a parcel.
 The upper limit of the particle volume fraction is calculated by using the user defined maximum packing, which can be set in \lstinline|kinematicCloudProperties|.
 The fluid volume fraction is calculated by interpolating the particle positions to the Eulerian grid.
 Finally, the turbulence model is initialized.
@@ -126,7 +126,7 @@ Finally, the turbulence model is initialized.
 \subsection{Continuous Phase Transport}
 We start by updating the fluid transport properties, e.g. the kinematic viscosity.
 The dynamic viscosity is then calculated by multiplying the kinematic viscosity with the density.
-These are needed to update the particle positions.
+These values are needed to update the particle positions. The dynamic viscosity is later used in the drag model.
 
 \ifcode
  \begin{lstlisting}
@@ -136,12 +136,12 @@ These are needed to update the particle positions.
 \fi
 \subsection{Evolve Kinematic Cloud}
 Evolving the kinematic cloud is done by calling \lstinline|kinematicCloud.evolve();| in the \lstinline|MPPICFoam.C| file. This calls the \lstinline|solve| method from the Lagrangian kinematic cloud class.
-It can be split into roughly four steps. First the kinematic cloud is prepared in the \lstinline|preEvolve| step and relevant data is cached. Then the particles are moved in \lstinline|evolveCloud|. 
-If the solver is coupled the new velocity is offset with the old velocity, which is done in \lstinline|coupled|.
-Lastly, in \lstinline|postEvolve| cached data is released and relevant data is written out.
-This represents the standard Lagragian kinematic cloud evolving.
+It can be split into roughly four steps. First, the kinematic cloud is prepared in the \lstinline|preEvolve| step and relevant data is cached. Then, the particles are moved in \lstinline|evolveCloud|. 
+If the solver is coupled, the new velocity is offset with the old velocity, which is done in \lstinline|coupled|.
+Lastly, in \lstinline|postEvolve|, cached data is released and relevant data is written out.
+This represents the standard Lagrangian kinematic cloud evolving method.
 The \MP method is worked into the \lstinline|evolveCloud| method, more specifically into \lstinline|motion|.
-In the following flow chart \ref{fig:FCEvoleCloud} we outline which methods are called when the kinematic cloud is evolved.
+In the following flow chart \ref{fig:FCEvoleCloud}, we outline which methods are called when the kinematic cloud is evolved.
 We will look at each step in more detail in the following.
 
 
@@ -245,9 +245,9 @@ We will look at each step in more detail in the following.
 \FloatBarrier
 
 \subsubsection{preEvolve}
-The \lstinline|preEvolve| prepares for the movement of the particles by caching important properties.
+The \lstinline|preEvolve| step prepares the kinmatic cloud for the movement of the particles by caching important properties.
 First, the mesh validity is checked.
-Next Eulerian fields are cached for efficient memory usage and properties from the Eulerian mesh are later used to update particle positions.
+Next, Eulerian fields are cached for efficient memory usage and properties from the Eulerian mesh are later used to update particle positions.
 The damping and packing models are prepared. The properties required for the models are cached.
 \ifcode
 \begin{lstlisting}[firstline = 782, caption=in KinematicCloud.C]
@@ -296,16 +296,16 @@ The method \lstinline|evolveCloud()| is what moves the particles along their tra
 % In the Lagrangian loop the we split the time step into sub time steps which is limited by the maximal Courant number. 
 % First \lstinline|canEvolve()| is called, which checks if we have reached the next time step.
 %For details the code is included in the following listing \ref{code:evolveCloud}.
-First the source terms are reset. The source terms that contribute to the continuous equations will be built after the kinematic cloud has evolved.
-For a transient solver, like the \MP method the particles are injected in two steps.
-To check whether injection of particles has taken place, the current cloud size is recorded.
-First particles generated from films, e.g walls, are injected.
+First, the source terms are reset. The source terms that contribute to the continuous equations will be built after the kinematic cloud has evolved.
+For a transient solver, like the \MP method, the particles are injected in two steps.
+To check whether the injection of particles has taken place, the current cloud size is recorded.
+First, particles generated from films, e.g walls, are injected.
 If necessary, cell occupancy is updated.
 In the second step, particles are injected from inlets.
-Properties such as the velocity, size of the particles which is either pre-defined or given via a distribution etc. are set in this step from the tracking data \lstinline|td|.
-The \lstinline|cloud.motion| command then moves the particles to their new time steps.
-The motion method is defined in the \lstinline|MPPICCloud.C| file. This differs from the standard motion of the kinematic cloud. It will be discussed in the next section.
-The stochastic collision model which is executed at the end of the evolve function is turned off in the \MP model, because a similar term is included in the return-to-isotropy damping model that is executed in \lstinline|motion|.
+Properties such as the velocity or size of the particles, which are either pre-defined or given via a distribution etc. are set in this step from the tracking data \lstinline|td|.
+The \lstinline|cloud.motion()| command then moves the particles to their new position in  the next time steps.
+The motion method is defined in the \lstinline|MPPICCloud.C| file. This differs from the standard motion of the kinematic cloud and will be discussed in the next section.
+The stochastic collision model, which is executed at the end of the evolve function is turned off in the \MP model, because a similar term is included in the return-to-isotropy damping model that is executed in \lstinline|motion|.
 
 \ifcode
 \begin{lstlisting}[firstnumber=221,caption=from kinematicCloud.C, label ={code:evolveCloud}]
@@ -363,7 +363,7 @@ void Foam::KinematicCloud<CloudType>::evolveCloud
 
 \subsubsection{motion}
 \label{sec:MPLoop}
-The method \lstinline|motion| is called from \lstinline|MPPICCloud.C| which differs from the standard kinematic cloud code which was executed in \lstinline|KinematicCloud.C|. This is the core of the \MP method which was described in the previous section \ref{ch:MPPIC}. 
+The method \lstinline|motion| is called from \lstinline|MPPICCloud.C|, which differs from the standard kinematic cloud code, which is executed in \lstinline|KinematicCloud.C|. This is the core of the \MP method, which was described in Ch. \ref{ch:MPPIC}. 
 The outline of how the code is executed is shown in the following flow chart \ref{fig:FCMPPIC}.
 
 %Step fraction $\Delta \tau = (t_{n+1}-t_{n}*StepFraction)$
@@ -474,18 +474,18 @@ The outline of how the code is executed is shown in the following flow chart \re
 \end{figure}
 \FloatBarrier
 
-In this section we are going to exclude the collision damping model described in \ref{sec:DiscCollDamp} because as stated in \cite{chimera} including this model in \OF currently causes errors.
-Because the results discussed in Sec. \ref{sec:DampResults} also do not show promising results we do not discuss the implementation here.
+In this section, we are going to exclude the collision damping model described in Sec. \ref{sec:DiscCollDamp} because, as stated in \cite{chimera}, including this model in \OF currently causes errors.
+Because the results discussed in Sec. \ref{sec:DampResults} also do not show promising results, we do not discuss the implementation here.
 
 
 
-In the previous section we defined the advanced time velocity in equation \eqref{eq:errVel} as
+In the previous section, we defined the advanced time velocity in Eq. \eqref{eq:errVel} as
 \begin{equation}
     \up^{n+1} = \dfrac{\up^n + \Delta \tvar \left[ \d \up^{n+1} - \dfrac{1}{\rp} \nabla \p_p^{n+1} - \dfrac{1}{\rp \pvf} \nabla \scs^{n+1} - \g \right]}{1 + \Delta \tvar \d} .
 \end{equation}
 
 
-Several drag terms are implemented in \OF which includes the Plessis-Masliyah drag model \cite{Plessis}
+Several drag terms are implemented in \OFns, which includes the Plessis-Masliyah drag model \cite{Plessis}
 \begin{equation}
 \label{eq:PMDrag}
     \d = (A \pvf +B \operatorname{Re}_p) \dfrac{\pvf \mu_f}{\fvf^2 d_p^2} \qquad \operatorname{Re}_p = \dfrac{\rf \lvert \u_{rel} \rvert d_p}{\mu_f}
@@ -509,52 +509,53 @@ with
         0.44 & \text{if } \operatorname{Re}_p \geq 1000
     \end{cases}
 \end{align}
-which uses the Ergun expression for fluid volume fractions below $0.8$ .
-Other drag models like the Wen-Yu model only give a good approximation up to a particle volume fraction of $0.2$ and therefor not considered here.
+which uses the Ergun expression for fluid volume fractions below $0.8$.
+Other drag models, like the Wen-Yu model, only give a good approximation up to a particle volume fraction of $0.2$ and therefor not considered here.
 
-For the velocity update small changes in the particle solid stress can have a big influence the particle normal stress the velocity is updated in a first step without the particle normal stress. 
-With the new particle positions the particle normal stress is applied.
+For the velocity update, small changes in the particle solid stress can have a big influence on the particle normal stress, so the velocity is updated in a first step without the particle normal stress. 
+At the new particle positions, the particle normal stress is applied.
 The terms are split as follows
-\begin{align*}
+\begin{align}
     \up^{n+1} & = \tilde{\up}^{n+1} + \u_{p,\scs} \\
     \tilde{\up}^{n+1} &= \dfrac{\up^n + \Delta \tvar \left[ \d \up^{n+1} - \dfrac{1}{\rp} \nabla \p_p^{n+1} + \g \left( 1- \dfrac{\rf}{\rp}\right) \right]}{1 + \Delta \tvar \d} \qquad \u_{p,\scs} = - \dfrac{\Delta \tvar \nabla \scs}{\rp \pvf (1+\Delta \tvar \d)}
-\end{align*}
+\end{align}
 with the previously unregarded buoyancy force included in the first term.
 
 
-In the \OF implementation the drag term is neglected in the denominator of the solid stress velocity due to it being either dominated or insignificant. Instead a small factor is included
+In the \OF implementation, the drag term is neglected in the denominator of the solid stress velocity due to it being either dominated or insignificant. Instead, a small factor is included
 %\todo{Überlege noch ob das Sinn ergibt. Bin gerade nicht ganz sicher...}
-\begin{equation*}
-    \u_{p,\scs} = - \dfrac{\Delta \tvar \nabla \scs}{\rp (\pvf + \operatorname{SMALL})}
-\end{equation*}
+\begin{equation}
+    \u_{p,\scs} = - \dfrac{\Delta \tvar \nabla \scs}{\rp (\pvf + \operatorname{SMALL})}.
+\end{equation}
 
-The gas phase time step is split into several smaller time steps in which particles are moved. At the beginning of \lstinline|move| the time fraction is set to zero.
+The gas phase time step is split into several smaller time steps, in which particles are moved. At the beginning of \lstinline|move|, the time fraction is set to zero.
 
 
-In the first step only the first term that depends on particle forces is applied to the particles and they are moved accordingly.
+In the first step, only the first term that depends on particle forces is applied to the particles and they are moved accordingly.
 The new particle positions are
-\begin{equation*}
+\begin{equation}
     \xp^{(lag),n+1} = \xp^{(lag),n} + \tilde{\up}^{lag}.
-\end{equation*}
+\end{equation}
 The time step that is chosen here is based on the time step fraction.
 \ifkeepcode
 \begin{lstlisting}[caption = kinematicCloud.C]
      parcel.stepFraction() = (carrierDt - lagrangianDt)/carrierDt;
 \end{lstlisting}
 \fi
-Here \lstinline|carrierDt| is the time step given by the continuous phase. 
+Here, \lstinline|carrierDt| is the time step given by the continuous phase. 
 The new time step fraction is calculated in three steps.
-First we calculate the remainder of the step fraction of the continuous phase \lstinline|f| to ensure we do not go beyond the next continuous phase time step.
+First, we calculate the remainder of the step fraction of the continuous phase \lstinline|f| to ensure we do not go beyond the next continuous phase time step. 
 \begin{lstlisting}[caption = parcels/Templates/KinematicParcel/KinematicParcel.C, label = {code:stepFraction}]
     scalar f = 1 - p.stepFraction();
     f = min(f, maxCo);
     f = min(f, maxCo*l/max(SMALL*l, mag(s)));
 \end{lstlisting}
 To prevent overshooting, we check if \lstinline|f| is larger than the maximal Courant number
-and the length scaled Courant number
+and the length-scaled Courant number,
 with the displacement over the total continuous time step and the characteristic length of the cell $l$.
-In last step we check the fraction of the maximal allowed particle distance traveled $\operatorname{maxCo} l$ by the total displacement over the time step.
+In last step, we check the fraction of the maximal allowed particle distance traveled $\operatorname{maxCo} l$ over the total displacement over the time step.
 The value \lstinline|f| is then added to the current time fraction.
+The maximal Courant number here is set as a cloud property and may differ from the Courant number used for the overall time step.
 
 \ifcode
 \begin{lstlisting}[caption = parcels/Templates/KinematicParcel/KinematicParcel.C]
@@ -582,34 +583,34 @@ The value \lstinline|f| is then added to the current time fraction.
 % \end{equation*}
 % with the user-defined maximal Courant number \lstinline|maxCo| and the characteristic cell length $l$.
 % This insures that our time step does not overshoot and is limited by the amount the particle travels.
-In case the particle reaches a wall boundary the particle is moved up to the wall. The new particle velocity depends on the angle of impact and the normal and tangential velocity.
+In case the particle reaches a wall boundary, the particle is moved up to the wall. The new particle velocity depends on the angle of impact and the normal and tangential velocity.
 %\Todo{Fraction erklären}
-To avoid confusion we still call the time step $\Delta \tvar$ although it should be $\operatorname{f} \Delta \tvar$.
+To avoid confusion, we still call the time step $\Delta \tvar$ although it should be $\operatorname{f} \Delta \tvar$.
 
 %Next the collision damping model is applied.
 %This is currently not properly implemented in \OF and will therefor not be discussed further here \cite{chimera}.
 
 %\Todo{stimmt zweiter Term?}
-To model particle-particle interactions the particle normal stress is applied in the packing model.
-Different models can be used here, as discussed in \ref{sec:particleNormalStress}.
-To prevent unphysical behavior the packing model is only applied in certain cases \cite{MPInterpolation}.
+To model particle-particle interactions, the particle normal stress is applied in the packing model.
+Different models can be used here, as discussed in Sec. \ref{sec:particleNormalStress}.
+To prevent unphysical behavior, the packing model is only applied in certain cases \cite{MPInterpolation}.
 \lstinputlisting[caption={intermediate/submodels/MPPIC/PackingModels/Explicit/Explicit.C}]%, firstline = 182]
 {sections/OpenFOAM/SolidStress.cpp}
-The criterion depends on the relative velocity $\u_r$ which calculated the difference between the particle velocity and the averaged Eulerian particle velocity.
-\begin{align*}
+The criterion depends on the relative velocity $\u_r$, which is calculated as the difference between the particle velocity and the averaged Eulerian particle velocity.
+\begin{align}
     \begin{cases}
         \u_{p,\scs} = - \dfrac{\Delta \tvar \nabla \scs}{\rp (\pvf + \operatorname{SMALL})} & \text{if } \u_r \cdot \nabla \scs > 0  \\
         \u_{p,\scs} = 0 & \text{if } \u_r \cdot \nabla \scs \leq 0
     \end{cases} \qquad \u_r = \up - \overline{\up}
-\end{align*}
-To explain in which cases the particle normal stress model is applied we simplify the problem. In the following figure \ref{fig:WhenPacking} the particle normal stress model is applied for the cases marked in green.
-For the figure we assume that the packed bed is on the left hand side and the particle volume fraction monotone increasing toward the packed bed, therefor the gradient in each part of the figure would increase toward the left side of the figure.
+\end{align}
+To explain in which cases the particle normal stress model is applied, we simplify the problem. In the following Fig. \ref{fig:WhenPacking}, the particle normal stress model is applied for the cases marked in green.
+For the figure, we assume that the packed bed is on the left-hand side and the particle volume fraction is monotonically increasing toward the packed bed, therefore the gradient in each part of the figure would increase toward the left side of the figure.
 Applying the packing model would accelerate the particle in the opposite direction. 
 This is useful in three cases.
-In the first case both the particle and the mean field are moving toward the packed bed. The particle moves faster than the mean field. Here the particle is decelerated.
-In the second case, depicted on the bottom left, the particle is moving toward the packed bed, but the mean field is moving away. In this case the particle is accelerated away from the packed bed.
-In the last case the particle is moving away from the bed at a slower speed than the mean field. In this case the particle accelerated.
-In the other three cases accelerating the particle would lead to unphysical behavior.
+In the first case, both the particle and the mean field are moving toward the packed bed. The particle moves faster than the mean field. Here, the particle is decelerated.
+In the second case, depicted on the bottom left, the particle is moving toward the packed bed, but the mean field is moving away. In this case, the particle is accelerated away from the packed bed.
+In the last case, the particle is moving away from the bed at a slower speed than the mean field. In this case the particle is accelerated.
+In the other three cases, accelerating the particle would lead to unphysical behavior.
 
 \FloatBarrier
 \begin{figure}[!h]
@@ -722,13 +723,13 @@ In the other three cases accelerating the particle would lead to unphysical beha
 
 \end{circuitikz}
 }%
-\caption{Illustration to show in which cases the packing model is used. Arrows connected to circles are particle velocities. Other black arrows are mean field velocities. The relative velocity $\u_r$ is red. Assuming the close pack is on the left hand side of the figure the cases in which the packing model is applied which are marked in green.}
+\caption{Illustration to show in which cases the packing model is used. Arrows connected to circles are particle velocities. Other black arrows are mean field velocities. The relative velocity $\u_r$ is shown in red. Assuming the close pack is on the left-hand side of the figure, the cases in which the packing model is applied are marked in green.}
 \label{fig:WhenPacking}
 \end{figure}
 \FloatBarrier
 
 
-Afterward the identified particles are moved according to a limited velocity, which is calculated via the \lstinline|minMod| scheme
+Afterwards, the identified particles are moved according to a limited velocity, which is calculated via the \lstinline|minMod| scheme
 \begin{equation}
 \label{eq:correctLimiting}
     \u_{p,\scs} = \operatorname{minMod} \left[ \u_{p,\scs}, - (1+e_p) \u_r \dfrac{\lvert \up \rvert}{\max (\lvert \u_r \rvert, \operatorname{SMALL})}  \right]
@@ -793,20 +794,20 @@ Foam::vector Foam::PackingModels::Explicit<CloudType>::velocityCorrection
 \fi
 
 How the gradient of the particle normal stress \lstinline|tauGrad| is calculated depends on the chosen particle normal stress model.
-In \OF two particle normal stress models are implemented.
+In \OFns, two particle normal stress models are implemented.
 The here discussed Harris and Crighton model
 % \begin{equation*}
 %     \scs = \dfrac{P_s \pvf^\beta}{\pvfcp - \pvf}.
 % \end{equation*}
-as well as the Lun particle normal stress model which were briefly explained in section \ref{sec:particleNormalStress}. 
+as well as the Lun particle normal stress model, which were briefly explained in section \ref{sec:particleNormalStress}. 
 For numerical stability the denominator is restricted with a small number $\varepsilon$ to prevent divergence.
-In the Harris and Crighton model this is 
-\begin{equation*}
+In the Harris and Crighton model, this is 
+\begin{equation}
     \nabla \scs = 
     \dfrac{P_s (\pvfi^n)^\beta}{\max [\pvfcp - \pvfi^n, \max \{\varepsilon (1 - \pvfi^n), \operatorname{SMALL} \}]} 
     \left(\dfrac{\beta}{\pvfi^n} + \dfrac{1}{\max [\pvfcp - \pvfi^n, \max \{\varepsilon (1 - \pvfi^n), \operatorname{SMALL} \}]} \right),
-\end{equation*}
-with the constant \lstinline|SMALL| that is executed by the \lstinline|C++| library \verb|numeric_limits| and is a system-dependent number that depends on the used floating-point arithmetic.
+\end{equation}
+with the constant \lstinline|SMALL|, that is executed by the \lstinline|C++| library \verb|numeric_limits| and is a system-dependent number that depends on the used floating-point arithmetic.
 This further restricts the denominator to prevent numerical instabilities near close pack.
 % \todo{aktuell ist das nur explizit, soll implizit auch? Ist nur semi interessant ...}
 %The Harris and Crighton model is executed in the following code \ref{code:HarrisCrighton}.
@@ -876,8 +877,8 @@ Foam::ParticleStressModels::HarrisCrighton::dTaudTheta
 
 \fi
 
-Lastly the return-to-isotropy damping term is applied. 
-The return-to-isotropy damping term is implemented as depicted in the following flow chart \ref{fig:FCIsotropy}.
+Lastly, the return-to-isotropy damping term is applied. 
+The return-to-isotropy damping term is implemented as depicted in the following flow chart in Fig. \ref{fig:FCIsotropy}.
 \begin{figure}[h!]
     \centering
     \resizebox{0.55\textwidth}{!}{%
@@ -936,55 +937,55 @@ fill=green!30]
     \label{fig:FCIsotropy}
 \end{figure}
 
-For each particle we preform an accept-reject algorithm by first drawing from a uniform distribution $X_p \sim \mathcal{U}([0,1))$. 
-If the drawn value is smaller or equal than $\operatorname{exp}(-\Delta \tvar / \ss_G)$ than no collision has taken place and the velocity of the particle stays the same. The return-to-isotropy damping time is defined in the previous chapter \eqref{eq:DampingTimeG}.
-This implies that the probability of collision goes towards $1$ for the damping term approaching zero or in physical terms that when we expect the time until the next collision to be zero that there is a collision, see figure \ref{fig:colNoCol}.
+For each particle, we perform an accept-reject algorithm by first drawing from a uniform distribution $X_p \sim \mathcal{U}([0,1))$. 
+If the drawn value is smaller or equal to $\operatorname{exp}(-\Delta \tvar / \ss_G)$, then no collision has taken place and the velocity of the particle stays the same. The return-to-isotropy damping time is defined in the previous chapter \eqref{eq:DampingTimeG}.
+This implies that the probability of collision goes towards $1$ as the damping term approaches zero, or, in physical terms, that when we expect the time until the next collision to be zero, therefore the collision term is always applied, see Fig. \ref{fig:colNoCol}.
 %\Todo{Farben anpassen} \ref{fig:colNoCol}.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.7\linewidth]{sections/OpenFOAM/acceptReject.png}
-    \caption{Example for the exponential distribution a time step $\Delta \tvar = 0.1$ for different damping times. If the relaxation time going toward zero the probability of no collision also goes to zero.}
+    \caption{Example for the exponential distribution at time step $\Delta \tvar = 0.1$ for different damping times. If the relaxation time goes toward zero, the probability of no collision also goes to zero.}
     \label{fig:colNoCol}
 \end{figure}
 
-If the code determines that a collision has taken place an updated velocity is drawn from a Gaussian distribution centered around the mean velocity $\overline{\up}$ with the velocity variance $\sigma^2$.
+If the code determines that a collision has taken place, an updated velocity is drawn from a Gaussian distribution centered around the mean velocity $\overline{\up}$ with the velocity variance $\sigma^2$.
 % \begin{equation*}
 %     G(\up ; \overline{\up}, \sigma^2(\m)) = \left(\dfrac{2}{3} \pi \sigma^2(\m)\right)^{-\frac{3}{2}} \operatorname{exp} [-(\up - \overline{\up})/(2/3\sigma^2(\m)).
 % \end{equation*}
 %\todo{chi2 Ver\-teilung $\sim$ Exp(1/2), uninteressant?}
-We use two uniform standard distributions and transform the via a Box-Muller %\todo[color=kit-blue!60]{Box-Mueller erklären?} 
-sampling algorithm to a Gaussian distribution by representing them in polar coordinates
+We use two uniform standard distributions and transform them via a Box-Muller %\todo[color=kit-blue!60]{Box-Mueller erklären?} 
+sampling algorithm to a Gaussian distribution, by representing them in polar coordinates
 \cite{numericalRecipies}.
-\begin{equation*}
+\begin{equation}
     X \sim \mathcal{N}(\mu , \sigma^2) \qquad \Rightarrow \qquad aX+b \sim \mathcal{N} (a \mu + b, a^2 \sigma^2)
-\end{equation*}
-we can avoid calculating the Gaussian distribution but instead shift the standard normal distribution \cite{Stochastic}.
+\end{equation}
+we can avoid calculating the Gaussian distribution, but instead shift the standard normal distribution \cite{Stochastic}.
 This yields a different distribution that has the same mean and variance.
-The distribution we calculate first is centered around zero with a variance of one. Adding the mean velocity and the velocity variance we thus get our desired distribution.
-To account for the three dimensional method in \OF we norm the added velocities by $\sqrt{1/3}$
-\begin{equation*}
+The distribution we calculate first is centered around zero with a variance of one. Adding the mean velocity and the velocity variance, we thus get our desired distribution.
+To account for the three-dimensional method in \OFns, we normalize the added velocities by $\sqrt{1/3}$
+\begin{equation}
     \up = \overline{\u} + \dfrac{1}{\sqrt{3}} g \left( \sum_p \Np \mp (\up - \overline{\u})^2\right).
-\end{equation*}
-This differs from the Gaussian distribution from the paper \eqref{eq:rtiDist} but holds the same mean and variance properties.
+\end{equation}
+This differs from the Gaussian distribution from the paper defined in Eq. \eqref{eq:rtiDist}, but holds the same mean and variance properties.
 The previous velocity of the particle is overwritten.
 \ifkeepcode
-\begin{lstlisting}
+\begin{lstlisting}[caption=intermediate/submodels/MPPIC/IsotropyModels/Stochastic/Stochastic.C]
     p.U() = u + r*uRms*oneBySqrtThree;
 \end{lstlisting}
 \fi
-Here \lstinline|uRms| is the variance, \lstinline|u| is the mean particle velocity and \lstinline|oneBySqrtThree| is $\sqrt{1/3}$.
+Here, \lstinline|uRms| is the variance, \lstinline|u| is the mean particle velocity and \lstinline|oneBySqrtThree| is $\sqrt{1/3}$.
 Afterward, velocities are adjusted for momentum conservation.
 \ifkeepcode
-\begin{lstlisting}
+\begin{lstlisting}[caption=intermediate/submodels/MPPIC/IsotropyModels/Stochastic/Stochastic.C]
     p.U() = u + (p.U() - uTilde)*uRms/max(uTildeRms, SMALL);
 \end{lstlisting}
 \fi
-This is done as described above in equation \eqref{eq:rtiUpdate}
-\begin{equation*}
+This is done as described above in Eq. \eqref{eq:rtiUpdate}
+\begin{equation}
      \up^{n+1} = \overline{\u} + \alpha (\tilde{\up} + \delta \u - \overline{\u}) \\
      \Leftrightarrow
      \up^{n+1} = \overline{\u} + \left(\tilde{\up} - \dfrac{\sum_p \Np \mp \tilde{\up}}{\sum \Np \mp} \right)\sqrt{\dfrac{\sum_p \Np \mp (\up^n - \overline{\u})^2}{\sum_p \Np \mp \left( \tilde{\up} - \dfrac{\sum_p \Np \mp \tilde{\up}}{\sum_p \Np \mp}\right)}}.
-\end{equation*}
+\end{equation}
 
 
 
@@ -1397,7 +1398,7 @@ inline void Foam::MPPICParcel<ParcelType>::trackingData::updateAverages
 %\Todo{damping zeit einfügen}
 
 
-Lastly cell occupancy is again calculated which will be used to calculate the fluid volume fraction in the next step.
+Lastly, cell occupancy is again calculated, which will be used to calculate the fluid volume fraction in the next step.
 The forces are turned back on for the calculations of the Eulerian grid.
 
 %This can be observed in the code below.
@@ -1524,7 +1525,7 @@ void Foam::MPPICCloud<CloudType>::motion
         }
 \end{lstlisting}
 \fi
-Here the code checks if the solver is coupled. Since the \MP method is coupled the following code is executed.
+To reduce numerical instabilities, the solver, if coupled,
 \ifcode
 \begin{lstlisting}
     template<class CloudType>
@@ -1539,17 +1540,16 @@ void Foam::KinematicCloud<CloudType>::relaxSources
 }
 \end{lstlisting}
 \fi
-This reduces numerical instabilities to to the old fields being used and prevents abrupt changes between time steps.
-The new cloud properties are scaled by $\alpha$ while the old cloud properties are scaled by $(1- \alpha)$
-\begin{equation*}
-    Q_{new} = \alpha Q_{new} + (1- \alpha ) Q_{old}
-\end{equation*}
-The default, used in the \MP method is to use $\alpha = 1$. 
+scales the new cloud properties by $\gamma$, while the old cloud properties are scaled by $(1- \gamma)$
+\begin{equation}
+    Q_{new} = \gamma Q_{new} + (1- \gamma ) Q_{old}.
+\end{equation}
+The \MP method is a coupled solver, therefore this is always executed, but by default, the \MP method uses $\gamma = 1$. 
 %\todo{hab niergends relaxation gefunden, default wäre 1 aber kommt mir komisch vor?}
 %Here 
 %\MP is coupled
 \subsubsection{postEvolve}
-The \lstinline|postEvolve| function is the counterpart of the \lstinline|preEvolve| function. Previously cached function are released. This includes the Eulerian fields. Cloud properties as such as the particle positions are written out as needed and the iteration advanced. In line boundary and wall interactions are finalized.
+The \lstinline|postEvolve| function is the counterpart of the \lstinline|preEvolve| function. Previously cached functions are released. This includes the Eulerian fields. Cloud properties, such as the particle positions, are written out as needed and the iteration is advanced and the boundary and wall interactions are finalized.
 \ifcode
 \begin{lstlisting}[firstline=266, caption=KinematicCloud.C]
 template<class CloudType>
@@ -1638,16 +1638,17 @@ This concludes the evolving of the cloud. The new particle positions are now use
 
 \end{lstlisting}
 \fi
-From the new particle positions we can update the particle volume fraction and subsequently the fluid volume fraction
+From the new particle positions, we can update the particle volume fraction and, subsequently, the fluid volume fraction
 \begin{equation}
 \label{eq:maxAlpha}
     \fvf = \max (1-\pvf,\fvf_{min})
 \end{equation}
-with $\fvf_{min}$ as a user defined input. This is used to prevent overpacking in cells that could lead to numerical instabilities.
-The properties of the \lstinline|kinematicCloud| like the fluid volume fraction previously calculated are now interpolated to the Eulerian mesh.
-In \lstinline|system/fvSchemes| the interpolation scheme is defined as linear. 
-The interpolation used by \OF is the barycentric interpolation.
-For the interpolation the cells are divided into eight tetrahedrons using the cell center and three vertices which we will call $\abar = (\abar_1, \abar_2, \abar_3),\bbar = (\bbar_1, \bbar_2, \bbar_3),\cbar = (\cbar_1, \cbar_2, \cbar_3),\dbar = (\dbar_1, \dbar_2, \dbar_3)$, given in global coordinates.\hfill
+with $\fvf_{min}$ as a user-defined input. 
+In the case, that a cell is over-packed the fluid volume fraction is limited to prevent numerical instabilities. This can lead to problems, as the further calculations are done with a fluid volume fraction that does not match the particle volume fraction.
+The properties of the \lstinline|kinematicCloud|, such as the fluid volume fraction previously calculated, are now interpolated to the Eulerian mesh.
+In \lstinline|system/fvSchemes|, the interpolation scheme is defined as linear. 
+The interpolation used by \OF is based on the barycentric interpolation.
+For the interpolation, the cells are divided into eight tetrahedrons using the cell center and three vertices, which we will call $\abar = (\abar_1, \abar_2, \abar_3),\bbar = (\bbar_1, \bbar_2, \bbar_3),\cbar = (\cbar_1, \cbar_2, \cbar_3),\dbar = (\dbar_1, \dbar_2, \dbar_3)$, given in global coordinates as depicted in \ref{fig:oneTet}.\hfill
 
 \begin{figure}[h!]
 \begin{subfigure}[b]{0.45\textwidth}
@@ -1707,6 +1708,7 @@ For the interpolation the cells are divided into eight tetrahedrons using the ce
 
 \end{tikzpicture}    
 \caption{One tetrahedron inside the cell.}
+\label{fig:oneTet}
 \end{subfigure}
 \begin{subfigure}[b]{0.45\textwidth}
 \begin{tikzpicture}[scale=3.5,
@@ -1738,7 +1740,7 @@ For the interpolation the cells are divided into eight tetrahedrons using the ce
 \caption{Tetrahedron split into four sub tetrahedron: $\widetilde{\pbar \abar \bbar \cbar},\widetilde{\pbar \abar \bbar \dbar},\widetilde{\pbar \abar \cbar \dbar},\widetilde{\pbar \bbar \cbar \dbar}$}
 \label{fig:tetSub}
 \end{subfigure}
-\caption{Tetrahedral decomposition.}
+%\caption{Tetrahedral decomposition along with the particle inside a tetrahedra. The distance to the four vertices are used in the barycentric coordinates.}
 \end{figure}
 %\todo[color=kit-blue!60]{Vielleicht kommen noch mehr Tetraeders in den Würfel}
 %\Todo{Bild einfügen}
@@ -1754,10 +1756,10 @@ which must fulfill the following properties
     \bwea + \bweb + \bwec + \bwed = 1 \qquad &\forall \pbar.
 \end{align*}
 The second property is necessary to have a unique weight combination for each point.
-The weights are proportional to the sub-tetrahedrons that are formed using $\pbar$, see figure \ref{fig:tetSub}.
+The weights are proportional to the sub-tetrahedrons, that are formed using $\pbar$, see Fig. \ref{fig:tetSub}.
 %\Todo{Draw a picture}
-The volume of a tetrahedron is a sixth of the corresponding parallelepiped with the lengths given by the edge length of the tetrahedron
-\begin{equation*}
+The volume of a tetrahedron is a sixth of the corresponding parallelepiped, with the lengths given by the edge length of the tetrahedron
+\begin{equation}
     V_{\abar, \bbar, \cbar, \dbar} = \dfrac{1}{6}\operatorname{det} \begin{pmatrix}
         \abar_1 & \abar_2 & \abar_3 & 1 \\
         \bbar_1 & \bbar_2 & \bbar_3 & 1 \\
@@ -1769,11 +1771,11 @@ The volume of a tetrahedron is a sixth of the corresponding parallelepiped with 
         \cbar_1 - \dbar_1& \cbar_2 - \dbar_2& \cbar_3 - \dbar_3& 0 \\
         \dbar_1 & \dbar_2 & \dbar_3 & 1  
     \end{pmatrix}= \operatorname{det} \begin{pmatrix}
-     \overrightarrow{\dbar \abar} & \overrightarrow{\dbar \bbar} & \overrightarrow{\dbar \cbar}   
-    \end{pmatrix}
-\end{equation*}
+     \overrightarrow{\dbar \abar} & \overrightarrow{\dbar \bbar} & \overrightarrow{\dbar \cbar}  
+    \end{pmatrix}.
+\end{equation}
 The barycentric coordinates are then given by
-\begin{align*}
+\begin{align}
     \bwea &= \dfrac{V_{\pbar, \bbar, \cbar, \dbar}}{V_{\abar, \bbar, \cbar, \dbar}} = \dfrac{\begin{pmatrix}
      \overrightarrow{\dbar \pbar} & \overrightarrow{\dbar \bbar} & \overrightarrow{\dbar \cbar}   
     \end{pmatrix}}{\begin{pmatrix}
@@ -1794,7 +1796,7 @@ The barycentric coordinates are then given by
     \end{pmatrix}}{\begin{pmatrix}
     \overrightarrow{\dbar \abar} & \overrightarrow{\dbar \bbar} & \overrightarrow{\dbar \cbar}      
     \end{pmatrix}}
-\end{align*}
+\end{align}
 with the last one simplifying to
 \begin{equation}
 \label{eq:baryNorm}
@@ -1803,7 +1805,7 @@ with the last one simplifying to
 due to our properties.
 %\todo[color=kit-blue!60]{Könnte Beispiel einfügen $\lambda_a = 0$ -> $p \in (b,c,d)_\triangle$ }
 We can use the following transformation to switch between our barycentric coordinate system and the global coordinates
-\begin{equation*}
+\begin{equation}
     \pbar = A \bwe (p) \Leftrightarrow \begin{pmatrix}
         x_p \\ y_p \\ z_p
     \end{pmatrix} =
@@ -1826,17 +1828,17 @@ We can use the following transformation to switch between our barycentric coordi
     \end{pmatrix} \begin{pmatrix}
          \bweb \\ \bwec \\ \bwed
     \end{pmatrix}
-\end{equation*}
+\end{equation}
 where we used \eqref{eq:baryNorm} in the last step.
-Therefor transforming between our global coordinates and our local barycentric coordinates can be done by inverting a $3 \times 3$ matrix.
+Therefore, transforming between our global coordinates and our local barycentric coordinates can be done by inverting a $3 \times 3$ matrix.
 
 
 The barycentric coordinates are used as weights to interpolate Eulerian filed properties to the parcels
 \begin{equation}
-    \phi_p = \sum_{n=\{\abar,\bbar, \cbar, \dbar\}} \phi_{p,n} n.
+    \phi_p = \sum_{v=\{\abar,\bbar, \cbar, \dbar\}} \phi_{p,v} v.
 \end{equation}%\todo[color= kit-blue!60]{Inter\-polation bei bewegen durch mehrere Zellen genau erläutern?}
 Analogy particle properties are interpolated to vertices.
-If particles move through several tetrahedra during the \lstinline|motion| they are moved to the face and the id is given to the following tetrahedron. The particle is then tracked in the next tetrahedron.
+If particles move through several tetrahedra during the \lstinline|motion|, they are moved to the face and the id is given to the following tetrahedron. The particle is then tracked in the next tetrahedron.
 
 
 
@@ -1851,7 +1853,7 @@ If particles move through several tetrahedra during the \lstinline|motion| they 
 
 %\Todo{interpolation in OpenFOAM}
 The effective flux is calculated as \lstinline|alphaPhic| by accounting for the particle effect.
-The calculated velocity of the kinematic cloud is used in the momentum source term. This is later used in the \lstinline|PIMPLE| loop.
+The calculated velocity of the kinematic cloud is used in the momentum source term, which is later used in the \lstinline|PIMPLE| loop.
 %\todo{Was ist Volumen Teil?}
 
 
@@ -1861,9 +1863,9 @@ The momentum transfer is included in \lstinline|cloudSU|. This includes three te
     \label{eq:cloudSU}
     S_u = \underbrace{\dfrac{\u_{trans}}{V \Delta \tvar}}_{\leadsto \texttt{CloudVolSUSu}} - \underbrace{\left(\dfrac{\u_{coeff}}{V \Delta \tvar} \up \right)_{implicit}}_{\leadsto \texttt{CloudSU}} + \underbrace{\left(\dfrac{\u_{coeff}}{V \Delta \tvar} \up \right)_{explicit}}_{\leadsto \texttt{CloudVolSUSu}}
 \end{equation}
-the first being the momentum transfer including the drag and the pressure gradient force which we saw earlier in equation \eqref{eq:InterMomTrans}.
+the first being the momentum transfer including the drag and the pressure gradient force, which we saw earlier in Eq. \eqref{eq:InterMomTrans}.
 The second two terms are added for numerical stability. They cancel out due to the drag term being fully explicit.
-\begin{lstlisting}
+\begin{lstlisting}[caption = MPPICFoam.C]
     fvVectorMatrix cloudSU(kinematicCloud.SU(Uc));
     [...]
     cloudVolSUSu.primitiveFieldRef() = -cloudSU.source()/mesh.V();
@@ -1871,9 +1873,9 @@ The second two terms are added for numerical stability. They cancel out due to t
     cloudSU.source() = Zero;
 \end{lstlisting}
 %\todo{Neues Listing? Wie anzeigen das Code da dazwischen}
-In the first line \lstinline|cloudSU| contains all terms mentioned above in equation \eqref{eq:cloudSU}.
+In the first line, \lstinline|cloudSU| contains all terms mentioned above in Eq. \eqref{eq:cloudSU}.
 \lstinline|cloudVolSUSu| scales the particle forces, therefor the first and third term, to the Eulerian field.
-Lastly we set the source terms in \lstinline|cloudSU| to zero, thereby only using the second term.
+Lastly, we set the source terms in \lstinline|cloudSU| to zero, thereby only using the second term.
 
 %\todo{two way coupling}
 
@@ -1882,9 +1884,9 @@ Lastly we set the source terms in \lstinline|cloudSU| to zero, thereby only usin
 
 
 \subsection{Continous Phase, \texttt{PIMPLE} Loop}
-For the continuous phase, we use the \lstinline|PIMPLE| algorithm for coupling the momentum conservation equation and the poisson pressure equation.
-The name as well as the algorithm is a combination of the \lstinline|PISO| (Pressure Implicit with Splitting of Operator) algorithm with the \lstinline|SIMPLE| (Semi-Implicit Method for Pressure-Linked Equations) algorithm.
-All three are explained in "Notes on Computational Fluid Dynamics" \cite{cdfNotes}.
+For the continuous phase, we use the \lstinline|PIMPLE| algorithm for coupling the momentum conservation equation and the Poisson pressure equation.
+The name, as well as the algorithm, is a combination of the \lstinline|PISO| (Pressure Implicit with Splitting of Operator) algorithm with the \lstinline|SIMPLE| (Semi-Implicit Method for Pressure-Linked Equations) algorithm.
+All three are explained in \cite{cdfNotes}.
 
 
 \begin{figure}[h!]
@@ -1958,10 +1960,10 @@ All three are explained in "Notes on Computational Fluid Dynamics" \cite{cdfNote
 
 
 
-In each time step we create two linear matrix systems and solve for the velocity and pressure fields.
+In each time step, we create two linear matrix systems and solve for the velocity and pressure fields.
 The systems are defined in \lstinline|UcEqn| and \lstinline|pEqn|.
-For the momentum exchange term between the particles and the fluid the solid force is split up into the explicit and implicit part.
-Both are added in \lstinline|UcEqn| with the explicit part being added initially and the implicit part later.
+For the momentum exchange term between the particles and the fluid, the solid force is split into the explicit and implicit part.
+Both are added in \lstinline|UcEqn|, with the explicit part being added initially and the implicit part later.
 %The implicit part \lstinline|cloudSU| is added in \lstinline|UcEqn| and the explicit part  in \lstinline|pEqn|. 
 % \todo{Hier bin ich mir (aktuell noch) sehr unsicher.}
 
@@ -1977,8 +1979,8 @@ We start with the momentum equation which is solved for $\uf$
     \color{kit-purple}-  \underbrace{\dfrac{S_u}{\rf}}_{\text{in } \texttt{cloudSU} \text{ and } \texttt{cloudVolSUSu}}
 \end{aligned}
 \end{equation}
-which is build in \lstinline|UcEqn| in multiple steps.
-First the terms marked in blue and partially purple in Eq. \eqref{eq:momentumOF} are assembled in Lst. \ref{code:Uc1}.
+which is build in \lstinline|UcEqn|, in multiple steps.
+First, the terms marked in blue and parts of the term marked in purple in Eq. \eqref{eq:momentumOF} are assembled in Lst. \ref{code:Uc1}.
 \begin{lstlisting}[caption=\texttt{UcEqn.C}, label={code:Uc1}]
     fvVectorMatrix UcEqn
 (
@@ -1992,17 +1994,17 @@ First the terms marked in blue and partially purple in Eq. \eqref{eq:momentumOF}
 \end{lstlisting}
 %\todo{divDevRhoReff gibt mir schon den fluid stress oder? Code weiter nach unten}
 %\todo[inline, color= kit-blue!60]{Mir ist nicht klar welchen Ansatz wir hier für den fluid stress tensor wählen? $\nabla \cdot (\fvf \ss_c)$ oder $\fvf \nabla \cdot \ss_c$}
-with the third term, being added for numerical stability.
-In the continuous formulation, this term corresponds to the continuity equation and therefore vanishes. However, when the equations are discretized, the term may become non-zero due to discretizations errors.
+with the third term being added for numerical stability.
+In the continuous formulation, this term corresponds to the continuity equation and therefore vanishes. However, when the equations are discretized, the term may become non-zero due to discretization errors.
 The momentum term is divided by the fluid density $\rf$. 
 % The equation is assembled in three steps with the first one shown above in listing \ref{code:Uc1} assembling. 
 The equation is relaxed to ensure diagonal-dominance needed for convergence. This is discretized as
-\begin{align*}
+\begin{align}
     A_P \ufc + \sum_N A_N \ufn - S_p = - \dfrac{S_{transfer}}{\rf} 
-\end{align*}
-Here the subscript $P$ refers to the center of said cell while the subscript $N$ refers to the neighboring cells.
+\end{align}
+Here, the subscript $P$ refers to the center of the cell, while the subscript $N$ refers to the neighboring cells.
 The last term $f_p$ is the momentum exchange term between the phases.
-The Matrix $A$ is therefor split into two parts: $A_P$ are just diagonal values while $A_N$ refers to the off-diagonal elements. In \OF the former is referred to as \lstinline|A| while the later is part of \lstinline|H| along with the source terms excluding the pressure source.
+The matrix $A$ is therefore split into two parts: $A_P$ contains the diagonal values, while $A_N$ refers to the off-diagonal elements. In \OFns, the former is referred to as \lstinline|A| while the latter is part of \lstinline|H|, along with the source terms excluding the pressure source.
 These are added in the next step, in Lst. \ref{code:MomForces}.
 \begin{lstlisting}[caption = UcEqn.C, label={code:MomForces}]
 surfaceScalarField phicForces
@@ -2021,12 +2023,12 @@ solve
     );
 \end{lstlisting}
 
-Here \lstinline|phicForces| contains the source terms of \lstinline|cloudSU| and the gravity force. We add the previous to the existing source term.
+Here, \lstinline|phicForces| contains the source terms of \lstinline|cloudSU| and the gravity force. We add the latter to the existing source term.
 They are explicitly discretized and added to the right-hand side of our equation.
-For an arbitrary cell the equation above translates to
-\begin{equation*}
+For an arbitrary cell, the equation above translates to
+\begin{equation}
     \u_{c,P} =  \dfrac{H(u)}{a_p} - \dfrac{\nabla \p}{a_p} - \dfrac{g}{a_p} -  \dfrac{S_u}{\rf a_p}  -\dfrac{1}{a_p} S_p  \eqqcolon \dfrac{\tilde{H}(u)}{a_p} - \dfrac{\nabla \p}{a_p}.
-\end{equation*}
+\end{equation}
 % Using the pressure of the last time step we solve 
 
 
@@ -2035,8 +2037,8 @@ For an arbitrary cell the equation above translates to
 %\todo{Neue Variable wäre schon sinnvoll $P_{kin}$}
 %The formulation of the fluid stress term does not match the definition of the original paper, outlined in the previous chapter. This is due to different approaches which are sometimes mixed up for the momentum equations. This is detailed in \cite{differentTau}. 
 %For the \MP method the fluid stress term does not play a significant role and we therefor stick to the \OF usage. 
-For the momentum equation we have four unknowns, three velocity contributions and the pressure, but only three equations.
-To solve this we at first use the old pressure term and calculate a preliminary velocity which we then use in the Poisson pressure equation. The calculated pressure is then used to calculate the velocity and repeat until convergence.
+For the momentum equation, we have four unknowns, three velocity components and the pressure, but only three equations.
+To solve this, we first use the old pressure term and calculate a preliminary velocity, which we then use in the Poisson pressure equation. The calculated pressure is then used to calculate the updated velocity and repeated until convergence. 
 
 % \begin{align*}
 %     \dfrac{\partial}{\partial \tvar} (\fvf \langle \uf \rangle) &+ \nabla \cdot (\fvf \uf \langle \uf \rangle) - \langle \uf \rangle \left( \dfrac{\partial \fvf}{\partial \tvar} + \nabla \cdot (\fvf \uf) \right) - \nabla \cdot (\fvf \ss') - \nabla \cdot (\fvf \nu_f \nabla \langle \uf \rangle ) \\
@@ -2047,14 +2049,13 @@ To solve this we at first use the old pressure term and calculate a preliminary 
 %Here we have three equations for four variables, three for the velocity and the pressure. 
 The velocity calculated with the old pressure is
 %For the cell faces the equation 
-\begin{equation*}
+\begin{equation}
     \ufc =  \dfrac{\tilde{H}(u)}{a_p} -\dfrac{\nabla \p}{a_p} .
-\end{equation*}
-is.
-Plugging this into the continuity equation we have a Poisson pressure equation which we solve for the kinematic pressure
-\begin{equation*}
+\end{equation}
+Plugging this into the continuity equation, we have a Poisson pressure equation which we solve for the kinematic pressure
+\begin{equation}
     \nabla \cdot \dfrac{\fvf }{a_p} = \dfrac{\partial \fvf}{\partial \tvar} + \nabla \cdot \left(\fvf \dfrac{\tilde{H}(u)}{a_p}\right).
-\end{equation*}
+\end{equation}
 % \begin{equation*}
 %     \sum_f S \cdot \fvf \left( \dfrac{\nabla \p}{a_p}\right)_f = \dfrac{\partial \fvf}{\partial \tvar} + \sum_f S \cdot\fvf \left(\dfrac{\tilde{H}(u)}{a_p}\right),
 % \end{equation*}
@@ -2079,7 +2080,7 @@ Plugging this into the continuity equation we have a Poisson pressure equation w
 % for the cell centers and the the faces.
 We keep iterating over the Poisson pressure equation and the velocity update equation, updating the pressure and the velocity.
 
-This concludes the current time step of the \MP method. At the beginning of the next time step, the simulation time is compared to the user-defined end time. If the stop criterion is met, the iteration is terminated. Otherwise, we start again by updating the viscosity with the just calculated Eulerian field variables.
+This concludes the current time step of the \MP method. At the beginning of the next time step, the simulation time is compared to the user-defined end time. If the stop criterion is met, the iteration is terminated. Otherwise, we start again by updating the viscosity with the newly calculated Eulerian field variables.
 
 
 % \todo[inline]{Dinge die mir hier aktuell noch unklar sind: 

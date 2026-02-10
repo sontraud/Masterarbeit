@@ -1,6 +1,8 @@
 \newpage
 \chapter{Background}
 \label{ch:background}
+This chapter introduces the principles of a fluidized bed reactor. It examines different operation velocities and the resulting bed behaviors. Furthermore, the fundamentals of modeling gas-solid systems are discussed, presenting the \MP method as a hybrid modeling approach
+Furthermore, the fundamentals of modelling gas solid systems is discussed with the \MP method being introduced as a hybrid model.
 
 % \color{gray}
 % \todo{Überleitung wenn Einleitung da ist}
@@ -100,9 +102,9 @@
 \section{Fluidized Bed Reactor}
 \label{sec:basicFBR}
 %\Todo{Add image of FBR}
-When using iron as a carbon-free energy carrier, both reaction steps, the oxidation and the reduction, need to be as efficient as possible.
-Currently, further studies are needed to determine which reactor type gives the most promising results for iron oxide reduction \cite{StudyForReactorNecessary}.
-Recent experiments have shown the possibility of reducing iron oxide via a fluidized bed reactor \cite{Malte}. \todo{check bitte nochmal obs inhaltlich so passt}
+%When using iron as a carbon-free energy carrier, both reaction steps, the oxidation and the reduction, need to be as efficient as possible.
+%Currently, further studies are needed to determine which reactor type gives the most promising results for iron oxide reduction \cite{StudyForReactorNecessary}.
+%Recent experiments have shown the possibility of reducing iron oxide via a fluidized bed reactor \cite{Malte}. \todo{check bitte nochmal obs inhaltlich so passt}
 % A sketch of the used reactor is shown in the following fig \ref{fig:malteFBR}.
 % \begin{figure}[h!]
 %     \centering
@@ -117,7 +119,7 @@ Due to the suspension of the particles and the rapid mixing, near-isothermal con
 % Beyond this point, the particles are suspended by the upward flow of the gas and the bed exhibits fluid-like behavior.
 %A dense-phase fluidized bed, a bed in which the surface of the bed is still fairly observable, behaves like a fluid.
 
-Particles are either inserted into the reactor via a chute or placed inside the reactor on top of a porous plate. The accumulated particles are called a bed of particles. \todo{vllt particle bed statt bed of particles}
+Particles are either inserted into the reactor via a chute or placed inside the reactor on top of a porous plate. The accumulated particles are called a bed.
 %The particles are suspended by an upward-flowing fluid, in our case gas, causing the particles to behave like a fluid. 
 Depending on the gas inlet velocity, the bed shows different behaviors \cite{zustand_eng}.
 In fig. \ref{fig:fluidize_states} the different fluidization regimes in a fluidized bed reactor are illustrated.
@@ -129,7 +131,7 @@ At higher flow rates, the bed does not expand much beyond its minimum fluidizati
 Bubbles form at the bottom of the bed and coalesce into larger bubbles.
 When further increasing the gas velocity, an upper surface of the bed can no longer be observed.
 The bed exhibits a turbulent motion and a turbulent fluidized bed is formed.
-For even higher velocities, we reach the terminal velocity at which, for a single particle, forces acting on the particle, e.g. drag and gravitational force, are balanced. Exceeding this velocity can lead to particles leaving the reactor.\todo{wenn forces balanced dann solltest du 2 nennen, mein vorschlag: gravitation}
+For even higher velocities, we reach the terminal velocity at which, for a single particle, forces acting on the particle, buoyancy, drag and gravitational force, are balanced. Exceeding this velocity, the particle starts to move with the gas, which can lead to particles leaving the reactor.
 \begin{figure}[h!]
     \centering
     % Each subfigure occupies 24% of the line width
@@ -143,7 +145,6 @@ For even higher velocities, we reach the terminal velocity at which, for a singl
     \caption{Fluidization states in a fluidized bed reactor for different inflow velocities. Inflow velocity increasing from left to right. \cite{zustand_eng}.}
     \label{fig:fluidize_states}
 \end{figure}
-%\todo{Beim zitieren noch Figure number aus dem Buch angeben?}
 
 % The first is the velocity minimum fluidization velocity $\umf$.
 % At the minimum fluidization velocity the drag force exhibited by the upward moving gas is at equilibrium with the weight of the particles.
@@ -166,7 +167,7 @@ For even higher velocities, we reach the terminal velocity at which, for a singl
 %     \Delta \p \approx \pvf L_{mf} \rp g = \dfrac{\m \g}{A_r}.
 % \end{equation*}
 
-To characterize the different states experimentally, we can look at the pressure drop in fig. \ref{fig:presDropRegime}. \todo{mir ist unklar wozwischen der druck gemessen wird, siehe notiz caption bild}
+To characterize the different states experimentally, we can look at the pressure drop in fig. \ref{fig:presDropRegime}. 
 Up to the minimum fluidization velocity, the pressure drop grows approximately linearly. 
 At the transition from a fixed bed to a fluidized bed, the pressure drop can increase slightly until the adhesive forces of the particles are overcome.
 Above the minimum fluidization velocity, the pressure drop stays nearly constant. 
@@ -174,10 +175,9 @@ After reaching the terminal velocity, the pressure drop decreases.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.8\linewidth, trim = {0cm 6cm 0cm 4cm},clip]{sections/background/1-s2.0-S0360128521000289-gr2.jpg}
-    \caption{Pressure drop for different inlet gas velocity \cite{feichi}. }
+    \caption{Pressure drop for different inlet gas velocity \cite{feichi}.}
     \label{fig:presDropRegime}
 \end{figure}
-\todo{Oder erkläre in der caption genauer was für ein pressure drop es ist}
 
 %https://link.springer.com/article/10.1007/s13399-020-01189-9 explains going up or down
 
@@ -190,10 +190,9 @@ To predict the operating state of our bed in the reactor, we can use a flow regi
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.5\linewidth]{sections/background/zustand_englisch.png}
-    \caption{Fluidization regime diagram for the dimensionless particle parameter and inlet velocity. From: \cite{zustand_eng}}
+    \caption{Fluidization regime diagram for the dimensionless particle parameter and inlet velocity \cite{zustand_eng}.}
     \label{fig:fluidizeDiagram}
 \end{figure}
-\todo{ich weiß nicht wie genau ihr über Quellenangaben gesprochen habt, shota hätte das hier nicht gerreicht, sondern da müsste die genaue seite stehen oder weitere details}
 The diagram in figure \ref{fig:fluidizeDiagram} relates the dimensionless particle diameter 
 \begin{equation*}
  d_p^* = d_p \sqrt[3]{\dfrac{\rf \g \Delta \rho}{\eta_c^2}}.

@@ -1,12 +1,14 @@
 \newpage
+
+\todo{Korrektur weiter ab hier}
 \chapter{Simulation Results}
 \label{ch:results}
-In this chapter we investigate the impact of the parameters used in the \MP method on the simulation results.
+In this chapter, we investigate the impact of the parameters used in the \MP method on the simulation results.
 We begin by looking at each parameter isolated to study their individual effects on the bed height.
 Subsequently, we examine the impact of both damping terms and explain why the collision damping term is switched off during the parameter study.
 We analyze the interaction of the parameters by varying two coefficients at a time and comparing the results to data provided by the "Division of Combustion Technology" of the "Engler-Bunte-Institute" \footnote{\url{https://vbt.ebi.kit.edu/english/21_1186.php}}.
 %Following the parameter study we identify an optimal parameter set for our case and look at the simulation.
-Finally we conclude by discussing limitations of the \MP method.
+Finally, we conclude by discussing limitations of the \MP method.
 
 
 
@@ -22,7 +24,7 @@ with the close pack volume fraction $\pvfcp$, the exponent $\beta$ and the press
 
 % \subsection{Influence of the Exponent β} In the reference Goldschmidt case, the stress follows a quadratic dependency (β=2). To analyze the influence of β, we express the particle volume fraction as a fraction of the packing limit: \begin{equation} \alpha_p = \lambda \alpha_{cp} \quad \text{where} \quad \lambda \in [0,1). \end{equation} Substituting this into a simplified form of the solid stress equation yields: \begin{equation} \tau_s \propto \frac{P_s (\lambda \alpha_{cp})^\beta}{\alpha_{cp} - \lambda \alpha_{cp}} = P_s \alpha_{cp}^{\beta -1} \frac{\lambda^\beta}{1-\lambda}. \end{equation} The term λβ dominates the behavior for lower volume fractions. Since λ<1, a smaller exponent β results in a larger value for λβ. Consequently, for lower β, the solid stress τs​ becomes significant at lower volume fractions, resulting in a more expanded bed. As β increases, the "activation" of the stress is delayed until the particles are more densely packed, causing the mean bed height to decrease exponentially, as shown in Figure \ref{fig:meanBedBeta}.
 
-\subsection{Constant $\beta$}
+\subsection{Exponent $\beta$}
 In the reference Goldschmidt case the stress has a quadratic dependency on the particle volume fraction, therefor $\beta = 2$.
 To analyze the effect of varying $\beta$ on our simulation, we rewrite the particle volume fraction as
 \begin{align*}
@@ -56,7 +58,7 @@ For a higher bed height the particles are further spread apart leading to a lowe
 %\todo{Plots werden noch an den restlichen Stil angepasst (und die leere Legende entfernt)}
 
 % \subsection{Influence of the Solid Pressure Constant Ps​} The parameter Ps​ acts as a stiffness constant for the particle bed. Increasing Ps​ linearly scales the particle normal stress. A higher stress magnitude results in stronger inter-particle repulsion, maintaining larger inter-particle spacing and leading to a linear increase in bed height (Figure \ref{fig:meanBedPS}).
-\subsection{Solid Pressure Constant}
+\subsection{Solid Pressure Constant $P_s$}
 The solid pressure constant $P_s$ linearly scales the particle normal stress gradient.
 A higher solid pressure constant results in particles being accelerated even for low particle fractions, leading to a linear increase in bed height, see figure \ref{fig:meanBedPS}. An increase in bed height again leads to a decrease in pressure drop.
 \begin{figure}[h!]
@@ -72,7 +74,7 @@ A higher solid pressure constant results in particles being accelerated even for
 
 
 
-\subsection{Volume Fraction Close Packed}
+\subsection{Particle Volume Fraction Close Packed $\pvfcp$}
 The gradient of the particle normal stress diverges as the particle volume fraction approaches close packed. If the close packed volume fraction is set to a lower value, the singularity is reached earlier, causing particles to be accelerated at lower concentrations. This leads to an increased bed height, see fig. \ref{fig:meanBedPacked} and an increase in pressure drop.
 From experiments \cite{closePack}, we know that random sphere packing generally has a particle volume fraction of $0.63$. An upper limit is given by the Kepler conjecture, which states that sphere packing cannot exceed $ \sim 0.74$. 
 In the \MP method particles are modeled as point masses rather than resolved spheres and therefor geometric constraints are not enforced.
@@ -88,6 +90,9 @@ Consequently, we can increase the close packed volume fraction further than theo
     \caption{Mean bed height for varying values of closed packed volume fractions $\pvfcp$.}
     \label{fig:meanBedPacked}
 \end{figure}
+
+Overall for both the pressure drop and the bed height the exponent $\beta$ shows the largest range impact on the range. The pressure constant shows a smaller impact on the bed height but does alter the range of the pressure drop significantly.
+The close packed volume fraction shows a more significant impact on the bed height but a smaller effect on the pressure drop.
 
 
 \section{Damping Terms}
@@ -2106,14 +2111,12 @@ This is to be expected as we saw in sec. \ref{sec:oneParam} that the bed height 
 
 For a velocity of $\uf = 0.025 \operatorname{m/s}$ we again observe from tab. \ref{tab:minPar0025} that the \lstinline|ErgunWenYuDrag| model outperforms the \lstinline|PlessisMasliyahDrag| model, with the minimal error around and exponent of $3.5$ to $4$ and a higher close pack volume fraction above $0.63$ and a pressure constant that varies between $5$ and $8$.
 Although the \lstinline|ErgunWenYuDrag| models shows lower combined relative errors, in fig. \ref{fig:bhpdPlot} the \lstinline|PlessisMasliyahDrag| model shows a higher range of values for both the bed height and the pressure drop.
-
-
-The velocity $\uf = 0.034 \operatorname{m/s}$ also follows this trend, with the smallest bed height deviation of $0.005 \operatorname{m}$ resulting from the \lstinline|ErgunWenYuDrag| model and isotropy model \lstinline|stochastic|
+The smallest bed height deviation of $0.005 \operatorname{m}$ resulting from the \lstinline|ErgunWenYuDrag| model and isotropy model \lstinline|stochastic|
 with $P_s = 6$, $\beta = 4.5$ and $\pvfcp = 0.65$. %with bed heights lower than the experimental bed height reached.
 The bed height again for some setups reaches bed heights lower than the experimental bed height but mostly exceeds it.
-The pressure drop again exceeding the value provided by experiments.
+The pressure drop again exceeds the value provided by experiments.
 The figures in app. \ref{sec:AppParamStud} show that for both drag models and for both isotropy models the relative errors decline for opposite values of the exponent.
-The minimal pressure drop further supports this with a minimal deviation from the experimental pressure drop of $29Pa$. This is reflected in the minimal deviation which occurs at $\beta = 1.5$, $P_s = 10$ and $\pvfcp = 0.55$.
+The minimal pressure drop further supports this with a minimal deviation from the experimental pressure drop of $29Pa$. This is reflected in the minimal deviation which occurs at $\beta = 1.5$, $P_s = 10$ and $\pvfcp = 0.55$, therefore at opposite end of the range of the exponent and pressure drop.
 
 
 \begin{table}[h!]
@@ -2143,10 +2146,11 @@ The minimal pressure drop further supports this with a minimal deviation from th
     \label{tab:minPar0034}
 \end{table}
 
-For a further velocity increase to $\uf = 0.034 \operatorname{m/s}$ the \lstinline|ErgunWenYuDrag| models bed heights exceed those of the experimental bed height. This time the closest to the experimental bed height is the \lstinline|PlessisMasliyahDrag| with an increased distance of $0.027 \operatorname{cm}$ compared to the previous velocities.
-The range experimental pressure drop increased slightly compared to the previous velocity although the lowest simulated pressure drops stayed roughly the same. Because for the increase in pressure drop from the experimental data the minimal distance to the pressure drop decreased to $21\operatorname{Pa}$.
+For a further velocity increase to $\uf = 0.034 \operatorname{m/s}$ the \lstinline|ErgunWenYuDrag| models and the \lstinline|Plessis|\-\lstinline|MasliyahDrag| model with the isotropy model \lstinline|none| bed heights exceed those of the experimental bed height. This time the closest to the experimental bed height is the \lstinline|PlessisMasliyahDrag| with isotropy model \lstinline|none| with an increased distance of $0.027 \operatorname{cm}$ compared to the previous velocities.
+The experimental pressure drop increased slightly compared to the previous velocity.
+However, the lowest simulated pressure drops stayed roughly the same. Because of the increase in pressure drop from the experimental data the minimal distance to the pressure drop decreased to $21\operatorname{Pa}$.
 Again the exponents for the two minima are on opposite ends with $\beta = 5$ for the minimal bed height and $\beta = 2.5$ for the minimal pressure drop which confers with the result from the single parameter testing.
-The overall minimal error in tab. \ref{tab:minPar0034} occurs for the \lstinline|ErgunWenYuDrag| model with a relative error of $0.24$. Overall a medium exponent of $\beta = 3.5$, a higher particle volume fraction of $\pvfcp = 0.63, 0.7$ and a medium to low pressure constant of $P_s= 5, 8$ seem to yield the best overall result.
+The overall minimal error in tab. \ref{tab:minPar0034} occurs for the \lstinline|ErgunWenYuDrag| model with isotropy model \lstinline|stochastic| with a relative error of $0.24$. Overall a medium exponent of $\beta = 3.5$, a higher particle volume fraction of $\pvfcp = 0.63, 0.7$ and a medium to low pressure constant of $P_s= 5, 8$ seem to yield the best overall result.
 
 
 
@@ -2191,10 +2195,10 @@ For the isotopy model \lstinline|stochastic| similar trends can not be observed.
 It remains unclear whether the results of the simulations with isotropy model \lstinline|stochastic| would show the same trends if a different seed were used.
 
 The behavior of the errors for the parameters largely coincide with the behavior of the single parameter testing in sec. \ref{sec:oneParam}. In combination with a high exponent the bed height mostly declines for either small pressure constants or large particle volume fractions.
-The pressure drop on the other hand did no show clear trends. in the single parameter testing we saw that the bed height and the pressure drop have opposite trends, therefore the pressure drop is high when the bed height is low and vice versa. In fig. \ref{fig:bhpdPlot} we saw that both the bed height and the pressure drop typically exceed the experimental data, therefore minimizing both errors often proves difficult.
+The pressure drop on the other hand did not show clear trends. In the single parameter testing we saw that the bed height and the pressure drop have opposite trends, therefore the pressure drop is high when the bed height is low and vice versa. In fig. \ref{fig:bhpdPlot} we saw that both the bed height and the pressure drop typically exceed the experimental data, therefore minimizing both errors often proves difficult.
 
 %The relative error of the pressure drop often ranged no more than $0.04$ in our parameter study, indicating little possibility for improvement.
-This high relative pressure drop error may result from discrepancies in the measurement locations between the simulation and the physical experiment.
+The high relative pressure drop error may result from discrepancies in the measurement locations between the simulation and the physical experiment.
 Figure \ref{fig:expPressMeasurePlace} shows a sketch of the experimental setup.
 
 \begin{figure}[h!]
@@ -2219,8 +2223,8 @@ Figure \ref{fig:expPressMeasurePlace} shows a sketch of the experimental setup.
 \end{figure}
 
 In the experiments, the pressure at the bottom of the bed was measured beneath the mesh.
-However, we did not include this region in the computational domain. Preliminary simulations including a mesh, modeled by a porous baffle, showed unphysical interactions between the baffle and the particles and were therefor not included in this study.
-In the simulation, we therefor revert to evaluating the bottom pressure on top of the inlet, which would be just 
+However, we did not include this region in the computational domain. Preliminary simulations including a mesh, modeled by a porous baffle, showed unphysical interactions between the baffle and the particles and were therefore not included in this study.
+In the simulation, we therefore revert to evaluating the bottom pressure on top of the inlet, which would be just 
 %\todo{Sprache von sketch ignorieren oder bearbeiten? (Fig 5.30)}
 above the mesh in the experiments.
 Although the simulation and experiments do not yield a coinciding results, it remains unclear whether the \MP method is inaccurately predicting the pressure drop from above the mesh to the top of the reactor.
@@ -2228,7 +2232,7 @@ Although the simulation and experiments do not yield a coinciding results, it re
 The bed height was captured more accurately by the simulation.
 However, the bed height data accuracy is subject to uncertainty. Especially at higher inlet velocities, dust settles along the tube walls, making the bed surface difficult to distinguish.
 On top of that instabilities in the provided videos and additional noise potentially skewed the measurements.
-The algorithm used to determine the bed height can also output contentious bed heights, as for example in figure
+The algorithm used to determine the bed height can also output contentious bed heights, as for example in fig. \ref{fig:bedHeightWrong}.
 
 
 
@@ -2240,7 +2244,7 @@ The algorithm used to determine the bed height can also output contentious bed h
     \hspace{3cm}
     \includegraphics[height=6cm]{sections/result/03_crop75.png}
     \caption{Image processing for three cases with particles leaving the bed. In these cases the bed height is often determined less accuratly.}
-    \label{fig:placeholder}
+    \label{fig:bedHeightWrong}
 \end{figure}
 
 
@@ -2275,10 +2279,10 @@ The algorithm used to determine the bed height can also output contentious bed h
 
 While the \MP method shows promising results for modeling fluidized beds it is not adequate for modeling a fixed bed.
 When initializing particles inside the reactor with negligible fluid inlet velocity, we would expect them to settle into a static bed, with particle velocities close to zero.
-Simulating this case wit \lstinline|MPPICFoam| and a gas inlet velocity of $10^{-6} m/s$, the particles don not reach said state.
+Simulating this case with \lstinline|MPPICFoam| and a gas inlet velocity of $10^{-6} m/s$, the particles do not reach said state.
 The average particle velocity after five seconds is about $0.2 m/s$.
 This is due to the particle stress model, which accelerates particles near or in close packed regions, as in our densely packed bed.
-To illustrate this we track one of the particles over the first two seconds in figure \ref{fig:part_moves_packed}. %Particle ID 144135
+To illustrate this we track one of the particles over the first two seconds in fig. \ref{fig:part_moves_packed}. %Particle ID 144135
 The particle moves from the right hand side of the simulation to the left hand side. After the bed should have settled the particle still travels inside the bed.
 \begin{figure}[h!]
     \centering
